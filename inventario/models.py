@@ -56,17 +56,46 @@ class Equipo_medico(models.Model):
 class Orden_Servicio(models.Model):
     MOTIVO_CORRECTIVO = 'C'
     MOTIVO_PREVENTIVO = 'P'
-    MOTIVO_AGENDADO = 'A'
     MOTIVO_REFACCION = 'R'
     MOTIVO_DIAGNOSTICO = 'D'
     MOTIVO_OPCIONES = [
-        (MOTIVO_AGENDADO, 'Agendado'),
         (MOTIVO_CORRECTIVO, 'Correctivo'),
         (MOTIVO_PREVENTIVO, 'Preventivo'),
         (MOTIVO_DIAGNOSTICO, 'Diagnostico'),
         (MOTIVO_REFACCION, 'Refaccion')
     ]
     
-    numero_orden = models.CharField(max_length=100, primary_key=True)
+    TIPO_AGENDADA = 'A'
+    TIPO_ESPONTANEA = 'E'
+    TIPO_BITACORA = 'B'
+    TIPO_OPCIONES = [
+        (TIPO_AGENDADA, 'Orden agendada'),
+        (TIPO_ESPONTANEA, 'Orden espontanea'),
+        (TIPO_BITACORA, 'Bitacora mensual')
+    ]
+
+    ESTATUS_FUERA = 'OUT'
+    ESTATUS_FUNCIONAL = 'FUN'
+    ESTATUS_NO_SERVICIO = 'N/A'
+    ESTATUS_OPCIONES = [
+        (ESTATUS_FUNCIONAL, 'Equipo funcional'),
+        (ESTATUS_FUERA, 'Equipo fuera de servicio'),
+        (ESTATUS_NO_SERVICIO, 'No se realizo servicio')
+    ]
+
+    numero_orden = models.CharField(max_length=255)
     fecha = models.DateField(auto_now_add=False, auto_now=False)
-    estatus = models.CharField(max_length=1, choices=MOTIVO_OPCIONES, )
+    motivo = models.CharField(max_length=1, choices=MOTIVO_OPCIONES, default=MOTIVO_PREVENTIVO)
+    tipo_orden = models.CharField(max_length=1, choices=TIPO_OPCIONES, default=TIPO_ESPONTANEA)
+    estatus = models.CharField(max_length=1, choices=ESTATUS_OPCIONES, default=ESTATUS_FUNCIONAL)
+    responsable = models.CharField(max_length=100)
+    autorizo_jefe_biomedica = models.BooleanField()
+    autorizo_jefe_conservacion = models.BooleanField()
+    orden_escaneada = models.FileField(null=True)
+    descripcion_servicio = models.CharField(max_length=800)
+    equipo_complementario = models.CharField(max_length=800, null=True)
+    ing_realizo = models.CharField(max_length=100)
+    fallo_paciente = models.BooleanField()
+    equipo_medico = models.ManyToManyField(Equipo_medico, related_name='equipo_orden')
+
+
