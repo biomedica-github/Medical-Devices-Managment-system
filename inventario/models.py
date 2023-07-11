@@ -87,7 +87,7 @@ class Orden_Servicio(models.Model):
     fecha = models.DateField(auto_now_add=False, auto_now=False)
     motivo = models.CharField(max_length=1, choices=MOTIVO_OPCIONES, default=MOTIVO_PREVENTIVO)
     tipo_orden = models.CharField(max_length=1, choices=TIPO_OPCIONES, default=TIPO_ESPONTANEA)
-    estatus = models.CharField(max_length=3, choices=ESTATUS_OPCIONES, default=ESTATUS_FUNCIONAL)
+    estatus = models.CharField(max_length=1, choices=ESTATUS_OPCIONES, default=ESTATUS_FUNCIONAL)
     responsable = models.CharField(max_length=100)
     autorizo_jefe_biomedica = models.BooleanField()
     autorizo_jefe_conservacion = models.BooleanField()
