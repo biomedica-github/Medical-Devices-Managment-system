@@ -53,18 +53,6 @@ class Equipo_medico(models.Model):
     cama = models.OneToOneField(Cama, on_delete=models.SET_NULL, null= True)
     contrato = models.ForeignKey(Contrato, on_delete=models.SET_NULL, null=True)
 
-class Fecha_servicio(models.Model):
-    ESTADO_PENDIENTE = 'P'
-    ESTADO_REALIZADA = 'R'
-    ESTADO_OPCIONES = [
-        (ESTADO_PENDIENTE, 'Pendiente'),
-        (ESTADO_REALIZADA, 'Realizada')
-    ]
-    contrato = models.ForeignKey(Contrato, on_delete=models.CASCADE)
-    equipo_medico = models.ForeignKey(Equipo_medico, on_delete=models.CASCADE)
-    fecha = models.DateField(auto_now=False, auto_now_add=False)
-    estado = models.CharField(max_length=1, choices=ESTADO_OPCIONES, default=ESTADO_PENDIENTE)
-
 class Orden_Servicio(models.Model):
     MOTIVO_CORRECTIVO = 'C'
     MOTIVO_PREVENTIVO = 'P'
