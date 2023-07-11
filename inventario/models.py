@@ -22,7 +22,7 @@ class Contrato(models.Model):
         (SERVICIO_PREVENTIVO, 'Servicio  preventivo'),
         (NO_SERVICIO, 'Proveedor no brinda servicio')
     ]
-
+    num_contrato = models.CharField(max_length=100, primary_key=True)
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
     tipo_contrato = models.CharField(max_length=1, choices=CONTRATO_OPCIONES, default=CONTRATO_LOCAL)
     tipo_servicio_estipulado = models.CharField(max_length=3, choices=SERVICIO_OPCIONES, default=SERVICIO_PREVENTIVO)
