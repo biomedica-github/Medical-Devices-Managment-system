@@ -77,7 +77,7 @@ WSGI_APPLICATION = 'UMAE_db.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'UMAE_inventario',
+        'NAME': 'UMAE_inventario0.5',
         'HOST': 'localhost',
         'USER': 'postgres',
         'PASSWORD': 'jukolo10',

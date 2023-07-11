@@ -27,7 +27,7 @@ class Contrato(models.Model):
     tipo_contrato = models.CharField(max_length=1, choices=CONTRATO_OPCIONES, default=CONTRATO_LOCAL)
     tipo_servicio_estipulado = models.CharField(max_length=3, choices=SERVICIO_OPCIONES, default=SERVICIO_PREVENTIVO)
     fecha_vencimiento = models.DateField(auto_now=False, auto_now_add=False)
-    num_servicios = models.PositiveIntegerField()
+    num_servicios = models.PositiveIntegerField(null=True)
 
 class Especialidad(models.Model):
     nombre_especialidad = models.CharField(max_length=50)
@@ -87,7 +87,7 @@ class Orden_Servicio(models.Model):
     fecha = models.DateField(auto_now_add=False, auto_now=False)
     motivo = models.CharField(max_length=1, choices=MOTIVO_OPCIONES, default=MOTIVO_PREVENTIVO)
     tipo_orden = models.CharField(max_length=1, choices=TIPO_OPCIONES, default=TIPO_ESPONTANEA)
-    estatus = models.CharField(max_length=1, choices=ESTATUS_OPCIONES, default=ESTATUS_FUNCIONAL)
+    estatus = models.CharField(max_length=3, choices=ESTATUS_OPCIONES, default=ESTATUS_FUNCIONAL)
     responsable = models.CharField(max_length=100)
     autorizo_jefe_biomedica = models.BooleanField()
     autorizo_jefe_conservacion = models.BooleanField()
