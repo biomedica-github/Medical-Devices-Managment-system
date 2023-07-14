@@ -42,7 +42,9 @@ class Contrato(models.Model):
     class Meta:
         ordering = ['proveedor']
 class Area_hospital(models.Model):
+    numero_sala = models.PositiveIntegerField(null=True)
     nombre_sala = models.CharField(max_length=100)
+    edificio = models.CharField(max_length=50, null=True)
 
     def __str__(self) -> str:
         return self.nombre_sala
@@ -76,7 +78,7 @@ class Equipo_medico(models.Model):
     area = models.ForeignKey(Area_hospital, on_delete=models.SET_NULL, null=True)
 
     def __str__(self) -> str:
-        return self.numero_nacional_inv 
+        return self.numero_nacional_inv + f" Nombre: {self.nombre_equipo}"
     
 
 
