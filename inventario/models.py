@@ -42,9 +42,7 @@ class Contrato(models.Model):
     class Meta:
         ordering = ['proveedor']
 class Area_hospital(models.Model):
-    numero_sala = models.PositiveIntegerField(null=True)
     nombre_sala = models.CharField(max_length=100)
-    edificio = models.CharField(max_length=50, null=True)
 
     def __str__(self) -> str:
         return self.nombre_sala

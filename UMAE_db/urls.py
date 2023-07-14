@@ -21,5 +21,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('proveedores/', include('inventario.urls_proveedor')),
     path("__debug__/", include("debug_toolbar.urls")),
-    path('contratos', include('inventario.urls_contrato'))
+    path('contratos/', include('inventario.urls_contrato')),
+    path('equipo_medico/', include('inventario.urls_equipo')),
 ]

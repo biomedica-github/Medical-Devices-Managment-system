@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Proveedor, Contrato
+from .models import Proveedor, Contrato, Equipo_medico
 from datetime import datetime, date
 from datetime import timedelta
 numero = 2
@@ -49,3 +49,12 @@ class ContratoSerializers(serializers.Serializer):
             return "Contrato vencido"
         else:
             return f"Faltan {dias} dias para el vencimiento"
+
+
+class Equipo_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = Equipo_medico
+        fields = ['numero_nacional_inv', 'nombre_equipo', 'modelo', 'estado', 'numero_serie', 'marca', 'cama', 'observaciones', 'contrato','area','cama']
+    #contrato = serializers.StringRelatedField()
+    area = serializers.StringRelatedField()
+    #cama = serializers.StringRelatedField()
