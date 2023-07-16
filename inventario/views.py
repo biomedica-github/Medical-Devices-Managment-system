@@ -6,26 +6,37 @@ from rest_framework.response import Response
 from .serializers import ProveedorSerializers, ContratoSerializers, Equipo_Serializer
 from rest_framework import status
 
-@api_view()
+@api_view(['GET','POST'])
 def listado_proveedores(request):
-    lista_proveedores = Proveedor.objects.all()
-    serializer = ProveedorSerializers(lista_proveedores, many=True)
-
-    return Response(serializer.data)
-
-
-@api_view(['GET', 'POST'])
-def proveedor_especifico(request, id):
     if request.method == 'GET':
-        proveedor = get_object_or_404(Proveedor, pk=id)
-        serializer = ProveedorSerializers(proveedor)
+        lista_proveedores = Proveedor.objects.all()
+        serializer = ProveedorSerializers(lista_proveedores, many=True)
         return Response(serializer.data)
     elif request.method == 'POST':
-        serializer = ProveedorSerializers(data= request.data)
+         serializer = ProveedorSerializers(data = request.data)
+         serializer.is_valid(raise_exception=True)
+         print(serializer)
+
+         serializer.save()
+         return Response(serializer.data, status= status.HTTP_201_CREATED)
+
+
+@api_view(['GET','PUT', 'DELETE'])
+def proveedor_especifico(request, id):
+    proveedor = get_object_or_404(Proveedor, pk=id)
+    if request.method == 'GET':
+        serializer = ProveedorSerializers(proveedor)
+        return Response(serializer.data)
+    elif request.method == 'PUT':
+        serializer = ProveedorSerializers(proveedor, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response()
-        
+        return Response(serializer.data)
+    elif request.method == 'DELETE':
+        proveedor.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 @api_view()
 def listado_contratos(request):
     lista_contratos = Contrato.objects.select_related('proveedor').all()

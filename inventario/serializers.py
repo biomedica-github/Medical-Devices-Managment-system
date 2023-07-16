@@ -4,14 +4,16 @@ from datetime import datetime, date
 from datetime import timedelta
 numero = 2
 
-class ProveedorSerializers(serializers.Serializer):
-    id = serializers.IntegerField()
-    nombre_proveedor = serializers.CharField(max_length=100)
+class ProveedorSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Proveedor
+        fields = ['id', 'nombre_proveedor', 'contacto', 'numero_de_contratos']
+        
     numero_de_contratos = serializers.SerializerMethodField(method_name='calcular_num_contratos', )
 
     def calcular_num_contratos(self, proveedor: Proveedor):
         return Contrato.objects.filter(proveedor_id__exact=proveedor.id).count()
-
+    
 class ContratoSerializers(serializers.Serializer):
     num_contrato = serializers.CharField(max_length = 100)
     proveedor = serializers.StringRelatedField()
@@ -58,3 +60,5 @@ class Equipo_Serializer(serializers.ModelSerializer):
     #contrato = serializers.StringRelatedField()
     area = serializers.StringRelatedField()
     #cama = serializers.StringRelatedField()
+
+

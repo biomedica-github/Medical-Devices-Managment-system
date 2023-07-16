@@ -4,5 +4,5 @@ from . import views
 # URLConf
 urlpatterns = [
     path('', views.listado_proveedores),
-    re_path('<int:id>/', views.proveedor_especifico)
+    path('<int:id>/', views.proveedor_especifico)
 ]
