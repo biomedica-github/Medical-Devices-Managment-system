@@ -1,42 +1,42 @@
+from typing import Any
 from django.shortcuts import get_object_or_404
 from inventario.models import Proveedor, Contrato, Equipo_medico
 from django.http import HttpResponse
+from rest_framework.generics import ListCreateAPIView
 from rest_framework.decorators import api_view
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import ProveedorSerializers, ContratoSerializers, Equipo_Serializer
 from rest_framework import status
 
-@api_view(['GET','POST'])
-def listado_proveedores(request):
-    if request.method == 'GET':
-        lista_proveedores = Proveedor.objects.all()
-        serializer = ProveedorSerializers(lista_proveedores, many=True)
-        return Response(serializer.data)
-    elif request.method == 'POST':
-         serializer = ProveedorSerializers(data = request.data)
-         serializer.is_valid(raise_exception=True)
-         print(serializer)
+class ListaProveedor(ListCreateAPIView):
+    def get_queryset(self):
+        return Proveedor.objects.all()
+    
+    def get_serializer_class(self):
+        return ProveedorSerializers
+    
+    def get_serializer_context(self):
+        return {'request': self.request}
 
-         serializer.save()
-         return Response(serializer.data, status= status.HTTP_201_CREATED)
-
-
-@api_view(['GET','PUT', 'DELETE'])
-def proveedor_especifico(request, id):
-    proveedor = get_object_or_404(Proveedor, pk=id)
-    if request.method == 'GET':
+class ProveedorEspecifico(APIView):
+    def get(self, request, id):
+        proveedor = get_object_or_404(Proveedor, pk=id)
         serializer = ProveedorSerializers(proveedor)
         return Response(serializer.data)
-    elif request.method == 'PUT':
+
+    def put(self, request, id):
+        proveedor = get_object_or_404(Proveedor, pk=id)
         serializer = ProveedorSerializers(proveedor, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
-    elif request.method == 'DELETE':
+    
+    def delete(self, request, id):
+        proveedor = get_object_or_404(Proveedor, pk=id)
         proveedor.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
+    
 @api_view()
 def listado_contratos(request):
     lista_contratos = Contrato.objects.select_related('proveedor').all()

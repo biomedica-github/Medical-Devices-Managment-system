@@ -9,7 +9,7 @@ class ProveedorSerializers(serializers.ModelSerializer):
         model = Proveedor
         fields = ['id', 'nombre_proveedor', 'contacto', 'numero_de_contratos']
         
-    numero_de_contratos = serializers.SerializerMethodField(method_name='calcular_num_contratos', )
+    numero_de_contratos = serializers.SerializerMethodField(method_name='calcular_num_contratos')
 
     def calcular_num_contratos(self, proveedor: Proveedor):
         return Contrato.objects.filter(proveedor_id__exact=proveedor.id).count()
