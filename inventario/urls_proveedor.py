@@ -1,8 +1,10 @@
 from django.urls import path, re_path
 from . import views
+from rest_framework.routers import SimpleRouter
+
+router = SimpleRouter()
+router.register('', views.ProveedorViewSet)
+
 
 # URLConf
-urlpatterns = [
-    path('', views.ListaProveedor.as_view()),
-    path('<int:id>/', views.ProveedorEspecifico.as_view())
-]
+urlpatterns = router.urls

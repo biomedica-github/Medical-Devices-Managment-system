@@ -1,8 +1,9 @@
 from django.urls import path, re_path
 from . import views
+from rest_framework.routers import SimpleRouter
+
+router = SimpleRouter()
+router.register('', views.ContratoViewSet)
 
 # URLConf
-urlpatterns = [
-    path('', views.listado_contratos),
-    re_path('(?P<num_contrato>.*)/$', views.contrato_especifico)
-]
+urlpatterns = router.urls

@@ -23,19 +23,17 @@ class ContratoSerializers(serializers.Serializer):
     tipo_servicio_estipulado = serializers.SerializerMethodField(method_name='tipo_servicio')
 
     def tipo_servicio(self, contrato: Contrato):
-        tipo_servicio = Contrato.objects.filter(num_contrato=contrato.num_contrato).values('tipo_servicio_estipulado').get()
-        if tipo_servicio['tipo_servicio_estipulado'] == "PRV":
+        if contrato.tipo_servicio_estipulado == "PRV":
             return "Mantienimiento de tipo preventivo"
-        elif tipo_servicio['tipo_servicio_estipulado'] == "P/C":
+        elif contrato.tipo_servicio_estipulado == "P/C":
             return "Mantenimiento de tipo correctivo y preventivo"
         else:
             return "Contrato no incluye mantenimiento"
 
     def tipo_de_contrato(self, contrato: Contrato):
-        tipo_contrato = Contrato.objects.filter(num_contrato=contrato.num_contrato).values('tipo_contrato').get()
-        if tipo_contrato['tipo_contrato'] == "G":
+        if contrato.tipo_contrato == "G":
             return "Contrato tipo Garantia"
-        elif tipo_contrato['tipo_contrato'] == "C":
+        elif contrato.tipo_contrato == "C":
             return "Contrato tipo Consolidado"
         else:
             return "Contrato tipo Local"
@@ -43,8 +41,7 @@ class ContratoSerializers(serializers.Serializer):
 
     def calcular_dias_restantes(self, contrato: Contrato):
         today = date.today()
-        fecha_vencimiento_db = Contrato.objects.filter(num_contrato=contrato.num_contrato).values('fecha_vencimiento').get()
-        fecha_vencimiento = fecha_vencimiento_db['fecha_vencimiento'] - today
+        fecha_vencimiento = contrato.fecha_vencimiento - today
         dias = fecha_vencimiento.days
 
         if dias < 0:
