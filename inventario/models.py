@@ -29,7 +29,7 @@ class Contrato(models.Model):
         (NO_SERVICIO, 'Proveedor no brinda servicio')
     ]
     num_contrato = models.CharField(max_length=100, primary_key=True)
-    proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
+    proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, related_name='proveedor_contrato')
     tipo_contrato = models.CharField(max_length=1, choices=CONTRATO_OPCIONES, default=CONTRATO_LOCAL, null=True)
     tipo_servicio_estipulado = models.CharField(max_length=3, choices=SERVICIO_OPCIONES, default=SERVICIO_PREVENTIVO)
     fecha_vencimiento = models.DateField(auto_now=False, auto_now_add=False)
@@ -52,7 +52,7 @@ class Area_hospital(models.Model):
 
 class Cama(models.Model):
     numero_cama = models.PositiveIntegerField(primary_key=True)
-    sala = models.ForeignKey(Area_hospital, on_delete=models.PROTECT)
+    sala = models.ForeignKey(Area_hospital, on_delete=models.PROTECT, related_name= 'camas_area')
 
 class Equipo_medico(models.Model):
     ESTADO_FUNCIONAL = 'FUNC'
@@ -71,9 +71,9 @@ class Equipo_medico(models.Model):
     numero_serie = models.CharField(max_length=255, null=True)
     marca = models.CharField(max_length=50)
     modelo = models.CharField(max_length=50, null=True)
-    cama = models.ForeignKey(Cama, on_delete=models.SET_NULL, null= True)
-    contrato = models.ForeignKey(Contrato, on_delete=models.SET_NULL, null=True)
-    area = models.ForeignKey(Area_hospital, on_delete=models.SET_NULL, null=True)
+    cama = models.ForeignKey(Cama, on_delete=models.SET_NULL, null= True, related_name= 'equipos_cama')
+    contrato = models.ForeignKey(Contrato, on_delete=models.SET_NULL, null=True, related_name= 'equipos_contrato')
+    area = models.ForeignKey(Area_hospital, on_delete=models.SET_NULL, null=True, related_name= 'equipos_area')
 
     def __str__(self) -> str:
         return self.numero_nacional_inv + f" Nombre: {self.nombre_equipo}"
