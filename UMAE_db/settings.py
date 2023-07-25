@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'inventario',
-    'debug_toolbar'
+    'debug_toolbar',
+    'core'
 ]
 
 INTERNAL_IPS = [
@@ -86,7 +87,7 @@ WSGI_APPLICATION = 'UMAE_db.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'UMAE_inventario0.5',
+        'NAME': 'UMAE_inventario1.0',
         'HOST': 'localhost',
         'USER': 'postgres',
         'PASSWORD': 'jukolo10',
@@ -139,3 +140,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'COERCE_DECIMAL_TO_STRING': False
 }
+
+AUTH_USER_MODEL = 'core.User'
