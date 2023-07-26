@@ -6,9 +6,10 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import ProveedorSerializers, ContratoSerializers, Equipo_Serializer, AreaSerializer, OrdenEquipoSerializer
+from .serializers import ProveedorSerializers, ContratoSerializers, Equipo_Serializer, AreaSerializer, OrdenEquipoSerializer, OrdenAgendaSerializer
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
+from django.db.models import Q
 
 class ProveedorViewSet(ModelViewSet):
     queryset = Proveedor.objects.prefetch_related('proveedor_contrato').all()
@@ -18,15 +19,13 @@ class ProveedorViewSet(ModelViewSet):
 class ContratoViewSet(ModelViewSet):
     queryset = Contrato.objects.select_related('proveedor').prefetch_related('equipos_contrato','equipos_contrato__area').all()
     serializer_class = ContratoSerializers
-    lookup_field = 'num_contrato'
 
     def get_serializer_context(self):
         return {'request': self.request}
 
 class EquipoViewSet(ModelViewSet):
-    queryset = Equipo_medico.objects.select_related('contrato','area','cama').prefetch_related('equipo_orden').all()
+    queryset = Equipo_medico.objects.select_related('contrato','area','cama').all()
     serializer_class = Equipo_Serializer
-    lookup_field = 'numero_nacional_inv'
 
     def get_serializer_context(self):
         return {'request': self.request}
@@ -37,5 +36,17 @@ class AreaViewSet(ModelViewSet):
     lookup_field = 'id'
 
 class OrdenViewSet(ModelViewSet):
-    queryset = Orden_Servicio.objects.prefetch_related('equipo_medico').all()
     serializer_class = OrdenEquipoSerializer
+    
+    def get_queryset(self):
+        queryset = Orden_Servicio.objects.prefetch_related('equipo_medico').filter(equipo_medico__numero_nacional_inv=self.kwargs['equipo_pk'])
+        return queryset
+
+class AgendaViewSet(ModelViewSet):
+    serializer_class = OrdenAgendaSerializer
+    
+    def get_queryset(self):
+        return Orden_Servicio.objects.filter(tipo_orden='A', equipo_medico__numero_nacional_inv = self.kwargs['equipo_pk'])
+
+    def get_serializer_context(self):
+        return {'equipo': self.kwargs['equipo_pk']}

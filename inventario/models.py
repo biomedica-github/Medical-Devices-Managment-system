@@ -104,25 +104,28 @@ class Orden_Servicio(models.Model):
     ESTATUS_FUERA = 'OUT'
     ESTATUS_FUNCIONAL = 'FUN'
     ESTATUS_NO_SERVICIO = 'N/A'
+    ESTATUS_PENDIENTE = 'PEN'
     ESTATUS_OPCIONES = [
         (ESTATUS_FUNCIONAL, 'Equipo funcional'),
         (ESTATUS_FUERA, 'Equipo fuera de servicio'),
-        (ESTATUS_NO_SERVICIO, 'No se realizo servicio')
+        (ESTATUS_NO_SERVICIO, 'No se realizo servicio'),
+        (ESTATUS_PENDIENTE, 'Pendiente')
     ]
 
     numero_orden = models.CharField(max_length=255, null=True)
     fecha = models.DateField(auto_now_add=False, auto_now=False)
     motivo = models.CharField(max_length=1, choices=MOTIVO_OPCIONES, default=MOTIVO_PREVENTIVO)
-    tipo_orden = models.CharField(max_length=1, choices=TIPO_OPCIONES, default=TIPO_ESPONTANEA)
-    estatus = models.CharField(max_length=3, choices=ESTATUS_OPCIONES, default=ESTATUS_FUNCIONAL)
-    responsable = models.CharField(max_length=100)
-    autorizo_jefe_biomedica = models.BooleanField()
-    autorizo_jefe_conservacion = models.BooleanField()
+    tipo_orden = models.CharField(max_length=1, choices=TIPO_OPCIONES, default=TIPO_AGENDADA)
+    estatus = models.CharField(max_length=3, choices=ESTATUS_OPCIONES, default=ESTATUS_PENDIENTE)
+    responsable = models.CharField(max_length=100, null=True)
+    autorizo_jefe_biomedica = models.BooleanField(default=False)
+    autorizo_jefe_conservacion = models.BooleanField(default=False)
     orden_escaneada = models.FileField(null=True)
-    descripcion_servicio = models.CharField(max_length=800)
+    descripcion_servicio = models.CharField(max_length=800, null=True)
     equipo_complementario = models.CharField(max_length=800, null=True)
-    ing_realizo = models.CharField(max_length=100)
+    ing_realizo = models.CharField(max_length=100, null=True)
     num_mantenimiento_preventivo = models.PositiveSmallIntegerField(null=True)
-    fallo_paciente = models.BooleanField()
+    fallo_paciente = models.BooleanField(null=True)
     equipo_medico = models.ManyToManyField(Equipo_medico, related_name='equipo_orden')
+
 

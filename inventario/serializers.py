@@ -31,7 +31,7 @@ class ProveedorSerializers(serializers.ModelSerializer):
         model = Proveedor
         fields = ['id','nombre_proveedor', 'contacto', 'proveedor_contrato']    
     
-
+    id = serializers.IntegerField(read_only=True)
 
 
 class ContratoEquiposSerializer(serializers.ModelSerializer):
@@ -68,17 +68,17 @@ class ContratoSerializers(serializers.Serializer):
             return "Contrato vencido"
         else:
             return f"Faltan {dias} dias para el vencimiento"
-        
+
 class OrdenEquipoSerializer(serializers.ModelSerializer):
 
     class Meta: 
         model = Orden_Servicio
         fields = ['id','numero_orden', 'fecha', 'motivo', 'tipo_orden', 'estatus','responsable','autorizo_jefe_biomedica','autorizo_jefe_conservacion','descripcion_servicio','equipo_complementario','ing_realizo','num_mantenimiento_preventivo','fallo_paciente', 'equipo_medico']
-        extra_kwargs = {'equipo_medico': {'required': False}}
-
+    id = serializers.IntegerField(read_only=True)
     tipo_orden = serializers.SerializerMethodField(method_name= 'get_tipo_orden')
     motivo = serializers.SerializerMethodField(method_name= 'get_motivo')
     estatus = serializers.SerializerMethodField(method_name= 'get_estatus')
+    
 
     def get_motivo(self, orden: Orden_Servicio):
         return orden.get_motivo_display()
@@ -89,31 +89,44 @@ class OrdenEquipoSerializer(serializers.ModelSerializer):
     def get_estatus(self, orden: Orden_Servicio):
         return orden.get_estatus_display()
 
-class OrdenServicioEquipoSerializer(serializers.ModelSerializer):
+class OrdenAgendaSerializer(serializers.ModelSerializer):
     class Meta: 
         model = Orden_Servicio
-        fields = ['id','numero_orden', 'fecha', 'motivo', 'tipo_orden', 'estatus', 'descripcion_servicio', 'num_mantenimiento_preventivo', 'fallo_paciente']
-    tipo_orden = serializers.SerializerMethodField(method_name= 'get_tipo_orden')
-    motivo = serializers.SerializerMethodField(method_name= 'get_motivo')
-    estatus = serializers.SerializerMethodField(method_name= 'get_estatus')
+        fields = ['fecha', 'equipo_medico', 'dias_restantes']
+    equipo_medico = serializers.PrimaryKeyRelatedField(many = True, read_only=True)
+    dias_restantes = serializers.SerializerMethodField(method_name='calcular_dias_restantes', read_only=True)
 
-    def get_motivo(self, orden: Orden_Servicio):
-        return orden.get_motivo_display()
+    def save(self, **kwargs):
+        equipo = self.context['equipo']
+        fecha_data = self.validated_data['fecha']
+        equipo_med = Equipo_medico.objects.get(numero_nacional_inv=equipo)
+        self.instance = orden = Orden_Servicio.objects.create(fecha = fecha_data)
+        orden.equipo_medico.add(equipo_med)
+        
 
-    def get_tipo_orden(self, orden: Orden_Servicio):
-        return orden.get_tipo_orden_display()
-    
-    def get_estatus(self, orden: Orden_Servicio):
-        return orden.get_estatus_display()
+        return self.instance
+
+
+    def calcular_dias_restantes(self, orden: Orden_Servicio):
+        today = date.today()
+        
+        fecha_vencimiento = orden.fecha - today
+        dias = fecha_vencimiento.days
+
+        if dias <= 0 and orden.estatus == 'PEN':
+            return "Orden no atendida, favor de contactar proveedor o actualizar la orden de servicio"
+        elif dias <= 0 and orden.estatus != 'PEN':
+            return "Servicio atendido"
+        else:
+            return f"Faltan {dias} para el siguiente servicio"
 
 class Equipo_Serializer(serializers.ModelSerializer):
 
     class Meta:
         model = Equipo_medico
-        fields = ['numero_nacional_inv', 'nombre_equipo', 'modelo', 'estado', 'numero_serie', 'marca', 'observaciones', 'contrato','area','cama', 'equipo_orden']
+        fields = ['numero_nacional_inv', 'nombre_equipo', 'modelo', 'estado', 'numero_serie', 'marca', 'observaciones', 'contrato','area','cama']
     #contrato = serializers.StringRelatedField()
     area = serializers.StringRelatedField()
-    equipo_orden = OrdenServicioEquipoSerializer(many = True, read_only = True)
     #cama = serializers.StringRelatedField()
 
 class AreaEquipoSerializer(serializers.ModelSerializer):

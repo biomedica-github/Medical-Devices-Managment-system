@@ -1,9 +1,14 @@
 from django.urls import path, re_path
 from . import views
 from rest_framework.routers import SimpleRouter
+from rest_framework_nested import routers
 
-router = SimpleRouter()
+router = routers.DefaultRouter()
 router.register('', views.EquipoViewSet)
 
+equipo_router = routers.NestedDefaultRouter(router, '', lookup='equipo')
+equipo_router.register('servicio', views.OrdenViewSet, basename= 'equipo-orden')
+equipo_router.register('agenda', views.AgendaViewSet, basename='equipo-agenda')
+
 # URLConf
-urlpatterns = router.urls
+urlpatterns = router.urls + equipo_router.urls
