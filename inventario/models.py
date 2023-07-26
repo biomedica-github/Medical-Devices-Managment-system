@@ -98,7 +98,7 @@ class Orden_Servicio(models.Model):
     TIPO_OPCIONES = [
         (TIPO_AGENDADA, 'Orden agendada'),
         (TIPO_ESPONTANEA, 'Orden espontanea'),
-        (TIPO_BITACORA, 'Bitacora mensual')
+        (TIPO_BITACORA, 'Bitacora')
     ]
 
     ESTATUS_FUERA = 'OUT'
@@ -110,7 +110,7 @@ class Orden_Servicio(models.Model):
         (ESTATUS_NO_SERVICIO, 'No se realizo servicio')
     ]
 
-    numero_orden = models.CharField(max_length=255)
+    numero_orden = models.CharField(max_length=255, null=True)
     fecha = models.DateField(auto_now_add=False, auto_now=False)
     motivo = models.CharField(max_length=1, choices=MOTIVO_OPCIONES, default=MOTIVO_PREVENTIVO)
     tipo_orden = models.CharField(max_length=1, choices=TIPO_OPCIONES, default=TIPO_ESPONTANEA)
@@ -122,7 +122,7 @@ class Orden_Servicio(models.Model):
     descripcion_servicio = models.CharField(max_length=800)
     equipo_complementario = models.CharField(max_length=800, null=True)
     ing_realizo = models.CharField(max_length=100)
+    num_mantenimiento_preventivo = models.PositiveSmallIntegerField(null=True)
     fallo_paciente = models.BooleanField()
     equipo_medico = models.ManyToManyField(Equipo_medico, related_name='equipo_orden')
-
 

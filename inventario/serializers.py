@@ -1,8 +1,7 @@
 from rest_framework import serializers
-from .models import Proveedor, Contrato, Equipo_medico, Area_hospital
+from .models import Proveedor, Contrato, Equipo_medico, Area_hospital, Orden_Servicio
 from datetime import datetime, date
 from datetime import timedelta
-numero = 2
 
 class ContratoProveedor(serializers.ModelSerializer):
     class Meta:
@@ -23,23 +22,16 @@ class ContratoProveedor(serializers.ModelSerializer):
             return f"Faltan {dias} dias para el vencimiento"
         
     def tipo_de_contrato(self, contrato: Contrato):
-        if contrato.tipo_contrato == "G":
-            return "Contrato tipo Garantia"
-        elif contrato.tipo_contrato == "C":
-            return "Contrato tipo Consolidado"
-        else:
-            return "Contrato tipo Local"
+        return contrato.get_tipo_contrato_display()
 
 
 class ProveedorSerializers(serializers.ModelSerializer):
     proveedor_contrato = ContratoProveedor(many= True, read_only = True)
     class Meta:
         model = Proveedor
-        fields = ['id','nombre_proveedor', 'contacto', 'numero_de_contratos', 'proveedor_contrato']    
-    numero_de_contratos = serializers.SerializerMethodField(method_name='calcular_num_contratos')
+        fields = ['id','nombre_proveedor', 'contacto', 'proveedor_contrato']    
+    
 
-    def calcular_num_contratos(self, proveedor: Proveedor):
-        return Contrato.objects.filter(proveedor_id__exact=proveedor.id).count()
 
 
 class ContratoEquiposSerializer(serializers.ModelSerializer):
@@ -61,20 +53,10 @@ class ContratoSerializers(serializers.Serializer):
 
 
     def tipo_servicio(self, contrato: Contrato):
-        if contrato.tipo_servicio_estipulado == "PRV":
-            return "Mantienimiento de tipo preventivo"
-        elif contrato.tipo_servicio_estipulado == "P/C":
-            return "Mantenimiento de tipo correctivo y preventivo"
-        else:
-            return "Contrato no incluye mantenimiento"
+        return contrato.get_tipo_servicio_estipulado_display()
 
     def tipo_de_contrato(self, contrato: Contrato):
-        if contrato.tipo_contrato == "G":
-            return "Contrato tipo Garantia"
-        elif contrato.tipo_contrato == "C":
-            return "Contrato tipo Consolidado"
-        else:
-            return "Contrato tipo Local"
+        return contrato.get_tipo_contrato_display()
 
 
     def calcular_dias_restantes(self, contrato: Contrato):
@@ -86,14 +68,52 @@ class ContratoSerializers(serializers.Serializer):
             return "Contrato vencido"
         else:
             return f"Faltan {dias} dias para el vencimiento"
+        
+class OrdenEquipoSerializer(serializers.ModelSerializer):
 
+    class Meta: 
+        model = Orden_Servicio
+        fields = ['id','numero_orden', 'fecha', 'motivo', 'tipo_orden', 'estatus','responsable','autorizo_jefe_biomedica','autorizo_jefe_conservacion','descripcion_servicio','equipo_complementario','ing_realizo','num_mantenimiento_preventivo','fallo_paciente', 'equipo_medico']
+        extra_kwargs = {'equipo_medico': {'required': False}}
+
+    tipo_orden = serializers.SerializerMethodField(method_name= 'get_tipo_orden')
+    motivo = serializers.SerializerMethodField(method_name= 'get_motivo')
+    estatus = serializers.SerializerMethodField(method_name= 'get_estatus')
+
+    def get_motivo(self, orden: Orden_Servicio):
+        return orden.get_motivo_display()
+
+    def get_tipo_orden(self, orden: Orden_Servicio):
+        return orden.get_tipo_orden_display()
+    
+    def get_estatus(self, orden: Orden_Servicio):
+        return orden.get_estatus_display()
+
+class OrdenServicioEquipoSerializer(serializers.ModelSerializer):
+    class Meta: 
+        model = Orden_Servicio
+        fields = ['id','numero_orden', 'fecha', 'motivo', 'tipo_orden', 'estatus', 'descripcion_servicio', 'num_mantenimiento_preventivo', 'fallo_paciente']
+    tipo_orden = serializers.SerializerMethodField(method_name= 'get_tipo_orden')
+    motivo = serializers.SerializerMethodField(method_name= 'get_motivo')
+    estatus = serializers.SerializerMethodField(method_name= 'get_estatus')
+
+    def get_motivo(self, orden: Orden_Servicio):
+        return orden.get_motivo_display()
+
+    def get_tipo_orden(self, orden: Orden_Servicio):
+        return orden.get_tipo_orden_display()
+    
+    def get_estatus(self, orden: Orden_Servicio):
+        return orden.get_estatus_display()
 
 class Equipo_Serializer(serializers.ModelSerializer):
+
     class Meta:
         model = Equipo_medico
-        fields = ['numero_nacional_inv', 'nombre_equipo', 'modelo', 'estado', 'numero_serie', 'marca', 'observaciones', 'contrato','area','cama']
+        fields = ['numero_nacional_inv', 'nombre_equipo', 'modelo', 'estado', 'numero_serie', 'marca', 'observaciones', 'contrato','area','cama', 'equipo_orden']
     #contrato = serializers.StringRelatedField()
     area = serializers.StringRelatedField()
+    equipo_orden = OrdenServicioEquipoSerializer(many = True, read_only = True)
     #cama = serializers.StringRelatedField()
 
 class AreaEquipoSerializer(serializers.ModelSerializer):

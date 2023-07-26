@@ -1,12 +1,12 @@
 from typing import Any
 from django.shortcuts import get_object_or_404
-from inventario.models import Proveedor, Contrato, Equipo_medico, Area_hospital
+from inventario.models import Proveedor, Contrato, Equipo_medico, Area_hospital, Orden_Servicio
 from django.http import HttpResponse
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import ProveedorSerializers, ContratoSerializers, Equipo_Serializer, AreaSerializer
+from .serializers import ProveedorSerializers, ContratoSerializers, Equipo_Serializer, AreaSerializer, OrdenEquipoSerializer
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 
@@ -24,7 +24,7 @@ class ContratoViewSet(ModelViewSet):
         return {'request': self.request}
 
 class EquipoViewSet(ModelViewSet):
-    queryset = Equipo_medico.objects.select_related('contrato','area','cama').all()
+    queryset = Equipo_medico.objects.select_related('contrato','area','cama').prefetch_related('equipo_orden').all()
     serializer_class = Equipo_Serializer
     lookup_field = 'numero_nacional_inv'
 
@@ -35,3 +35,7 @@ class AreaViewSet(ModelViewSet):
     queryset = Area_hospital.objects.prefetch_related('equipos_area').all()
     serializer_class = AreaSerializer
     lookup_field = 'id'
+
+class OrdenViewSet(ModelViewSet):
+    queryset = Orden_Servicio.objects.prefetch_related('equipo_medico').all()
+    serializer_class = OrdenEquipoSerializer
