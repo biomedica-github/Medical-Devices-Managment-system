@@ -7,8 +7,10 @@ from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import ProveedorSerializers, ContratoSerializers, Equipo_Serializer, AreaSerializer, OrdenEquipoSerializer, OrdenAgendaSerializer
+from . import serializers
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
+from rest_framework import mixins
 from django.db.models import Q
 
 class ProveedorViewSet(ModelViewSet):
@@ -34,6 +36,13 @@ class AreaViewSet(ModelViewSet):
     queryset = Area_hospital.objects.prefetch_related('equipos_area').all()
     serializer_class = AreaSerializer
     lookup_field = 'id'
+
+class CrearOrdenViewSet(ModelViewSet):
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.CrearOrdenSerializer
+        return OrdenEquipoSerializer
+    queryset = Orden_Servicio.objects.prefetch_related('equipo_medico').all()
 
 class OrdenViewSet(ModelViewSet):
     serializer_class = OrdenEquipoSerializer

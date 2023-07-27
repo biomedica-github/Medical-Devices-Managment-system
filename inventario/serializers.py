@@ -3,6 +3,9 @@ from .models import Proveedor, Contrato, Equipo_medico, Area_hospital, Orden_Ser
 from datetime import datetime, date
 from datetime import timedelta
 
+
+
+
 class ContratoProveedor(serializers.ModelSerializer):
     class Meta:
         model = Contrato
@@ -69,6 +72,17 @@ class ContratoSerializers(serializers.Serializer):
         else:
             return f"Faltan {dias} dias para el vencimiento"
 
+class CrearOrdenSerializer(serializers.ModelSerializer):
+    estatus = serializers.ChoiceField(choices=Orden_Servicio.ESTATUS_OPCIONES)
+    motivo = serializers.ChoiceField(choices=Orden_Servicio.MOTIVO_OPCIONES)
+    tipo_orden = serializers.ChoiceField(choices=Orden_Servicio.TIPO_OPCIONES)
+    class Meta:
+        model = Orden_Servicio
+        fields = ['id','numero_orden', 'fecha', 'motivo', 'tipo_orden', 'estatus','responsable','autorizo_jefe_biomedica','autorizo_jefe_conservacion','descripcion_servicio','equipo_complementario','ing_realizo','num_mantenimiento_preventivo','fallo_paciente', 'equipo_medico']
+    
+    id = serializers.IntegerField(read_only=True)
+    extra_kwargs = {'equipo_medico': {'required':False}}
+
 class OrdenEquipoSerializer(serializers.ModelSerializer):
 
     class Meta: 
@@ -78,7 +92,7 @@ class OrdenEquipoSerializer(serializers.ModelSerializer):
     tipo_orden = serializers.SerializerMethodField(method_name= 'get_tipo_orden')
     motivo = serializers.SerializerMethodField(method_name= 'get_motivo')
     estatus = serializers.SerializerMethodField(method_name= 'get_estatus')
-    
+    extra_kwargs = {'equipo_medico': {'required':False}}
 
     def get_motivo(self, orden: Orden_Servicio):
         return orden.get_motivo_display()

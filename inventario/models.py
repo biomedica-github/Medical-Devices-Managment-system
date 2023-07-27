@@ -76,7 +76,7 @@ class Equipo_medico(models.Model):
     area = models.ForeignKey(Area_hospital, on_delete=models.SET_NULL, null=True, related_name= 'equipos_area')
 
     def __str__(self) -> str:
-        return self.numero_nacional_inv + f" Nombre: {self.nombre_equipo}"
+        return self.numero_nacional_inv + f" || Nombre: {self.nombre_equipo} || num_serie: {self.numero_serie}"
     
 
 
@@ -121,8 +121,8 @@ class Orden_Servicio(models.Model):
     autorizo_jefe_biomedica = models.BooleanField(default=False)
     autorizo_jefe_conservacion = models.BooleanField(default=False)
     orden_escaneada = models.FileField(null=True)
-    descripcion_servicio = models.CharField(max_length=800, null=True)
-    equipo_complementario = models.CharField(max_length=800, null=True)
+    descripcion_servicio = models.CharField(max_length=2000, null=True)
+    equipo_complementario = models.CharField(max_length=200, null=True)
     ing_realizo = models.CharField(max_length=100, null=True)
     num_mantenimiento_preventivo = models.PositiveSmallIntegerField(null=True)
     fallo_paciente = models.BooleanField(null=True)
