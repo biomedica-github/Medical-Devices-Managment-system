@@ -5,9 +5,11 @@ from django.contrib.auth.models import AbstractUser
 class User(AbstractUser):
     cargo_ingeniero = "Ingeniero"
     cargo_jefe = "Jefe"
+    cargo_admin = "Admin"
     cargo_choices = [
         (cargo_ingeniero, "Ingeniero"),
-        (cargo_jefe, "Jefe")
+        (cargo_jefe, "Jefe"),
+        (cargo_admin, "Administrador")
     ]
 
     email = models.EmailField(unique=True)

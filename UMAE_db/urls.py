@@ -21,6 +21,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('proveedores/', include('inventario.urls_proveedor')),
     path("__debug__/", include("debug_toolbar.urls")),
+    path('auth/', include('djoser.urls')),
+    path('auth/', include('djoser.urls.jwt')),
     path('contratos/', include('inventario.urls_contrato')),
     path('equipo_medico/', include('inventario.urls_equipo')),
     path('area/', include('inventario.urls_area')),

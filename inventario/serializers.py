@@ -146,11 +146,36 @@ class Equipo_Serializer(serializers.ModelSerializer):
 class AreaEquipoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Equipo_medico
-        fields = ['numero_nacional_inv', 'nombre_equipo', 'modelo', 'marca', 'cama']
+        fields = ['numero_nacional_inv', 'nombre_equipo', 'modelo', 'marca', 'cama', 'area']
 
+    area = serializers.StringRelatedField()
 
 class AreaSerializer(serializers.ModelSerializer):
     equipos_area = AreaEquipoSerializer(many = True,read_only = True)
     class Meta:
         model = Area_hospital
         fields = ['nombre_sala', 'equipos_area']
+
+class AgregarEquipoAreaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Area_hospital
+        fields = ['equipos_area']
+
+class AgregarServicioEquipo(serializers.ModelSerializer):
+    estatus = serializers.ChoiceField(choices=Orden_Servicio.ESTATUS_OPCIONES)
+    motivo = serializers.ChoiceField(choices=Orden_Servicio.MOTIVO_OPCIONES)
+    tipo_orden = serializers.ChoiceField(choices=Orden_Servicio.TIPO_OPCIONES)
+    class Meta:
+        model = Orden_Servicio
+        fields = ['id','numero_orden', 'fecha', 'motivo', 'tipo_orden', 'estatus','responsable','autorizo_jefe_biomedica','autorizo_jefe_conservacion','descripcion_servicio','equipo_complementario','ing_realizo','num_mantenimiento_preventivo','fallo_paciente', 'equipo_medico']
+    id = serializers.IntegerField(read_only=True)
+    equipo_medico = serializers.PrimaryKeyRelatedField(many = True, read_only=True)
+
+    def save(self, **kwargs):
+        equipo = self.context['equipo']
+        equipo_med = Equipo_medico.objects.get(numero_nacional_inv=equipo)
+        self.instance = orden = Orden_Servicio.objects.create(**self.validated_data)
+        orden.equipo_medico.add(equipo_med)
+        return self.instance
+
+        
