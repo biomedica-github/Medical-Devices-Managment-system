@@ -132,3 +132,36 @@ class Orden_Servicio(models.Model):
     equipo_medico = models.ManyToManyField(Equipo_medico, related_name='equipo_orden')
 
 
+class ReporteUsuario(models.Model):
+        ESTADO_PENDIENTE = "PEN"
+        ESTADO_COMPLETADO = "COM"
+        ESTADO_EN_PROCESO = "PRO"
+        ESTADO_OPCIONES = [
+            (ESTADO_PENDIENTE, 'Pendiente'),
+            (ESTADO_COMPLETADO, 'Completado'),
+            (ESTADO_EN_PROCESO, 'En proceso')
+        ]
+
+        FALLA_NO_ENCIENDE = "NO/ENC"
+        FALLA_ALARMA = "ALARMA"
+        FALLA_SENSOR = "SENSOR"
+        FALLA_NO_TRABAJA = "NO/TRB"
+        FALLA_NO_PASA_PRUEBA = "NO/PRU"
+        FALLA_PAPEL = "PAPEL"
+        FALLA_OPCIONES = [
+            (FALLA_NO_ENCIENDE, 'El equipo no enciende'),
+            (FALLA_ALARMA, 'El equipo marca error o alguna alarma'),
+            (FALLA_SENSOR, 'Un sensor esta fallando(Brazalette de PANI, sensor de SPO2, Sensores ECG, etc.)'),
+            (FALLA_NO_TRABAJA, 'El equipo no trabaja de forma que deberia(No funcionan perillas, botones, pantalla tactil, etc.)'),
+            (FALLA_PAPEL, 'Hace falta papel')
+        ]
+
+        estado = models.CharField(max_length= 3, choices=ESTADO_OPCIONES, default=ESTADO_PENDIENTE)
+        correo = models.EmailField(null=True)
+        fecha_hora = models.DateTimeField(auto_now_add=True)
+        area = models.ForeignKey(Area_hospital, on_delete=models.PROTECT, related_name= 'area_reporte')
+        equipo = models.ForeignKey(Equipo_medico, on_delete=models.SET_NULL, null=True, related_name= 'equipo_reporte')
+        falla = models.CharField(max_length= 6, choices=FALLA_OPCIONES)
+        descripcion = models.CharField(max_length= 500, null=True)
+        solucion_tecnico = models.CharField(max_length= 500, null=True)
+

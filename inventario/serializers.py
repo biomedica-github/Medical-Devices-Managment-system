@@ -169,6 +169,14 @@ class OrdenAgendaSerializer(serializers.ModelSerializer):
         else:
             return f"Faltan {dias} para el siguiente servicio"
 
+
+class CrearEquipoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Equipo_medico
+        fields = ['numero_nacional_inv', 'nombre_equipo', 'modelo', 'estado', 'numero_serie', 'marca', 'observaciones', 'contrato','area','cama']
+
+        extra_kwargs = {'area': {'required': False}}
+
 class Equipo_Serializer(serializers.ModelSerializer):
 
     class Meta:

@@ -36,8 +36,13 @@ class ContratoViewSet(ModelViewSet):
 
 class EquipoViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST' or self.request.method == 'PUT':
+            return serializers.CrearEquipoSerializer
+        return Equipo_Serializer
+
     queryset = Equipo_medico.objects.select_related('contrato','area','cama').all()
-    serializer_class = Equipo_Serializer
 
     def get_serializer_context(self):
         return {'request': self.request}
