@@ -11,6 +11,9 @@ class User(AbstractUser):
         (cargo_jefe, "Jefe"),
         (cargo_admin, "Administrador")
     ]
-
     email = models.EmailField(unique=True)
     cargo = models.CharField(choices=cargo_choices, max_length=9)
+
+    def __str__(self) -> str:
+        return f"{self.username}"
+

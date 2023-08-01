@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 
 class Proveedor(models.Model):
@@ -41,8 +42,10 @@ class Contrato(models.Model):
 
     class Meta:
         ordering = ['proveedor']
+
 class Area_hospital(models.Model):
     nombre_sala = models.CharField(max_length=100)
+    responsable = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name= 'responsable_area')
 
     def __str__(self) -> str:
         return self.nombre_sala
@@ -69,7 +72,7 @@ class Equipo_medico(models.Model):
     estado = models.CharField(max_length=4, choices=ESTADO_OPCIONES, default=ESTADO_FUNCIONAL)
     observaciones = models.CharField(max_length=255, null=True)
     numero_serie = models.CharField(max_length=255, null=True)
-    marca = models.CharField(max_length=50)
+    marca = models.CharField(max_length=50, null=True)
     modelo = models.CharField(max_length=50, null=True)
     cama = models.ForeignKey(Cama, on_delete=models.SET_NULL, null= True, related_name= 'equipos_cama')
     contrato = models.ForeignKey(Contrato, on_delete=models.SET_NULL, null=True, related_name= 'equipos_contrato')

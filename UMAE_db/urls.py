@@ -26,5 +26,6 @@ urlpatterns = [
     path('contratos/', include('inventario.urls_contrato')),
     path('equipo_medico/', include('inventario.urls_equipo')),
     path('area/', include('inventario.urls_area')),
-    path('orden/', include('inventario.urls_orden'))
+    path('orden/', include('inventario.urls_orden')),
+    path('agenda/', include('inventario.urls_agenda'))
 ]
