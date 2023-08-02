@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class Proveedor(models.Model):
@@ -159,9 +160,31 @@ class ReporteUsuario(models.Model):
         estado = models.CharField(max_length= 3, choices=ESTADO_OPCIONES, default=ESTADO_PENDIENTE)
         correo = models.EmailField(null=True)
         fecha_hora = models.DateTimeField(auto_now_add=True)
-        area = models.ForeignKey(Area_hospital, on_delete=models.PROTECT, related_name= 'area_reporte')
-        equipo = models.ForeignKey(Equipo_medico, on_delete=models.SET_NULL, null=True, related_name= 'equipo_reporte')
+        area = models.ForeignKey(Area_hospital, on_delete=models.SET_NULL, related_name= 'area_reporte', null=True)
+        equipo = models.ForeignKey(Equipo_medico, on_delete=models.CASCADE, related_name= 'equipo_reporte')
         falla = models.CharField(max_length= 6, choices=FALLA_OPCIONES)
         descripcion = models.CharField(max_length= 500, null=True)
         solucion_tecnico = models.CharField(max_length= 500, null=True)
+
+class CheckList(models.Model):
+    CONDICION_BUENA = "B"
+    CONDICION_MALA = "M"
+    CONDICION_NA = "N"
+    CONDICION_OPCIONES = [
+        (CONDICION_BUENA, 'Buena'),
+        (CONDICION_MALA, 'Mala'),
+        (CONDICION_NA, 'N/A')
+    ]
+    area = models.ForeignKey(Area_hospital, on_delete=models.SET_NULL, null=True, related_name='area_checklist')
+    equipo = models.ForeignKey(Equipo_medico, on_delete=models.CASCADE, related_name='equipo_checklist')
+    bateria = models.CharField(max_length= 1, choices=CONDICION_OPCIONES)
+    condicion_general = models.CharField(max_length= 1, choices=CONDICION_OPCIONES)
+    enciende = models.BooleanField()
+    sensor_SPO2 = models.CharField(max_length= 1, choices=CONDICION_OPCIONES, default=CONDICION_NA)
+    sensor_TEMP = models.CharField(max_length= 1, choices=CONDICION_OPCIONES, default= CONDICION_NA)
+    PANI = models.CharField(max_length= 1, choices=CONDICION_OPCIONES, default=CONDICION_NA)
+    sensor_ECG = models.CharField(max_length= 1, choices=CONDICION_OPCIONES, default= CONDICION_NA)
+    sensor_PAI = models.CharField(max_length= 1, choices=CONDICION_OPCIONES, default= CONDICION_NA)
+    observaciones = models.CharField(max_length= 800)
+    desempeño_general = models.SmallIntegerField(validators=[MinValueValidator(0), MaxValueValidator(5)])
 
