@@ -9,6 +9,8 @@ router.register('', views.EquipoViewSet)
 equipo_router = routers.NestedDefaultRouter(router, '', lookup='equipo')
 equipo_router.register('servicio', views.OrdenViewSet, basename= 'equipo-orden')
 equipo_router.register('agenda', views.AgendaViewSet, basename='equipo-agenda')
+equipo_router.register('checklists', views.CheckListEspecificoViewSet, basename='equipo-check')
+
 
 # URLConf
 urlpatterns = router.urls + equipo_router.urls

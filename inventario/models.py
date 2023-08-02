@@ -132,6 +132,9 @@ class Orden_Servicio(models.Model):
     fallo_paciente = models.BooleanField(null=True)
     equipo_medico = models.ManyToManyField(Equipo_medico, related_name='equipo_orden')
 
+    class Meta:
+        ordering = ['-fecha']
+
 
 class ReporteUsuario(models.Model):
         ESTADO_PENDIENTE = "PEN"
@@ -175,6 +178,7 @@ class CheckList(models.Model):
         (CONDICION_MALA, 'Mala'),
         (CONDICION_NA, 'N/A')
     ]
+    fecha_hora = models.DateTimeField(auto_now_add=True)
     area = models.ForeignKey(Area_hospital, on_delete=models.SET_NULL, null=True, related_name='area_checklist')
     equipo = models.ForeignKey(Equipo_medico, on_delete=models.CASCADE, related_name='equipo_checklist')
     bateria = models.CharField(max_length= 1, choices=CONDICION_OPCIONES)
@@ -185,6 +189,6 @@ class CheckList(models.Model):
     PANI = models.CharField(max_length= 1, choices=CONDICION_OPCIONES, default=CONDICION_NA)
     sensor_ECG = models.CharField(max_length= 1, choices=CONDICION_OPCIONES, default= CONDICION_NA)
     sensor_PAI = models.CharField(max_length= 1, choices=CONDICION_OPCIONES, default= CONDICION_NA)
-    observaciones = models.CharField(max_length= 800)
-    desempeño_general = models.SmallIntegerField(validators=[MinValueValidator(0), MaxValueValidator(5)])
+    observaciones = models.CharField(max_length= 800, null=True)
+    desempeño_general = models.PositiveSmallIntegerField(validators=[MaxValueValidator(5)])
 

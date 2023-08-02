@@ -1,6 +1,6 @@
 from typing import Any
 from django.shortcuts import get_object_or_404
-from inventario.models import Proveedor, Contrato, Equipo_medico, Area_hospital, Orden_Servicio
+from inventario.models import Proveedor, Contrato, Equipo_medico, Area_hospital, Orden_Servicio, Cama, ReporteUsuario, CheckList
 from django.http import HttpResponse
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.decorators import api_view
@@ -47,6 +47,51 @@ class EquipoViewSet(ModelViewSet):
     def get_serializer_context(self):
         return {'request': self.request}
 
+class CamaViewSet(ModelViewSet):
+    permission_classes = [IsAdminOrReadOnly, IsAuthenticated]
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [IsAuthenticated()]
+        return [IsAdminOrReadOnly()]
+    
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return serializers.GetCamaSerializer
+        elif self.request.method == 'PUT':
+            return serializers.PutCamaSerializer
+        return serializers.CrearCamaSerializer
+    
+
+    def get_serializer_context(self):
+        if 'pk' in self.kwargs.keys():
+            return {'area': self.kwargs['id_pk'], 'cama': self.kwargs['pk']}
+        return {'area': self.kwargs['id_pk']}
+
+    def get_queryset(self):
+        return Cama.objects.select_related('sala').prefetch_related('equipos_cama').filter(sala__responsable = self.request.user.id)
+
+class CheckListViewSet(ModelViewSet):
+    permission_classes = [IsAdminOrReadOnly]
+    serializer_class = serializers.CheckListSerializer
+
+    queryset = CheckList.objects.select_related('area','equipo').all()
+
+class CheckListEspecificoViewSet(ModelViewSet):
+    permission_classes = [IsAdminOrReadOnly]
+    serializer_class = serializers.CheckListSerializer
+
+    def get_queryset(self):
+        return CheckList.objects.prefetch_related('area','equipo').filter(equipo=self.kwargs['equipo_pk'])
+
+class CheckListCrearViewSet(mixins.CreateModelMixin, GenericViewSet):
+    permission_classes = [IsAdminUser]
+    serializer_class = serializers.CrearCheckListSerializer
+    def get_serializer_context(self):
+        
+        return {'area': self.kwargs['id_pk'], 'equipo': self.kwargs['area_equipo_pk'] }
+
+
 class AreaViewSet(ModelViewSet):
 
     permission_classes = [IsAdminOrReadOnly, IsAuthenticated]
@@ -90,7 +135,7 @@ class AreaEquipoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, Generi
         return serializers.AreaEquipoSerializer
     
     def get_queryset(self):
-        return Equipo_medico.objects.select_related('area').filter(area=self.kwargs['id_id'])
+        return Equipo_medico.objects.select_related('area').filter(area=self.kwargs['id_pk'])
 
 class AreaOrdenesViewset(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
     serializer_class = OrdenEquipoSerializer
@@ -129,3 +174,4 @@ class AgendaViewSet(ModelViewSet):
 
     def get_serializer_context(self):
         return {'equipo': self.kwargs['equipo_pk']}
+    

@@ -27,5 +27,6 @@ urlpatterns = [
     path('equipo_medico/', include('inventario.urls_equipo')),
     path('area/', include('inventario.urls_area')),
     path('orden/', include('inventario.urls_orden')),
-    path('agenda/', include('inventario.urls_agenda'))
+    path('agenda/', include('inventario.urls_agenda')),
+    path('checklists/', include('inventario.urls_checklist'))
 ]

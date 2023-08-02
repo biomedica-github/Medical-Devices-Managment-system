@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Proveedor, Contrato, Equipo_medico, Area_hospital, Orden_Servicio
+from .models import Proveedor, Contrato, Equipo_medico, Area_hospital, Orden_Servicio, Cama, ReporteUsuario, CheckList
 from datetime import datetime, date
 from datetime import timedelta
 import pytz
@@ -156,6 +156,8 @@ class OrdenAgendaSerializer(serializers.ModelSerializer):
         return self.instance
 
 
+
+
     def calcular_dias_restantes(self, orden: Orden_Servicio):
         today = date.today()
         
@@ -222,4 +224,52 @@ class AgregarServicioEquipo(serializers.ModelSerializer):
         orden.equipo_medico.add(equipo_med)
         return self.instance
 
-        
+class PutCamaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cama
+        fields = ['equipos_cama']
+    extra_kwargs = {'equipos': {'required':False}}
+
+    def save(self, **kwargs):
+        cama = self.context['cama']
+        area = self.context['area']
+        print(self.validated_data)
+        equipos = self.validated_data['equipos_cama']
+        self.instance = cama_area = Cama.objects.filter(numero_cama = cama, sala=area).get()
+        for equipo in equipos:
+            cama_area.equipos_cama.add(equipo)
+
+        return self.instance
+
+class CrearCheckListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CheckList
+        fields = ['id','bateria','condicion_general', 'enciende', 'sensor_SPO2',
+                  'sensor_TEMP','PANI','sensor_ECG','sensor_PAI','observaciones',
+                  'desempeño_general']
+
+    def save(self, **kwargs):
+        sala = self.context['area']
+        sala_query = Area_hospital.objects.get(id=sala)
+        equipo_med = self.context['equipo']
+        equipo_query = Equipo_medico.objects.get(numero_nacional_inv=equipo_med)
+        CheckList.objects.create(area=sala_query, equipo = equipo_query, **self.validated_data)
+        return self.instance
+    
+class CheckListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CheckList
+        fields = '__all__'
+    sala = serializers.StringRelatedField()
+    extra_kwargs = {'sala': {'required': True}, 'equipo': {'required':True}}
+    
+class GetCamaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cama
+        fields = ['numero_cama', 'equipos_cama']
+
+class CrearCamaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cama
+        fields = ['numero_cama', 'sala', 'equipos_cama']
+    extra_kwargs = {'sala': {'required':True}, 'equipos':{'required':True}}       
