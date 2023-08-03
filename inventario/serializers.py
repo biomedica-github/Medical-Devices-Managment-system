@@ -3,7 +3,8 @@ from .models import Proveedor, Contrato, Equipo_medico, Area_hospital, Orden_Ser
 from datetime import datetime, date
 from datetime import timedelta
 import pytz
-
+from rest_framework.response import Response
+from core.models import User
 
 
 
@@ -255,7 +256,48 @@ class CrearCheckListSerializer(serializers.ModelSerializer):
         equipo_query = Equipo_medico.objects.get(numero_nacional_inv=equipo_med)
         CheckList.objects.create(area=sala_query, equipo = equipo_query, **self.validated_data)
         return self.instance
+
+class CrearReporteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReporteUsuario
+        fields = ['id','falla', 'descripcion']
     
+    id = serializers.IntegerField(read_only=True)
+    
+    def save(self, **kwargs):
+        area_equipo = self.context['area']
+        sala_query = Area_hospital.objects.get(id=area_equipo)
+        equipo_med = self.context['equipo']
+        equipo_query = Equipo_medico.objects.get(numero_nacional_inv=equipo_med)
+        usuario_context = self.context['usuario']
+        usuario = User.objects.get(id=usuario_context)
+
+
+        self.instance = ReporteUsuario.objects.create(area=sala_query, equipo=equipo_query, responsable=usuario, **self.validated_data)
+        return self.instance
+
+class VerReportesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReporteUsuario
+        fields = '__all__'
+    area = serializers.StringRelatedField()
+    equipo = serializers.StringRelatedField()
+    estado = serializers.SerializerMethodField(method_name='get_estado')
+    falla = serializers.SerializerMethodField()
+    responsable = serializers.StringRelatedField()
+    def get_falla(self, reporte: ReporteUsuario):
+        return reporte.get_falla_display()
+
+    def get_estado(self, reporte: ReporteUsuario):
+        return reporte.get_estado_display()
+
+class AtenderReporteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReporteUsuario
+        fields = ['estado', 'solucion_tecnico']
+
+
+
 class CheckListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CheckList

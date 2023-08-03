@@ -142,8 +142,7 @@ class ReporteUsuario(models.Model):
         ESTADO_EN_PROCESO = "PRO"
         ESTADO_OPCIONES = [
             (ESTADO_PENDIENTE, 'Pendiente'),
-            (ESTADO_COMPLETADO, 'Completado'),
-            (ESTADO_EN_PROCESO, 'En proceso')
+            (ESTADO_COMPLETADO, 'Completado')
         ]
 
         FALLA_NO_ENCIENDE = "NO/ENC"
@@ -159,7 +158,7 @@ class ReporteUsuario(models.Model):
             (FALLA_NO_TRABAJA, 'El equipo no trabaja de forma que deberia(No funcionan perillas, botones, pantalla tactil, etc.)'),
             (FALLA_PAPEL, 'Hace falta papel')
         ]
-
+        responsable = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, related_name= 'responsable_reporte')
         estado = models.CharField(max_length= 3, choices=ESTADO_OPCIONES, default=ESTADO_PENDIENTE)
         correo = models.EmailField(null=True)
         fecha_hora = models.DateTimeField(auto_now_add=True)
@@ -168,6 +167,10 @@ class ReporteUsuario(models.Model):
         falla = models.CharField(max_length= 6, choices=FALLA_OPCIONES)
         descripcion = models.CharField(max_length= 500, null=True)
         solucion_tecnico = models.CharField(max_length= 500, null=True)
+
+        class Meta:
+            ordering = ['-fecha_hora']
+    
 
 class CheckList(models.Model):
     CONDICION_BUENA = "B"
@@ -191,4 +194,7 @@ class CheckList(models.Model):
     sensor_PAI = models.CharField(max_length= 1, choices=CONDICION_OPCIONES, default= CONDICION_NA)
     observaciones = models.CharField(max_length= 800, null=True)
     desempeño_general = models.PositiveSmallIntegerField(validators=[MaxValueValidator(5)])
+
+    class Meta:
+        ordering = ['-fecha_hora']
 

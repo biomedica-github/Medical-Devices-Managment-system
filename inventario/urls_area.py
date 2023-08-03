@@ -15,6 +15,8 @@ area_router.register('equipos_area', views.AreaEquipoViewSet, basename='area-equ
 
 checklist_router = routers.NestedDefaultRouter(area_router, 'equipos_area', lookup = 'area_equipo')
 checklist_router.register('checklist', views.CheckListCrearViewSet, basename='checklist_area')
+checklist_router.register('levantar_reporte', views.CrearReporteViewSet, basename='reporte_area')
+
 
 # URLConf
 urlpatterns = router.urls + cama_router.urls + area_router.urls + checklist_router.urls

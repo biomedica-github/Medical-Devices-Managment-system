@@ -2,7 +2,7 @@ from typing import Any
 from django.shortcuts import get_object_or_404
 from inventario.models import Proveedor, Contrato, Equipo_medico, Area_hospital, Orden_Servicio, Cama, ReporteUsuario, CheckList
 from django.http import HttpResponse
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, RetrieveUpdateAPIView
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -90,8 +90,30 @@ class CheckListCrearViewSet(mixins.CreateModelMixin, GenericViewSet):
     def get_serializer_context(self):
         
         return {'area': self.kwargs['id_pk'], 'equipo': self.kwargs['area_equipo_pk'] }
+    
+class CrearReporteViewSet(mixins.CreateModelMixin, GenericViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = serializers.CrearReporteSerializer
 
+    def create(self, request, *args, **kwargs):
+        equipo = Equipo_medico.objects.filter(area__responsable = request.user.id, numero_nacional_inv = kwargs['area_equipo_pk'])
+        if equipo:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            id = serializer.data['id']
+            return Response(f'Su ID de reporte es: {id}', status=status.HTTP_201_CREATED, headers=headers)
+        return Response('Usuario Incorrecto')
 
+    def get_queryset(self):
+        return ReporteUsuario.objects.filter(area = self.kwargs['id_pk'], area__responsable = self.request.user.id)
+
+    def get_serializer_context(self):
+        contexto = {'area': self.kwargs['id_pk'], 'equipo': self.kwargs['area_equipo_pk'], 'usuario': self.request.user.id}
+        print(contexto)
+        return {'area': self.kwargs['id_pk'], 'equipo': self.kwargs['area_equipo_pk'], 'usuario': self.request.user.id}
+    
 class AreaViewSet(ModelViewSet):
 
     permission_classes = [IsAdminOrReadOnly, IsAuthenticated]
@@ -135,7 +157,7 @@ class AreaEquipoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, Generi
         return serializers.AreaEquipoSerializer
     
     def get_queryset(self):
-        return Equipo_medico.objects.select_related('area').filter(area=self.kwargs['id_pk'])
+        return Equipo_medico.objects.select_related('area').filter(area=self.kwargs['id_pk'], area__responsable = self.request.user.id)
 
 class AreaOrdenesViewset(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
     serializer_class = OrdenEquipoSerializer
@@ -174,4 +196,75 @@ class AgendaViewSet(ModelViewSet):
 
     def get_serializer_context(self):
         return {'equipo': self.kwargs['equipo_pk']}
+
+class VerReportesViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, mixins.UpdateModelMixin, GenericViewSet):
+    permission_classes = [IsAdminUser]
+    def get_serializer_class(self):
+        if self.request.method == 'PUT' or self.request.method == 'PATCH':
+            return serializers.AtenderReporteSerializer
+        return serializers.VerReportesSerializer
+
+    queryset = ReporteUsuario.objects.select_related('area', 'equipo').all()
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response('Reporte actualizado exitosamente')
+
+class VerReportesPendientesViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, mixins.UpdateModelMixin, GenericViewSet):
+    permission_classes = [IsAdminUser]
+    
+    def get_serializer_class(self):
+        if self.request.method == 'PUT' or self.request.method == 'PATCH':
+            return serializers.AtenderReporteSerializer
+        return serializers.VerReportesSerializer
+    
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response('Reporte actualizado exitosamente')
+
+    queryset = ReporteUsuario.objects.select_related('area', 'equipo').filter(estado="PEN")
+
+class VerReportesCompletadosViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, mixins.UpdateModelMixin, GenericViewSet):
+    permission_classes = [IsAdminUser]
+    def get_serializer_class(self):
+        if self.request.method == 'PUT' or self.request.method == 'PATCH':
+            return serializers.AtenderReporteSerializer
+        return serializers.VerReportesSerializer
+    
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response('Reporte actualizado exitosamente')
+
+    queryset = ReporteUsuario.objects.select_related('area', 'equipo').filter(estado="COM")
     
