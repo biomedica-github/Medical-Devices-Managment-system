@@ -4,13 +4,13 @@ from rest_framework.routers import SimpleRouter
 from rest_framework_nested import routers
 
 router = routers.DefaultRouter()
-router.register('', views.AreaViewSet, basename= 'Area')
+router.register('general', views.AreaViewSet, basename= 'Area')
 
 
-cama_router = routers.NestedDefaultRouter(router, '', lookup='id')
+cama_router = routers.NestedDefaultRouter(router, 'general', lookup='id')
 cama_router.register('camas', views.CamaViewSet, basename='cama-area')
 
-area_router = routers.NestedDefaultRouter(router, '', lookup='id')
+area_router = routers.NestedDefaultRouter(router, 'general', lookup='id')
 area_router.register('equipos_area', views.AreaEquipoViewSet, basename='area-equipo')
 
 checklist_router = routers.NestedDefaultRouter(area_router, 'equipos_area', lookup = 'area_equipo')

@@ -15,12 +15,15 @@ from django.db.models import Q
 from .permissions import IsAdminOrReadOnly
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.decorators import action
+from datetime import date
 
 class ProveedorViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
     queryset = Proveedor.objects.prefetch_related('proveedor_contrato').all()
     serializer_class = ProveedorSerializers
     lookup_field = 'id'
+
+    
 
 class ContratoViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
@@ -77,9 +80,30 @@ class CheckListViewSet(ModelViewSet):
 
     queryset = CheckList.objects.select_related('area','equipo').all()
 
+
+class LevantarMultipleCheckList(ModelViewSet):
+    permission_classes = [IsAdminUser]
+    
+    def get_serializer_class(self):
+        if self.request.method == 'POST' or self.request.method == 'PUT':
+            return serializers.CrearCheckListGeneralSerializer
+        return serializers.CheckListSerializer
+
+    queryset = CheckList.objects.prefetch_related('area', 'equipo').all()
+
+
 class CheckListEspecificoViewSet(ModelViewSet):
-    permission_classes = [IsAdminOrReadOnly]
-    serializer_class = serializers.CheckListSerializer
+    permission_classes = [IsAdminUser]
+    def get_serializer_class(self):
+        if self.request.method == 'POST' or self.request.method == 'PUT':
+            return serializers.CrearCheckListSerializer
+        return serializers.CheckListSerializer
+
+
+    def get_serializer_context(self):
+        sala = Equipo_medico.objects.values('area').get(numero_nacional_inv=self.kwargs['equipo_pk'])
+        return {'equipo': self.kwargs['equipo_pk'], 'area': sala['area']}
+
 
     def get_queryset(self):
         return CheckList.objects.prefetch_related('area','equipo').filter(equipo=self.kwargs['equipo_pk'])
@@ -111,7 +135,7 @@ class CrearReporteViewSet(mixins.CreateModelMixin, GenericViewSet):
 
     def get_serializer_context(self):
         contexto = {'area': self.kwargs['id_pk'], 'equipo': self.kwargs['area_equipo_pk'], 'usuario': self.request.user.id}
-        print(contexto)
+
         return {'area': self.kwargs['id_pk'], 'equipo': self.kwargs['area_equipo_pk'], 'usuario': self.request.user.id}
     
 class AreaViewSet(ModelViewSet):
@@ -142,11 +166,35 @@ class AreaViewSet(ModelViewSet):
         serializer = OrdenAgendaSerializer(orden, many=True)
         return Response(serializer.data)
 
+class AgendaUsuarioViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
+    serializer_class = OrdenAgendaSerializer
+    permission_classes = [IsAuthenticated]
 
-class CrearOrdenViewSet(ModelViewSet):
+    def get_queryset(self):
+        today = date.today()
+        return Orden_Servicio.objects.prefetch_related('equipo_medico').\
+        filter(equipo_medico__area__responsable = self.request.user.id, tipo_orden = 'A', fecha__gte=today).order_by('fecha').all()
+
+
+class LevantarOrdenViewSet(mixins.CreateModelMixin, GenericViewSet):
+    permission_classes = [IsAdminUser]
+    serializer_class = serializers.CrearOrdenSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        num_nacional = serializer.data['equipo_medico'] #terminar
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
+
+
+class CrearOrdenViewSet(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin, mixins.DestroyModelMixin, GenericViewSet):
     permission_classes = [IsAdminUser]
     def get_serializer_class(self):
-        if self.request.method == 'POST' or self.request.method == 'PUT':
+        if self.request.method == 'PUT':
             return serializers.CrearOrdenSerializer
         return OrdenEquipoSerializer
     queryset = Orden_Servicio.objects.prefetch_related('equipo_medico').all()
@@ -158,6 +206,8 @@ class AreaEquipoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, Generi
     
     def get_queryset(self):
         return Equipo_medico.objects.select_related('area').filter(area=self.kwargs['id_pk'], area__responsable = self.request.user.id)
+
+
 
 class AreaOrdenesViewset(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
     serializer_class = OrdenEquipoSerializer
@@ -182,17 +232,34 @@ class OrdenViewSet(ModelViewSet):
         return {'equipo': self.kwargs['equipo_pk']}
 
 class AgendaAdminViewset(ModelViewSet):
-    serializer_class = serializers.AgendaAdminSerializer
+    
     permission_classes = [IsAdminUser]
+    today = date.today()
 
-    queryset = Orden_Servicio.objects.filter(tipo_orden='A').all()
+    def get_serializer_class(self):
+        if self.request.method == 'POST' or self.request.method == 'PUT':
+            return serializers.AgregarAgendaAdminSerializer
+        return serializers.AgendaAdminSerializer
+
+    queryset = Orden_Servicio.objects.prefetch_related('equipo_medico', 'equipo_medico__area').filter(tipo_orden='A', fecha__gte=today).order_by('fecha').all()
+
+class AgendaAdminTodosViewSet(ModelViewSet):
+    permission_classes = [IsAdminUser]
+    def get_serializer_class(self):
+        if self.request.method == 'POST' or self.request.method == 'PUT':
+            return serializers.AgregarAgendaAdminSerializer
+        return serializers.AgendaAdminSerializer
+    
+    queryset = Orden_Servicio.objects.prefetch_related('equipo_medico', 'equipo_medico__area').filter(tipo_orden = 'A').all()
+
+
 
 class AgendaViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
     serializer_class = OrdenAgendaSerializer
     
     def get_queryset(self):
-        return Orden_Servicio.objects.filter(tipo_orden='A', equipo_medico__numero_nacional_inv = self.kwargs['equipo_pk'])
+        return Orden_Servicio.objects.prefetch_related('equipo_medico', 'equipo_medico__area').filter(tipo_orden='A', equipo_medico__numero_nacional_inv = self.kwargs['equipo_pk'])
 
     def get_serializer_context(self):
         return {'equipo': self.kwargs['equipo_pk']}
