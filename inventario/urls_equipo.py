@@ -4,10 +4,9 @@ from rest_framework.routers import SimpleRouter
 from rest_framework_nested import routers
 
 router = routers.DefaultRouter()
-router.register('general', views.EquipoViewSet)
-router.register('checklist', views.LevantarMultipleCheckList)
+router.register('', views.EquipoViewSet)
 
-equipo_router = routers.NestedDefaultRouter(router, 'general', lookup='equipo')
+equipo_router = routers.NestedDefaultRouter(router, '', lookup='equipo')
 equipo_router.register('servicio', views.OrdenViewSet, basename= 'equipo-orden')
 equipo_router.register('agenda', views.AgendaViewSet, basename='equipo-agenda')
 equipo_router.register('checklists', views.CheckListEspecificoViewSet, basename='equipo-check')

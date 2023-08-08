@@ -4,8 +4,7 @@ from rest_framework.routers import SimpleRouter
 from rest_framework_nested import routers
 
 router = routers.DefaultRouter()
-router.register('pendientes', views.AgendaAdminViewset, basename= 'Agenda')
-router.register('general', views.AgendaAdminTodosViewSet)
+router.register('', views.AgendaAdminViewset, basename= 'Agenda')
 
 
 urlpatterns = router.urls

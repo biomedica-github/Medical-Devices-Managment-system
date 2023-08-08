@@ -115,40 +115,22 @@ class OrdenEquipoSerializer(serializers.ModelSerializer):
         return orden.get_estatus_display()
 
 
-class EquipoAgendaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Equipo_medico
-        fields = ['numero_nacional_inv', 'nombre_equipo', 'area', 'cama']
-    
-    area = serializers.StringRelatedField()
-
-
-class AgregarAgendaAdminSerializer(serializers.ModelSerializer):
-    class Meta: 
-        model = Orden_Servicio
-        fields = ['fecha', 'equipo_medico']
-
-    extra_kwargs = {'equipo_medico': {'required':True}}
-
-
-
 class AgendaAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = Orden_Servicio
         fields = ['id','fecha', 'equipo_medico', 'dias_restantes']
-
-    equipo_medico = EquipoAgendaSerializer(many=True, read_only=True)
     dias_restantes = serializers.SerializerMethodField(method_name='calcular_dias_restantes', read_only=True)
-
-    
+    extra_kwargs = {'equipo_medico': {'required': True}}
 
     def calcular_dias_restantes(self, orden: Orden_Servicio):
-        today = date.today()
+        fecha = datetime.today()
+        tz = pytz.timezone('America/Los_Angeles')
+        today = fecha.astimezone(tz=tz).date()
         fecha_vencimiento = orden.fecha - today
         dias = fecha_vencimiento.days
 
         if dias < 0 and orden.estatus == 'PEN':
-            return f"Orden no atendida, favor de contactar proveedor o actualizar la orden de servicio numero: {orden.id}"
+            return "Orden no atendida, favor de contactar proveedor o actualizar la orden de servicio"
         if dias == 0 and orden.estatus == 'PEN':
             return "Hoy se debe atender la orden, favor de contactar a su proveedor y confirmar"
         elif dias <= 0 and orden.estatus != 'PEN':
@@ -157,12 +139,11 @@ class AgendaAdminSerializer(serializers.ModelSerializer):
             return f"Faltan {dias} para el siguiente servicio"
 
 
-
 class OrdenAgendaSerializer(serializers.ModelSerializer):
     class Meta: 
         model = Orden_Servicio
         fields = ['id','fecha', 'equipo_medico', 'dias_restantes']
-    equipo_medico = EquipoAgendaSerializer(many = True, read_only=True)
+    equipo_medico = serializers.PrimaryKeyRelatedField(many = True, read_only=True)
     dias_restantes = serializers.SerializerMethodField(method_name='calcular_dias_restantes', read_only=True)
 
     def save(self, **kwargs):
@@ -174,6 +155,9 @@ class OrdenAgendaSerializer(serializers.ModelSerializer):
         
 
         return self.instance
+
+
+
 
     def calcular_dias_restantes(self, orden: Orden_Servicio):
         today = date.today()
@@ -318,17 +302,9 @@ class CheckListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CheckList
         fields = '__all__'
-    area = serializers.StringRelatedField()
-    extra_kwargs = {'area': {'required': True}, 'equipo': {'required':True}}
-
-
-class CrearCheckListGeneralSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CheckList
-        fields = '__all__'
-    extra_kwargs = {'area': {'required': True}, 'equipo': {'required':True}}
-
-
+    sala = serializers.StringRelatedField()
+    extra_kwargs = {'sala': {'required': True}, 'equipo': {'required':True}}
+    
 class GetCamaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cama
