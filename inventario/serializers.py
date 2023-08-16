@@ -84,13 +84,13 @@ class CrearContratoSerializer(serializers.ModelSerializer):
 
 
 class CrearOrdenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Orden_Servicio
+        fields = '__all__'
+    
     estatus = serializers.ChoiceField(choices=Orden_Servicio.ESTATUS_OPCIONES)
     motivo = serializers.ChoiceField(choices=Orden_Servicio.MOTIVO_OPCIONES)
     tipo_orden = serializers.ChoiceField(choices=Orden_Servicio.TIPO_OPCIONES)
-    class Meta:
-        model = Orden_Servicio
-        fields = ['id','numero_orden', 'fecha', 'motivo', 'tipo_orden', 'estatus','responsable','autorizo_jefe_biomedica','autorizo_jefe_conservacion','descripcion_servicio','equipo_complementario','ing_realizo','num_mantenimiento_preventivo','fallo_paciente', 'equipo_medico']
-    
     id = serializers.IntegerField(read_only=True)
     extra_kwargs = {'equipo_medico': {'required':False}}
 

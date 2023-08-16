@@ -176,29 +176,16 @@ class AgendaUsuarioViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, Gen
         filter(equipo_medico__area__responsable = self.request.user.id, tipo_orden = 'A', fecha__gte=today).order_by('fecha').all()
 
 
-class LevantarOrdenViewSet(mixins.CreateModelMixin, GenericViewSet):
-    permission_classes = [IsAdminUser]
-    serializer_class = serializers.CrearOrdenSerializer
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        num_nacional = serializer.data['equipo_medico'] #terminar
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-    
-
-
-class CrearOrdenViewSet(mixins.UpdateModelMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin, mixins.DestroyModelMixin, GenericViewSet):
+class CrearOrdenViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
     def get_serializer_class(self):
-        if self.request.method == 'PUT':
+        if self.request.method == 'POST' or self.request.method == 'PUT':
             return serializers.CrearOrdenSerializer
         return OrdenEquipoSerializer
-    queryset = Orden_Servicio.objects.prefetch_related('equipo_medico').all()
+    queryset = Orden_Servicio.objects.prefetch_related('equipo_medico').exclude(estatus="PEN").order_by('-fecha').all()
 
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
 class AreaEquipoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
     
     def get_serializer_class(self):
@@ -208,6 +195,17 @@ class AreaEquipoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, Generi
         return Equipo_medico.objects.select_related('area').filter(area=self.kwargs['id_pk'], area__responsable = self.request.user.id)
 
 
+class AgendaAreaViewSet(ModelViewSet):
+    permission_classes = [IsAdminOrReadOnly]
+    serializer_class = OrdenAgendaSerializer
+
+    def get_queryset(self):
+        return Orden_Servicio.objects.prefetch_related('equipo_medico', 'equipo_medico__area').filter(tipo_orden='A', equipo_medico__numero_nacional_inv = self.kwargs['area_equipo_pk']
+                                                                                                      ,equipo_medico__area__responsable = self.request.user.id)
+
+    def get_serializer_context(self):
+        print(self.kwargs)
+        return {'equipo': self.kwargs['area_equipo_pk']}
 
 class AreaOrdenesViewset(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
     serializer_class = OrdenEquipoSerializer
@@ -235,22 +233,17 @@ class AgendaAdminViewset(ModelViewSet):
     
     permission_classes = [IsAdminUser]
     today = date.today()
-
-    def get_serializer_class(self):
-        if self.request.method == 'POST' or self.request.method == 'PUT':
-            return serializers.AgregarAgendaAdminSerializer
-        return serializers.AgendaAdminSerializer
+    serializer_class = serializers.AgendaAdminSerializer
+    
+    #def get_serializer_class(self):
+    
+     #   if self.request.method == 'POST' or self.request.method == 'PUT':
+      #      return serializers.AgregarAgendaAdminSerializer
+       # return serializers.AgendaAdminSerializer
 
     queryset = Orden_Servicio.objects.prefetch_related('equipo_medico', 'equipo_medico__area').filter(tipo_orden='A', fecha__gte=today).order_by('fecha').all()
 
-class AgendaAdminTodosViewSet(ModelViewSet):
-    permission_classes = [IsAdminUser]
-    def get_serializer_class(self):
-        if self.request.method == 'POST' or self.request.method == 'PUT':
-            return serializers.AgregarAgendaAdminSerializer
-        return serializers.AgendaAdminSerializer
-    
-    queryset = Orden_Servicio.objects.prefetch_related('equipo_medico', 'equipo_medico__area').filter(tipo_orden = 'A').all()
+
 
 
 

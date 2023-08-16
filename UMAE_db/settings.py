@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'djoser',
     'inventario',
     'debug_toolbar',
-    'core'
+    'core',
+    'django_cleanup.apps.CleanupConfig'
 ]
 
 INTERNAL_IPS = [
@@ -134,7 +135,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

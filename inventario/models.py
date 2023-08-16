@@ -124,25 +124,23 @@ class Orden_Servicio(models.Model):
     responsable = models.CharField(max_length=100, null=True)
     autorizo_jefe_biomedica = models.BooleanField(default=False)
     autorizo_jefe_conservacion = models.BooleanField(default=False)
-    orden_escaneada = models.FileField(null=True)
     descripcion_servicio = models.CharField(max_length=2000, null=True)
     equipo_complementario = models.CharField(max_length=200, null=True)
     ing_realizo = models.CharField(max_length=100, null=True)
     num_mantenimiento_preventivo = models.PositiveSmallIntegerField(null=True)
     fallo_paciente = models.BooleanField(null=True)
     equipo_medico = models.ManyToManyField(Equipo_medico, related_name='equipo_orden')
+    orden_escaneada = models.FileField(null=True, upload_to= 'Ordenes_servicio', unique=True)
 
     class Meta:
         ordering = ['-fecha']
 
-
 class ReporteUsuario(models.Model):
         ESTADO_PENDIENTE = "PEN"
         ESTADO_COMPLETADO = "COM"
-        ESTADO_EN_PROCESO = "PRO"
         ESTADO_OPCIONES = [
             (ESTADO_PENDIENTE, 'Pendiente'),
-            (ESTADO_COMPLETADO, 'Completado')
+            (ESTADO_COMPLETADO, 'Atendido')
         ]
 
         FALLA_NO_ENCIENDE = "NO/ENC"
