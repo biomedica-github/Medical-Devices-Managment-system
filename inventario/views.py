@@ -207,6 +207,23 @@ class AgendaAreaViewSet(ModelViewSet):
         print(self.kwargs)
         return {'equipo': self.kwargs['area_equipo_pk']}
 
+class AreaAgendaViewSet(ModelViewSet):
+    permission_classes = [IsAdminOrReadOnly]
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST' or self.request.method == 'PUT':
+            return serializers.AgregarOrdenAgendaAreaSerializer
+        return serializers.OrdenAgendaAreaSerializer
+
+    def get_queryset(self):
+        print(self.kwargs)
+        return Orden_Servicio.objects.prefetch_related('equipo_medico', 
+                                                              'equipo_medico__area',
+                                                              'equipo_medico__cama')\
+                                                                .filter(tipo_orden='A', equipo_medico__area = self.kwargs['id_pk']\
+                                                                    ,equipo_medico__area__responsable = self.request.user.id)
+
+
 class AreaOrdenesViewset(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
     serializer_class = OrdenEquipoSerializer
     

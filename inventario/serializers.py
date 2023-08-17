@@ -153,11 +153,7 @@ class OrdenAgendaSerializer(serializers.ModelSerializer):
         self.instance = orden = Orden_Servicio.objects.create(fecha = fecha_data)
         orden.equipo_medico.add(equipo_med)
         
-
         return self.instance
-
-
-
 
     def calcular_dias_restantes(self, orden: Orden_Servicio):
         today = date.today()
@@ -172,6 +168,37 @@ class OrdenAgendaSerializer(serializers.ModelSerializer):
         else:
             return f"Faltan {dias} para el siguiente servicio"
 
+class AgregarOrdenAgendaAreaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Orden_Servicio
+        fields = ['fecha', 'equipo_medico']
+
+class VerEquipoOrdenAgendaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Equipo_medico
+        fields = ['numero_nacional_inv', 'nombre_equipo', 'cama']
+
+
+
+class OrdenAgendaAreaSerializer(serializers.ModelSerializer):
+    class Meta: 
+        model = Orden_Servicio
+        fields = ['id','fecha', 'equipo_medico', 'dias_restantes']
+    equipo_medico = VerEquipoOrdenAgendaSerializer(many = True, read_only=True)
+    dias_restantes = serializers.SerializerMethodField(method_name='calcular_dias_restantes', read_only=True)
+
+    def calcular_dias_restantes(self, orden: Orden_Servicio):
+        today = date.today()
+        
+        fecha_vencimiento = orden.fecha - today
+        dias = fecha_vencimiento.days
+
+        if dias <= 0 and orden.estatus == 'PEN':
+            return "Orden no atendida, favor de contactar proveedor o actualizar la orden de servicio"
+        elif dias <= 0 and orden.estatus != 'PEN':
+            return "Servicio atendido"
+        else:
+            return f"Faltan {dias} para el siguiente servicio"
 
 class CrearEquipoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -214,7 +241,7 @@ class AgregarServicioEquipo(serializers.ModelSerializer):
     tipo_orden = serializers.ChoiceField(choices=Orden_Servicio.TIPO_OPCIONES)
     class Meta:
         model = Orden_Servicio
-        fields = ['id','numero_orden', 'fecha', 'motivo', 'tipo_orden', 'estatus','responsable','autorizo_jefe_biomedica','autorizo_jefe_conservacion','descripcion_servicio','equipo_complementario','ing_realizo','num_mantenimiento_preventivo','fallo_paciente', 'equipo_medico']
+        fields = ['id','numero_orden', 'fecha', 'motivo', 'tipo_orden', 'estatus','responsable','autorizo_jefe_biomedica','autorizo_jefe_conservacion','descripcion_servicio','equipo_complementario','ing_realizo','num_mantenimiento_preventivo','fallo_paciente', 'orden_escaneada','equipo_medico']
     id = serializers.IntegerField(read_only=True)
     equipo_medico = serializers.PrimaryKeyRelatedField(many = True, read_only=True)
 

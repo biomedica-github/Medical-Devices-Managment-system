@@ -130,7 +130,7 @@ class Orden_Servicio(models.Model):
     num_mantenimiento_preventivo = models.PositiveSmallIntegerField(null=True)
     fallo_paciente = models.BooleanField(null=True)
     equipo_medico = models.ManyToManyField(Equipo_medico, related_name='equipo_orden')
-    orden_escaneada = models.FileField(null=True, upload_to= 'Ordenes_servicio', unique=True)
+    orden_escaneada = models.FileField(null=True, upload_to= 'Ordenes_servicio')
 
     class Meta:
         ordering = ['-fecha']
