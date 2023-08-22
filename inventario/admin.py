@@ -30,5 +30,4 @@ class AreaAdmin(admin.ModelAdmin):
     list_display = ['nombre_sala']
     list_per_page = 10
 
-admin.site.register(models.Cama)
 admin.site.register(models.Proveedor)

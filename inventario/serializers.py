@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Proveedor, Contrato, Equipo_medico, Area_hospital, Orden_Servicio, Cama, ReporteUsuario, CheckList
+from .models import Proveedor, Contrato, Equipo_medico, Area_hospital, Orden_Servicio, ReporteUsuario, CheckList
 from datetime import datetime, date
 from datetime import timedelta
 import pytz
@@ -150,7 +150,10 @@ class OrdenAgendaSerializer(serializers.ModelSerializer):
         equipo = self.context['equipo']
         fecha_data = self.validated_data['fecha']
         equipo_med = Equipo_medico.objects.get(numero_nacional_inv=equipo)
-        self.instance = orden = Orden_Servicio.objects.create(fecha = fecha_data)
+        contrato_equipo = Equipo_medico.objects.values('contrato').get(numero_nacional_inv = equipo)
+        contrato_objeto = Contrato.objects.get(num_contrato = contrato_equipo['contrato'])
+        
+        self.instance = orden = Orden_Servicio.objects.create(fecha = fecha_data, contrato = contrato_objeto)
         orden.equipo_medico.add(equipo_med)
         
         return self.instance
@@ -201,14 +204,15 @@ class OrdenAgendaAreaSerializer(serializers.ModelSerializer):
             return f"Faltan {dias} para el siguiente servicio"
 
 class CrearEquipoSerializer(serializers.ModelSerializer):
+    cama = serializers.IntegerField(required =False, allow_null=True)
     class Meta:
         model = Equipo_medico
-        fields = ['numero_nacional_inv', 'nombre_equipo', 'modelo', 'estado', 'numero_serie', 'marca', 'observaciones', 'contrato','area','cama']
+        fields = ['numero_nacional_inv', 'nombre_equipo', 'modelo', 'estado', 'numero_serie', 'marca', 'observaciones', 'contrato','area', 'cama']
 
         extra_kwargs = {'area': {'required': False}}
 
 class Equipo_Serializer(serializers.ModelSerializer):
-
+    cama = serializers.IntegerField(required =False, allow_null=True)
     class Meta:
         model = Equipo_medico
         fields = ['numero_nacional_inv', 'nombre_equipo', 'modelo', 'estado', 'numero_serie', 'marca', 'observaciones', 'contrato','area','cama']
@@ -252,22 +256,6 @@ class AgregarServicioEquipo(serializers.ModelSerializer):
         orden.equipo_medico.add(equipo_med)
         return self.instance
 
-class PutCamaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Cama
-        fields = ['equipos_cama']
-    extra_kwargs = {'equipos': {'required':False}}
-
-    def save(self, **kwargs):
-        cama = self.context['cama']
-        area = self.context['area']
-        print(self.validated_data)
-        equipos = self.validated_data['equipos_cama']
-        self.instance = cama_area = Cama.objects.filter(numero_cama = cama, sala=area).get()
-        for equipo in equipos:
-            cama_area.equipos_cama.add(equipo)
-
-        return self.instance
 
 class CrearCheckListSerializer(serializers.ModelSerializer):
     class Meta:
@@ -331,14 +319,9 @@ class CheckListSerializer(serializers.ModelSerializer):
         fields = '__all__'
     sala = serializers.StringRelatedField()
     extra_kwargs = {'sala': {'required': True}, 'equipo': {'required':True}}
-    
-class GetCamaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Cama
-        fields = ['numero_cama', 'equipos_cama']
 
-class CrearCamaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Cama
-        fields = ['numero_cama', 'sala', 'equipos_cama']
-    extra_kwargs = {'sala': {'required':True}, 'equipos':{'required':True}}       
+    def save(self, **kwargs):
+        return super().save(**kwargs)
+
+
+

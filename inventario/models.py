@@ -54,10 +54,6 @@ class Area_hospital(models.Model):
     class Meta:
         ordering = ['nombre_sala']
 
-class Cama(models.Model):
-    numero_cama = models.PositiveIntegerField(primary_key=True)
-    sala = models.ForeignKey(Area_hospital, on_delete=models.PROTECT, related_name= 'camas_area')
-
 class Equipo_medico(models.Model):
     ESTADO_FUNCIONAL = 'FUNC'
     ESTADO_FUERA_SERVICIO = 'OUT'
@@ -75,9 +71,10 @@ class Equipo_medico(models.Model):
     numero_serie = models.CharField(max_length=255, null=True)
     marca = models.CharField(max_length=50, null=True)
     modelo = models.CharField(max_length=50, null=True)
-    cama = models.ForeignKey(Cama, on_delete=models.SET_NULL, null= True, related_name= 'equipos_cama')
     contrato = models.ForeignKey(Contrato, on_delete=models.SET_NULL, null=True, related_name= 'equipos_contrato')
     area = models.ForeignKey(Area_hospital, on_delete=models.SET_NULL, null=True, related_name= 'equipos_area')
+    cama = models.PositiveIntegerField(null=True)
+    
 
     def __str__(self) -> str:
         return self.numero_nacional_inv + f" || Nombre: {self.nombre_equipo} || num_serie: {self.numero_serie}"
@@ -130,6 +127,7 @@ class Orden_Servicio(models.Model):
     num_mantenimiento_preventivo = models.PositiveSmallIntegerField(null=True)
     fallo_paciente = models.BooleanField(null=True)
     equipo_medico = models.ManyToManyField(Equipo_medico, related_name='equipo_orden')
+    contrato = models.ForeignKey(Contrato, related_name='contrato_orden', null=True, on_delete=models.SET_NULL)
     orden_escaneada = models.FileField(null=True, upload_to= 'Ordenes_servicio')
 
     class Meta:

@@ -31,7 +31,7 @@ urlpatterns = [
     path('orden/', include('inventario.urls_orden')),
     path('agenda/', include('inventario.urls_agenda')),
     path('checklists/', include('inventario.urls_checklist')),
-    path('reportes/', include('inventario.urls_reportes')),
+    path('reportes/', include('inventario.urls_reportes'))
 ] 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

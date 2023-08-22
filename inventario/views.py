@@ -1,6 +1,6 @@
 from typing import Any
 from django.shortcuts import get_object_or_404
-from inventario.models import Proveedor, Contrato, Equipo_medico, Area_hospital, Orden_Servicio, Cama, ReporteUsuario, CheckList
+from inventario.models import Proveedor, Contrato, Equipo_medico, Area_hospital, Orden_Servicio, ReporteUsuario, CheckList
 from django.http import HttpResponse
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, RetrieveUpdateAPIView
 from rest_framework.decorators import api_view
@@ -15,19 +15,27 @@ from django.db.models import Q
 from .permissions import IsAdminOrReadOnly
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.decorators import action
+from rest_framework import filters
+from  django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.pagination import LimitOffsetPagination
 from datetime import date
+from . import filters as filtros
+
 
 class ProveedorViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
     queryset = Proveedor.objects.prefetch_related('proveedor_contrato').all()
     serializer_class = ProveedorSerializers
     lookup_field = 'id'
-
     
+    filterset_class = filtros.filtro_proveedor
 
 class ContratoViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
     queryset = Contrato.objects.select_related('proveedor').prefetch_related('equipos_contrato','equipos_contrato__area').all()
+    filterset_class = filtros.filtro_contrato
+
+
     
     def get_serializer_class(self):
         if self.request.method == 'POST' or self.request.method == 'PUT':
@@ -39,40 +47,17 @@ class ContratoViewSet(ModelViewSet):
 
 class EquipoViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
-
+    filterset_class = filtros.filtro_equipo
+    
     def get_serializer_class(self):
         if self.request.method == 'POST' or self.request.method == 'PUT':
             return serializers.CrearEquipoSerializer
         return Equipo_Serializer
 
-    queryset = Equipo_medico.objects.select_related('contrato','area','cama').all()
+    queryset = Equipo_medico.objects.select_related('contrato','area').all()
 
     def get_serializer_context(self):
         return {'request': self.request}
-
-class CamaViewSet(ModelViewSet):
-    permission_classes = [IsAdminOrReadOnly, IsAuthenticated]
-
-    def get_permissions(self):
-        if self.request.method == 'GET':
-            return [IsAuthenticated()]
-        return [IsAdminOrReadOnly()]
-    
-    def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return serializers.GetCamaSerializer
-        elif self.request.method == 'PUT':
-            return serializers.PutCamaSerializer
-        return serializers.CrearCamaSerializer
-    
-
-    def get_serializer_context(self):
-        if 'pk' in self.kwargs.keys():
-            return {'area': self.kwargs['id_pk'], 'cama': self.kwargs['pk']}
-        return {'area': self.kwargs['id_pk']}
-
-    def get_queryset(self):
-        return Cama.objects.select_related('sala').prefetch_related('equipos_cama').filter(sala__responsable = self.request.user.id)
 
 class CheckListViewSet(ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
@@ -98,7 +83,7 @@ class CheckListEspecificoViewSet(ModelViewSet):
         if self.request.method == 'POST' or self.request.method == 'PUT':
             return serializers.CrearCheckListSerializer
         return serializers.CheckListSerializer
-
+    filterset_class = filtros.filtro_equipo_checklist
 
     def get_serializer_context(self):
         sala = Equipo_medico.objects.values('area').get(numero_nacional_inv=self.kwargs['equipo_pk'])
@@ -141,6 +126,7 @@ class CrearReporteViewSet(mixins.CreateModelMixin, GenericViewSet):
 class AreaViewSet(ModelViewSet):
 
     permission_classes = [IsAdminOrReadOnly, IsAuthenticated]
+    filterset_class = filtros.filtro_areas_general
     def get_serializer_class(self):
         if self.request.method == 'PUT':
             return AgregarEquipoAreaSerializer
@@ -178,17 +164,33 @@ class AgendaUsuarioViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, Gen
 
 class CrearOrdenViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
+    filterset_class = filtros.filtro_ordenservicio
     def get_serializer_class(self):
         if self.request.method == 'POST' or self.request.method == 'PUT':
             return serializers.CrearOrdenSerializer
         return OrdenEquipoSerializer
     queryset = Orden_Servicio.objects.prefetch_related('equipo_medico').exclude(estatus="PEN").order_by('-fecha').all()
 
-    def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
-class AreaEquipoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
-    
+
+class OrdenPendientesViewSet(mixins.RetrieveModelMixin, mixins.DestroyModelMixin, mixins.UpdateModelMixin, mixins.ListModelMixin, GenericViewSet):
+    permission_classes = [IsAdminUser]
+    filterset_class = filtros.filtro_ordenpendiente
     def get_serializer_class(self):
+        if self.request.method == 'PUT':
+            return serializers.CrearOrdenSerializer
+        return OrdenEquipoSerializer
+    queryset = Orden_Servicio.objects.prefetch_related('equipo_medico').filter(estatus='PEN').order_by('-fecha').all()
+
+
+class AreaEquipoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, GenericViewSet):
+    permission_classes = [IsAdminOrReadOnly, IsAuthenticated]
+    filterset_class = filtros.filtro_areas_equipo
+
+    
+
+    def get_serializer_class(self):
+        if self.request.method == 'PUT':
+            return serializers.CrearEquipoSerializer
         return serializers.AreaEquipoSerializer
     
     def get_queryset(self):
@@ -196,19 +198,19 @@ class AreaEquipoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, Generi
 
 
 class AgendaAreaViewSet(ModelViewSet):
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly, IsAuthenticated]
     serializer_class = OrdenAgendaSerializer
-
+    filterset_class = filtros.filtro_equipo_agenda
     def get_queryset(self):
         return Orden_Servicio.objects.prefetch_related('equipo_medico', 'equipo_medico__area').filter(tipo_orden='A', equipo_medico__numero_nacional_inv = self.kwargs['area_equipo_pk']
                                                                                                       ,equipo_medico__area__responsable = self.request.user.id)
 
     def get_serializer_context(self):
-        print(self.kwargs)
         return {'equipo': self.kwargs['area_equipo_pk']}
 
 class AreaAgendaViewSet(ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
+    filterset_class = filtros.filtro_agenda
 
     def get_serializer_class(self):
         if self.request.method == 'POST' or self.request.method == 'PUT':
@@ -216,10 +218,8 @@ class AreaAgendaViewSet(ModelViewSet):
         return serializers.OrdenAgendaAreaSerializer
 
     def get_queryset(self):
-        print(self.kwargs)
         return Orden_Servicio.objects.prefetch_related('equipo_medico', 
-                                                              'equipo_medico__area',
-                                                              'equipo_medico__cama')\
+                                                              'equipo_medico__area')\
                                                                 .filter(tipo_orden='A', equipo_medico__area = self.kwargs['id_pk']\
                                                                     ,equipo_medico__area__responsable = self.request.user.id)
 
@@ -239,8 +239,11 @@ class OrdenViewSet(ModelViewSet):
             return serializers.AgregarServicioEquipo
         return OrdenEquipoSerializer
     
+    filterset_class = filtros.filtro_equipo_servicio
+    
+    
     def get_queryset(self):
-        queryset = Orden_Servicio.objects.prefetch_related('equipo_medico').filter(equipo_medico__numero_nacional_inv=self.kwargs['equipo_pk'])
+        queryset = Orden_Servicio.objects.prefetch_related('equipo_medico').filter(equipo_medico__numero_nacional_inv=self.kwargs['equipo_pk']).exclude(numero_orden = None)
         return queryset
     
     def get_serializer_context(self):
@@ -249,6 +252,7 @@ class OrdenViewSet(ModelViewSet):
 class AgendaAdminViewset(ModelViewSet):
     
     permission_classes = [IsAdminUser]
+    filterset_class = filtros.filtro_agenda
     today = date.today()
     serializer_class = serializers.AgendaAdminSerializer
     
@@ -267,15 +271,17 @@ class AgendaAdminViewset(ModelViewSet):
 class AgendaViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
     serializer_class = OrdenAgendaSerializer
+    filterset_class = filtros.filtro_equipo_agenda
     
     def get_queryset(self):
-        return Orden_Servicio.objects.prefetch_related('equipo_medico', 'equipo_medico__area').filter(tipo_orden='A', equipo_medico__numero_nacional_inv = self.kwargs['equipo_pk'])
+        return Orden_Servicio.objects.prefetch_related('equipo_medico', 'equipo_medico__area').filter(tipo_orden='A', equipo_medico__numero_nacional_inv = self.kwargs['equipo_pk'], estatus='PEN')
 
     def get_serializer_context(self):
         return {'equipo': self.kwargs['equipo_pk']}
 
 class VerReportesViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, mixins.UpdateModelMixin, GenericViewSet):
     permission_classes = [IsAdminUser]
+    filterset_class = filtros.filtro_reportes
     def get_serializer_class(self):
         if self.request.method == 'PUT' or self.request.method == 'PATCH':
             return serializers.AtenderReporteSerializer
@@ -299,7 +305,7 @@ class VerReportesViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, mixin
 
 class VerReportesPendientesViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, mixins.UpdateModelMixin, GenericViewSet):
     permission_classes = [IsAdminUser]
-    
+    filterset_class = filtros.filtro_reportes
     def get_serializer_class(self):
         if self.request.method == 'PUT' or self.request.method == 'PATCH':
             return serializers.AtenderReporteSerializer
@@ -323,6 +329,7 @@ class VerReportesPendientesViewSet(mixins.RetrieveModelMixin, mixins.ListModelMi
 
 class VerReportesCompletadosViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, mixins.UpdateModelMixin, GenericViewSet):
     permission_classes = [IsAdminUser]
+    filterset_class = filtros.filtro_reportes
     def get_serializer_class(self):
         if self.request.method == 'PUT' or self.request.method == 'PATCH':
             return serializers.AtenderReporteSerializer
