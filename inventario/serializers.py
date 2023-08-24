@@ -138,6 +138,31 @@ class AgendaAdminSerializer(serializers.ModelSerializer):
         else:
             return f"Faltan {dias} para el siguiente servicio"
 
+class EquiposAgendaAreaUsuarioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Equipo_medico
+        fields = ['numero_nacional_inv', 'nombre_equipo', 'area', 'cama']
+    area = serializers.StringRelatedField()
+
+    
+class OrdenAgendaAreaUsuarioVerSerializer(serializers.ModelSerializer):
+    class Meta: 
+        model = Orden_Servicio
+        fields = ['id','fecha', 'equipo_medico', 'dias_restantes']
+    equipo_medico = EquiposAgendaAreaUsuarioSerializer(many = True, read_only=True)
+    dias_restantes = serializers.SerializerMethodField(method_name='calcular_dias_restantes', read_only=True)
+
+    def calcular_dias_restantes(self, orden: Orden_Servicio):
+        today = date.today()
+        fecha_vencimiento = orden.fecha - today
+        dias = fecha_vencimiento.days
+
+        if dias <= 0 and orden.estatus == 'PEN':
+            return "Orden no atendida, favor de contactar proveedor o actualizar la orden de servicio"
+        elif dias <= 0 and orden.estatus != 'PEN':
+            return "Servicio atendido"
+        else:
+            return f"Faltan {dias} para el siguiente servicio"
 
 class OrdenAgendaSerializer(serializers.ModelSerializer):
     class Meta: 

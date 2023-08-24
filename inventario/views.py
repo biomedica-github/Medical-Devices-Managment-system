@@ -127,6 +127,10 @@ class AreaViewSet(ModelViewSet):
 
     permission_classes = [IsAdminOrReadOnly, IsAuthenticated]
     filterset_class = filtros.filtro_areas_general
+
+    def get_serializer_context(self):
+        return {'usuario': self.request.user.id, 'area':self.kwargs['pk']}
+
     def get_serializer_class(self):
         if self.request.method == 'PUT':
             return AgregarEquipoAreaSerializer
@@ -140,18 +144,28 @@ class AreaViewSet(ModelViewSet):
     def get_queryset(self):
         return Area_hospital.objects.prefetch_related('equipos_area', 'responsable').filter(responsable = self.request.user.id)
     
-    @action(detail=False, methods= ['GET'])
-    def servicio(self, request):
-        orden = Orden_Servicio.objects.prefetch_related('equipo_medico').filter(equipo_medico__area__responsable = request.user.id).exclude(tipo_orden='A').all()
+    @action(detail=True, methods= ['GET'])
+    def servicio(self, request, pk):
+        orden = Orden_Servicio.objects.prefetch_related('equipo_medico').filter(equipo_medico__area__responsable = request.user.id, equipo_medico__area=pk).exclude(tipo_orden='A', estatus='PEN').all()
         serializer = OrdenEquipoSerializer(orden, many=True)
         return Response(serializer.data)
     
-    @action(detail=False, methods=['GET'])
-    def agenda(self, request):
-        orden = Orden_Servicio.objects.prefetch_related('equipo_medico').filter(equipo_medico__area__responsable = request.user.id, tipo_orden = 'A').all()
-        serializer = OrdenAgendaSerializer(orden, many=True)
+    @action(detail=True, methods=['GET'])
+    def agenda(self, request, pk):
+        salas_permitidas = Area_hospital.objects.values('nombre_sala').get(id=pk)
+        orden = Orden_Servicio.objects.prefetch_related('equipo_medico', 'equipo_medico__area').filter(equipo_medico__area__responsable = request.user.id, tipo_orden = 'A', equipo_medico__area=pk).all()
+        serializer = serializers.OrdenAgendaAreaUsuarioVerSerializer(orden, many=True)
+        for i in serializer.data:
+            lista_equipos_locales = []
+            for j in enumerate(i['equipo_medico']):
+                if j[1]['area'] in salas_permitidas['nombre_sala']:
+                    lista_equipos_locales.append(j[1])
+            i['equipo_medico'].clear()
+            [i['equipo_medico'].append(key) for key in lista_equipos_locales]               
+                
         return Response(serializer.data)
 
+    
 class AgendaUsuarioViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
     serializer_class = OrdenAgendaSerializer
     permission_classes = [IsAuthenticated]
