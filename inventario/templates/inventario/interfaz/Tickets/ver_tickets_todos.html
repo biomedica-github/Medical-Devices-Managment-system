@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="es-mx">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Inventario - Tickets</title>
+    <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../assets/img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="180x180" href="../assets/img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="../assets/img/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="../assets/img/android-chrome-512x512.png">
+    <link rel="stylesheet" href="../assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i&amp;display=swap">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+    <link rel="stylesheet" href="../assets/css/Boostrap-Tabs.css">
+    <link rel="stylesheet" href="../assets/css/Calendar-BS4-news.css">
+    <link rel="stylesheet" href="../assets/css/Calendar-BS4.css">
+    <link rel="stylesheet" href="../assets/css/Features-Large-Icons-icons.css">
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <nav class="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark" style="--bs-primary: #dfe2ea;--bs-primary-rgb: 223,226,234;--bs-info: #91cad2;--bs-info-rgb: 145,202,210;background: var(--bs-secondary);color: rgb(241,245,243);--bs-secondary: rgb(37,126,62);--bs-secondary-rgb: 37,126,62;">
+            <div class="container-fluid d-flex flex-column p-0"><a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="/index.html"><img src="../assets/img/imss3.png" width="48" height="43">
+                    <div class="sidebar-brand-icon rotate-n-15"></div>
+                    <div class="sidebar-brand-text mx-3"><span style="--bs-primary: #07b122;--bs-primary-rgb: 7,177,34;--bs-body-bg: #f9f7f7;">Inventario</span></div>
+                </a>
+                <hr class="sidebar-divider my-0">
+                <ul class="navbar-nav text-light" id="accordionSidebar">
+                    <li class="nav-item"><a class="nav-link" href="/Proveedor/Proveedores-general.html" style="background: var(--bs-secondary);--bs-success: #0f5125;--bs-success-rgb: 15,81,37;"><i class="far fa-comments"></i><span style="--bs-info: #ffffff;--bs-info-rgb: 255,255,255;">Proveedores</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Contratos/contratos-general.html"><i class="far fa-handshake"></i><span>Contratos</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Area/areas-general.html"><i class="far fa-images"></i><span>Areas</span></a><a class="nav-link" href="/Ordenes/equipos-orden_general.html"><i class="far fa-file-alt"></i>Ordenes de servicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Tickets/ver_tickets_seleccion.html"><i class="far fa-newspaper"></i><span>Tickets</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Equipo/equipos-general.html"><i class="far fa-sun"></i><span>Equipo medico</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Checklists/ver-checklists-general.html"><i class="far fa-clipboard"></i><span>Checklist</span></a><a class="nav-link" href="/Agenda/agenda-general-todos.html"><i class="far fa-calendar-alt"></i><span>Agenda</span></a><a class="nav-link" href="/Ordenes/equipos-orden_pendientes.html"><i class="far fa-edit"></i><span>Pendientes</span></a></li>
+                </ul>
+                <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button></div>
+            </div>
+        </nav>
+        <div class="d-flex flex-column" id="content-wrapper">
+            <nav class="navbar navbar-expand bg-white shadow mb-4 topbar static-top navbar-light">
+                <div class="container-fluid"><button class="btn btn-link d-md-none rounded-circle me-3" id="sidebarToggleTop" type="button" style="--bs-primary: rgb(37,126,62);--bs-primary-rgb: 37,126,62;color: rgb(37,126,62);"><i class="fas fa-align-justify"></i></button></div>
+            </nav>
+            <div id="content">
+                <div class="container-fluid" style="--bs-primary: rgb(37,126,62);--bs-primary-rgb: 37,126,62;">
+                    <div class="row">
+                        <div class="col">
+                            <div class="card shadow">
+                                <div class="card-header py-3">
+                                    <p class="fs-1 text-primary m-0 fw-bold" style="--bs-secondary: rgb(37,126,62);--bs-secondary-rgb: 37,126,62;color: rgb(37,126,62);--bs-primary: rgb(37,126,62);--bs-primary-rgb: 37,126,62;">Todos los tickets</p>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 text-start">
+                                            <div class="text-md-end dataTables_filter" id="dataTable_filter"><input type="search" class="form-control form-control-sm" aria-controls="dataTable" placeholder="Search"><label class="form-label"></label></div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="table-responsive">
+                                                <table class="table table-hover">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>ID</th>
+                                                            <th>Area</th>
+                                                            <th>Equipo</th>
+                                                            <th>Estado del ticket</th>
+                                                            <th>Falla</th>
+                                                            <th>Responsable</th>
+                                                            <th>Correo</th>
+                                                            <th>Fecha y hora</th>
+                                                            <th>Descripcion</th>
+                                                            <th>Solucion</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td><a class="nav-link active" href="../Tickets/ver_tickets_especifico.html">18</a></td>
+                                                            <td><a class="nav-link active" href="/Area/areas-especifico-camas-admin.html">Admision continua</a></td>
+                                                            <td><a class="nav-link active" href="../Equipo/equipos-especifico-admin.html">202180008435 || Nombre: CARRO ROJO CON DESFIBRILADOR || num_serie: 3826</a></td>
+                                                            <td>Atendido</td>
+                                                            <td>El equipo no enciende</td>
+                                                            <td>edgar</td>
+                                                            <td></td>
+                                                            <td>2023-08-02&nbsp; 19:46:49</td>
+                                                            <td>No quiere prender el equipo</td>
+                                                            <td>Se procedio a conectar el equipo</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><a class="nav-link active" href="../Tickets/ver_tickets_especifico.html">18</a></td>
+                                                            <td><a class="nav-link active" href="/Area/areas-especifico-camas-admin.html">Admision continua</a></td>
+                                                            <td><a class="nav-link active" href="../Equipo/equipos-especifico-admin.html">202180008435 || Nombre: CARRO ROJO CON DESFIBRILADOR || num_serie: 3826</a></td>
+                                                            <td>Atendido</td>
+                                                            <td>El equipo no enciende</td>
+                                                            <td>edgar</td>
+                                                            <td></td>
+                                                            <td>2023-08-02&nbsp; 19:46:49</td>
+                                                            <td>No quiere prender el equipo</td>
+                                                            <td>Se procedio a conectar el equipo</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><a class="nav-link active" href="../Tickets/ver_tickets_especifico.html">18</a></td>
+                                                            <td><a class="nav-link active" href="/Area/areas-especifico-camas-admin.html">Admision continua</a></td>
+                                                            <td><a class="nav-link active" href="../Equipo/equipos-especifico-admin.html">202180008435 || Nombre: CARRO ROJO CON DESFIBRILADOR || num_serie: 3826</a></td>
+                                                            <td>Atendido</td>
+                                                            <td>El equipo no enciende</td>
+                                                            <td>edgar</td>
+                                                            <td></td>
+                                                            <td>2023-08-02&nbsp; 19:46:49</td>
+                                                            <td>No quiere prender el equipo</td>
+                                                            <td>Se procedio a conectar el equipo</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><a class="nav-link active" href="../Tickets/ver_tickets_especifico.html">18</a></td>
+                                                            <td><a class="nav-link active" href="/Area/areas-especifico-camas-admin.html">Admision continua</a></td>
+                                                            <td><a class="nav-link active" href="../Equipo/equipos-especifico-admin.html">202180008435 || Nombre: CARRO ROJO CON DESFIBRILADOR || num_serie: 3826</a></td>
+                                                            <td>Atendido</td>
+                                                            <td>El equipo no enciende</td>
+                                                            <td>edgar</td>
+                                                            <td></td>
+                                                            <td>2023-08-02&nbsp; 19:46:49</td>
+                                                            <td>No quiere prender el equipo</td>
+                                                            <td>Se procedio a conectar el equipo</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><a class="nav-link active" href="../Tickets/ver_tickets_especifico.html">18</a></td>
+                                                            <td><a class="nav-link active" href="/Area/areas-especifico-camas-admin.html">Admision continua</a></td>
+                                                            <td><a class="nav-link active" href="../Equipo/equipos-especifico-admin.html">202180008435 || Nombre: CARRO ROJO CON DESFIBRILADOR || num_serie: 3826</a></td>
+                                                            <td>Atendido</td>
+                                                            <td>El equipo no enciende</td>
+                                                            <td>edgar</td>
+                                                            <td></td>
+                                                            <td>2023-08-02&nbsp; 19:46:49</td>
+                                                            <td>No quiere prender el equipo</td>
+                                                            <td>Se procedio a conectar el equipo</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 align-self-center">
+                                            <p id="dataTable_info" class="dataTables_info" role="status" aria-live="polite"></p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <nav class="d-lg-flex justify-content-lg-end dataTables_paginate paging_simple_numbers">
+                                                <ul class="pagination">
+                                                    <li class="page-item disabled"><a class="page-link" aria-label="Previous" href="#"><span aria-hidden="true">«</span></a></li>
+                                                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                                    <li class="page-item"><a class="page-link" aria-label="Next" href="#"><span aria-hidden="true">»</span></a></li>
+                                                </ul>
+                                            </nav>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer class="bg-white sticky-footer">
+                <div class="container my-auto">
+                    <div class="text-center my-auto copyright"><span>Inventario v1.0.0</span></div>
+                </div>
+            </footer>
+        </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/script.js"></script>
+    <script src="../assets/js/theme.js"></script>
+</body>
+
+</html>

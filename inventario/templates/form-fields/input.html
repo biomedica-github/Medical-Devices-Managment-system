@@ -1,0 +1,16 @@
+<div class="form-floating mb-3" style>
+  <input
+  {%if style.input_type != "file"%}
+    class="form-control"
+  {%endif%}
+    type="{{style.input_type}}"
+    placeholder="HGsOFT"
+    name="{{field.name}}"
+    style="height: 70px"
+    {%if field.value is not None %}
+    value="{{field.value}}"
+    {%endif%}
+  /><label class="form-label fs-5" for="floatingInput"
+    >{{field.label}}</label
+  >
+</div>

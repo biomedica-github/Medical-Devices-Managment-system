@@ -71,7 +71,7 @@ ROOT_URLCONF = 'UMAE_db.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['inventario/templates/inventario'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -150,14 +150,15 @@ REST_FRAMEWORK = {
     'COERCE_DECIMAL_TO_STRING': False,
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',),
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
-    'PAGE_SIZE': 15
+    'PAGE_SIZE': 15,
+    
 }
 
 SIMPLE_JWT = {
    'AUTH_HEADER_TYPES': ('JWT',),
-   "ACCESS_TOKEN_LIFETIME": timedelta(days= 1)
+   "ACCESS_TOKEN_LIFETIME": timedelta(days= 7)
 }
 
 DJOSER = {

@@ -94,7 +94,7 @@ class filtro_ordenservicio(django_filters.FilterSet):
     
     class Meta:
         model = models.Orden_Servicio
-        fields = ['motivo', 'tipo_orden', 'estatus', 'equipo_medico']
+        fields = ['fecha','motivo', 'tipo_orden', 'estatus', 'equipo_medico']
 
 class filtro_ordenpendiente(django_filters.FilterSet):
     mes_servicio = django_filters.ChoiceFilter(choices=fecha_choices, field_name='fecha', lookup_expr='month', label='Mes')

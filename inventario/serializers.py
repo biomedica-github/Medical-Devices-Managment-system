@@ -35,6 +35,7 @@ class ProveedorSerializers(serializers.ModelSerializer):
     class Meta:
         model = Proveedor
         fields = ['id','nombre_proveedor', 'contacto', 'proveedor_contrato']    
+   
     
     id = serializers.IntegerField(read_only=True)
 
@@ -45,6 +46,10 @@ class ContratoEquiposSerializer(serializers.ModelSerializer):
         fields = ['numero_nacional_inv', 'nombre_equipo', 'modelo', 'estado', 'numero_serie', 'marca','area','cama']
     #contrato = serializers.StringRelatedField()
     area = serializers.StringRelatedField()
+    estado = serializers.SerializerMethodField(method_name='get_estado')
+
+    def get_estado(self, orden: Equipo_medico):
+        return orden.get_estado_display()
     #cama = serializers.StringRelatedField()
 
 class ContratoSerializers(serializers.Serializer):
@@ -334,7 +339,13 @@ class VerReportesSerializer(serializers.ModelSerializer):
 class AtenderReporteSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReporteUsuario
-        fields = ['estado', 'solucion_tecnico']
+        fields = ['solucion_tecnico']
+
+    def save(self, **kwargs):
+        ticket_id = self.context['ticket']
+        self.instance = ticket = ReporteUsuario.objects.filter(id=ticket_id).update(estado='COM', **self.validated_data)
+        return self.instance
+    
 
 
 

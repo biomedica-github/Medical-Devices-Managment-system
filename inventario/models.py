@@ -163,6 +163,7 @@ class ReporteUsuario(models.Model):
         falla = models.CharField(max_length= 6, choices=FALLA_OPCIONES)
         descripcion = models.CharField(max_length= 500, null=True)
         solucion_tecnico = models.CharField(max_length= 500, null=True)
+        orden = models.ForeignKey(Orden_Servicio, on_delete=models.SET_NULL, null=True)
 
         class Meta:
             ordering = ['-fecha_hora']

@@ -1,0 +1,187 @@
+{% load static%} 
+{% load i18n %}
+{% load rest_framework %}
+
+<!DOCTYPE html>
+<html data-bs-theme="light" lang="es-mx">
+
+<head>
+    {%block head%}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Inventario - Proveedores</title>
+    <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="{% static 'assets/img/apple-touch-icon.png'}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/img/favicon-16x16.png'%}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/img/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="180x180" href="{% static 'assets/img/apple-touch-icon.png'%}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'assets/img/android-chrome-192x192.png'%}">
+    <link rel="icon" type="image/png" sizes="512x512" href="{% static 'assets/img/android-chrome-512x512.png' %}">
+    <link rel="stylesheet" href="{% static 'assets/bootstrap/css/bootstrap.min_inventario.css'%}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i&amp;display=swap">
+    <link rel="stylesheet" href="{% static 'assets/fonts/fontawesome-all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/Boostrap-Tabs.css'%}">
+    <link rel="stylesheet" href="{% static 'assets/css/Calendar-BS4-news.css'%}">
+    <link rel="stylesheet" href="{% static 'assets/css/Calendar-BS4.css'%}">
+    <link rel="stylesheet" href="{% static 'assets/css/Features-Large-Icons-icons.css' %}">
+    {%endblock%}
+</head>
+
+
+<body id="page-top">
+    <div id="wrapper" style="--bs-primary: #0f35c3;--bs-primary-rgb: 15,53,195;">
+        <nav class="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark" style="--bs-primary: #dfe2ea;--bs-primary-rgb: 223,226,234;--bs-info: #91cad2;--bs-info-rgb: 145,202,210;background: var(--bs-secondary);color: rgb(241,245,243);--bs-secondary: rgb(37,126,62);--bs-secondary-rgb: 37,126,62;">
+            <div class="container-fluid d-flex flex-column p-0"><a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="/index.html"><img src="{% static 'assets/img/imss3.png'%}" width="48" height="43">
+                    <div class="sidebar-brand-icon rotate-n-15"></div>
+                    <div class="sidebar-brand-text mx-3"><span style="--bs-primary: #07b122;--bs-primary-rgb: 7,177,34;--bs-body-bg: #f9f7f7;">Inventario</span></div>
+                </a>
+                <hr class="sidebar-divider my-0">
+                <ul class="navbar-nav text-light" id="accordionSidebar">
+                    <li class="nav-item"><a class="nav-link active" href="http://127.0.0.1:8000/proveedores/" style="background: var(--bs-secondary);--bs-success: #0f5125;--bs-success-rgb: 15,81,37;"><i class="far fa-comments"></i><span style="--bs-info: #ffffff;--bs-info-rgb: 255,255,255;">Proveedores</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="http://127.0.0.1:8000/contratos/"><i class="far fa-handshake"></i><span>Contratos</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="http://127.0.0.1:8000/area/general/"><i class="far fa-images"></i><span>Areas</span></a><a class="nav-link" href="http://127.0.0.1:8000/orden/"><i class="far fa-file-alt"></i>Ordenes de servicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="http://127.0.0.1:8000/reportes/"><i class="far fa-newspaper"></i><span>Tickets</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="http://127.0.0.1:8000/equipo_medico/general/"><i class="far fa-sun"></i><span>Equipo medico</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="http://127.0.0.1:8000/checklists/"><i class="far fa-clipboard"></i><span>Checklist</span></a><a class="nav-link" href="http://127.0.0.1:8000/agenda/"><i class="far fa-calendar-alt"></i><span>Agenda</span></a><a class="nav-link" href="/Ordenes/equipos-orden_pendientes.html"><i class="far fa-edit"></i><span>Pendientes</span></a></li>
+                </ul>
+                <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button></div>
+            </div>
+        </nav>
+        {%block body%}
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div class="modal fade" role="dialog" tabindex="-1" id="modal-2">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Filtrar Proveedor</h4><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form>
+                                {%csrf_token%}
+                                <fieldset>
+                                    <div class="fs-5 form-floating mb-3"><input class="form-control form-control" type="text" placeholder="HGsOFT" name="nombre_proveedor" required=""><label class="form-label" for="floatingInput">Nombre del proveedor</label></div>
+                                    <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cerrar</button><button class="btn btn-primary text-end" type="submit">Buscar</button></div>
+                                </fieldset>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <nav class="navbar navbar-expand bg-white shadow mb-4 topbar static-top navbar-light">
+                <div class="container-fluid"><button class="btn btn-link d-md-none rounded-circle me-3" id="sidebarToggleTop" type="button" style="--bs-primary: rgb(37,126,62);--bs-primary-rgb: 37,126,62;color: rgb(37,126,62);"><i class="fas fa-align-justify"></i></button></div>
+            </nav>
+            <div id="content">
+                <div class="container">
+                    <div class="row">
+                        <div class="col text-end">
+                            <div class="btn-group flex-wrap" role="group"><button class="btn btn-primary" type="button" style="padding: 6px 15px;--bs-primary: rgb(37,126,62);--bs-primary-rgb: 37,126,62;margin: 10px;background: var(--bs-dark-text-emphasis);" data-bs-target="#modal-2" data-bs-toggle="modal"><i class="fas fa-search" style="margin-right: 10px;"></i>FIltrar</button><button class="btn btn-primary" type="button" style="padding: 6px 15px;--bs-primary: rgb(37,126,62);--bs-primary-rgb: 37,126,62;margin: 10px;" data-bs-target="#modal-1" data-bs-toggle="modal"><i class="far fa-edit" style="margin-right: 10px;"></i>Agregar Proveedor</button></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="alert alert-warning alert-dismissible" role="alert" id="error-alert"><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="alert"></button><span><strong>Algo salio mal, intentelo de nuevo</strong></span></div>
+                                    <div class="alert alert-danger alert-dismissible" role="alert" id="del-alert"><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="alert"></button><span><strong>Proveedor eliminado de forma exitosa</strong></span></div>
+                            <div>
+                                <p style="font-size: 36px;"><strong><span style="color: rgb(37, 126, 62);">Lista de Proveedores</span></strong></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col mx-auto" style="padding-right: 0px;padding-left: 0px;">
+                            {%block unico%}
+                            {%if nombre_proveedor%}
+                            <div class="card mx-auto" style="margin: 10px;">
+                                <div class="card-body border rounded-0 d-inline-flex justify-content-between p-2">
+                                    <div class="ms-0"><a class="fs-4 d-inline text-decoration-none stretched-link text-break" href={{id}}><strong><span style="color: rgb(37, 126, 62); background-color: rgb(248, 249, 252);">{{nombre_proveedor}}</span></strong></a>
+                                        <p></p>
+                                    </div>
+                                    <div class="d-flex align-items-center ms-0"><a class="fs-4 text-decoration-none" href="#"></a>
+                                        <p></p>
+                                    </div>
+                                    <div class="text-center ms-2"><a class="fs-4 text-decoration-none" href="#"></a>
+                                        <p class="text-black-50">Contacto</p>
+                                        <p style="font-size: 16px;">{{contacto}}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {%endif%}
+                            {%endblock%}
+                            {%block content%}
+                            {%for proveedor in content%}
+                            <div class="card mx-auto" style="margin: 10px;">
+                                <div class="card-body border rounded-0 d-inline-flex justify-content-between p-2">
+                                    <div class="ms-0"><a class="fs-4 d-inline text-decoration-none stretched-link text-break" href={{proveedor.id}}><strong><span style="color: rgb(37, 126, 62); background-color: rgb(248, 249, 252);">{{proveedor.nombre_proveedor}}</span></strong></a>
+                                        <p></p>
+                                    </div>
+                                    <div class="d-flex align-items-center ms-0"><a class="fs-4 text-decoration-none" href="#"></a>
+                                        <p></p>
+                                    </div>
+                                    <div class="text-center ms-2"><a class="fs-4 text-decoration-none" href="#"></a>
+                                        <p class="text-black-50">Contacto</p>
+                                        <p style="font-size: 16px;">{{proveedor.contacto}}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {%endfor %}
+                            
+                            {%if paginator %}
+                            <nav class="pull-right d-lg-flex justify-content-lg-end dataTables_paginate paging_simple_numbers">
+                                <ul class="pagination">
+                                    {% get_pagination_html paginator %}
+                                </ul>
+                              </nav>
+                              {%endif%}
+                
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" role="dialog" tabindex="-1" id="modal-1">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title">Proveedor</h4><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="post">
+                                    <fieldset>
+                                        <div class="form-floating mb-3"><input class="form-control form-control" type="text" style="height: 70px" placeholder="HGsOFT" name="nombre_proveedor" required=""><label class="form-label fs-5" for="floatingInput">Nombre del proveedor</label></div>
+                                        <div class="form-floating mb-3"><input class="form-control form-control" type="tel" style="height: 70px" placeholder="HGsOFT"><label class="form-label fs-5" for="floatingInput">Contacto</label></div>
+                                        <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cerrar</button><button class="btn btn-primary text-end" type="submit">Guardar</button></div>
+                                    </fieldset>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer class="bg-white sticky-footer">
+                <footer>
+                    <p class="text-center">Inventario 1.0.0</p>
+                </footer>
+                {%endblock%}
+            </footer>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+    <script src="{% static 'assets/js/theme.js' %}"></script>
+    <script>
+        $("#del-alert").hide()
+        // Check if the flag is set in local storage
+        if (localStorage.getItem('displayBorrado') === 'true') {
+            // Display the Bootstrap alert
+            $(document).ready(function () {
+                $("#del-alert").fadeTo(5000, 500).slideUp(500, function(){
+                $("#del-alert").slideUp(500)})
+                 
+            });
+        }
+       
+        localStorage.setItem('displayBorrado', 'false');
+            
+    </script>
+    {%endblock%}
+</body>
+
+</html>
