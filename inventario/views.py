@@ -62,8 +62,19 @@ class ProveedorViewSet(ModelViewSet):
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)
-        print('holamundox2')
-        return Response(serializer.data, template_name= 'interfaz/Proveedor/Proveedor-especifico.html' )
+        return Response({"data":serializer.data, "serializer":serializer}, template_name= 'interfaz/Proveedor/Proveedor-especifico.html' )
+    
+    @action(detail=True, methods=['post'], serializer_class = serializers.AgregarContratoProveedorSerializer)
+    def agregar_contrato(self, request, id):
+        objeto = self.get_object()
+        proveedor_id = objeto.id
+        serializer = serializers.AgregarContratoProveedorSerializer(data=request.data, context={'proveedor': proveedor_id})
+        if serializer.is_valid():
+            proveedor_objeto = Proveedor.objects.get(id = id)
+            contrato_nuevo = Contrato.objects.create(proveedor=proveedor_objeto, **serializer.validated_data)
+            contrato_nuevo.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ContratoViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
@@ -160,7 +171,7 @@ class CrearOrdenAreaViewset(mixins.CreateModelMixin, GenericViewSet):
     serializer_class = serializers.AgregarServicioEquipo
 
     def get_serializer_context(self):
-        print(self.kwargs)
+        
         return {'equipo': self.kwargs['area_equipo_pk']}
         
     
@@ -415,23 +426,22 @@ class VerReportesCompletadosViewSet(mixins.RetrieveModelMixin, mixins.ListModelM
     def get_serializer_class(self):
         if self.request.method == 'PUT' or self.request.method == 'PATCH':
             return serializers.AtenderReporteSerializer
+        elif self.request.method == 'POST':
+            return serializers.AgregarServicioEquipo
         return serializers.VerReportesSerializer
     
-    @action(detail=True, methods= ['POST'])
+    @action(detail=True, methods= ['post'])
     def servicio(self, request, pk):
         ticket = self.get_object()
         equipo = ticket.equipo.numero_nacional_inv
         serializer = serializers.AgregarServicioEquipo(data=request.data, context={'equipo': equipo})
         if serializer.is_valid():
             orden_creada = Orden_Servicio.objects.create(**serializer.validated_data)
-            ticket.add(orden_creada)
+            ticket.orden = orden_creada
             ticket.save()
-            return {'Orden creada satisfactoriamente'}
+            return  Response({'Mensaje':'Orden creada satisfactoriamente'}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-        
-    
-
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()

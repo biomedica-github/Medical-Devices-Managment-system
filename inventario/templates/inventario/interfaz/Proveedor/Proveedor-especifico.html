@@ -53,20 +53,35 @@
                 <div class="container-lg">
                     <div class="row">
                         <div class="col text-end">
-                            <div class="btn-group flex-wrap" role="group"><button class="btn btn-danger button-form" type="button" style="margin: 10px;" data-bs-target="#modal-2" data-bs-toggle="modal"><i class="fas fa-trash" style="margin-right: 10px;"></i>Dar de baja proveedor</button><button class="btn btn-primary" type="button" data-bs-target="#modal-1" data-bs-toggle="modal" style="margin: 10px;"><i class="far fa-edit" style="margin-right: 10px;"></i>Editar Proveedor</button></div>
+                            <div class="btn-group flex-wrap" role="group"><a class="btn btn-secondary" role="button" style="margin: 10px;" data-bs-target="#modal-3" data-bs-toggle="modal"><i class="fas fa-clipboard-check" style="margin-right: 10px;"></i>Agregar contrato</a><button class="btn btn-danger button-form" type="button" style="margin: 10px;" data-bs-target="#modal-2" data-bs-toggle="modal"><i class="fas fa-trash" style="margin-right: 10px;"></i>Dar de baja proveedor</button><button class="btn btn-primary" type="button" data-bs-target="#modal-1" data-bs-toggle="modal" style="margin: 10px;"><i class="far fa-edit" style="margin-right: 10px;"></i>Editar Proveedor</button>  </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col">
                     <div class="alert alert-warning alert-dismissible" role="alert" id="error-alert"><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="alert"></button><span><strong>Algo salio mal, intentelo de nuevo</strong></span></div>
                     <div id="update-alert" class="alert alert-info alert-dismissible" role="alert"><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="alert"></button><span><strong>Proveedor modificado de forma exitosa </strong></span></div>
-                            <div>
+                    <div id="contrato-alert" class="alert alert-info alert-dismissible" role="alert"><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="alert"></button><span><strong>Contrato agregado de manera exitosa</strong></span></div>        
+                    <div>
                                 <p style="font-size: 36px;"><strong><span style="color: rgb(37, 126, 62);">{{contenido.nombre_proveedor}}</span></strong></p>
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col">
+                            {%if contenido.contacto%}
+                            <div class="card shadow border-start-warning py-2">
+                                <div class="card-body">
+                                    <div class="row align-items-center no-gutters">
+                                        <div class="col me-2">
+                                            <div class="text-uppercase text-warning fw-bold text-xs mb-1"><span style="color: var(--bs-success-text-emphasis);font-size: 16.2px;">Contacto</span></div>
+                                            <div class="text-break text-dark d-inline fw-bold h5 mb-0"><a class="stretched-link text-decoration-none" href="tel:{{contenido.contacto}}"><strong><span style="color: rgb(58, 59, 69);">{{contenido.contacto}}</span></strong></a></div>
+                                        </div>
+                                        <div class="col-auto"><i class="fas fa-phone fa-2x text-gray-300"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                            {%endif%}
+                            
                             {%for contrato in contenido.proveedor_contrato%}
                             <div class="card mx-auto" style="margin: 10px;">
                                 <div class="card-body border rounded-0 d-inline-flex justify-content-between flex-wrap p-2">
@@ -122,8 +137,34 @@
                             </div>
                         </div>
                     </div>
+                    <div id="modal-3" class="modal fade" role="dialog" tabindex="-1">
+                        <div class="modal-dialog modal-lg modal-fullscreen-sm-down" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Agregar contrato</h4><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="contratoform">
+                                        <div class="form-floating mb-3"><input class="form-control form-control" type="text" placeholder="HGsOFT" name="num_contrato" required /><label class="form-label" for="floatingInput">Numero de contrato</label></div>
+                                        <div class="form-floating mb-3"><input class="form-control" type="date" name="fecha_vencimiento" required /><label class="form-label" for="floatingInput">Fecha de vencimiento</label></div>
+                                        <div class="form-floating mb-3"><select name="tipo_contrato" class="form-select">
+                                                <option value="L" selected>Contrato Local</option>
+                                                <option value="G">Contrato garantia</option>
+                                                <option value="C">Contrato consolidado</option>
+                                            </select><label class="form-label" for="floatingInput">Tipo de contrato</label></div>
+                                        <div class="form-floating mb-3"><select name="tipo_servicio_estipulado" class="form-select">
+                                                <option value="P/C" selected>Servicio preventivo y correctivo</option>
+                                                <option value="PRV">Servicio preventivo</option>
+                                                <option value="N/A">Proveedor no brinda servicio</option>
+                                            </select><label class="form-label" for="floatingInput">Servicio estipulado</label></div><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cerrar</button><button id="guardar_proveedor" class="btn btn-primary" type="submit">Guardar</button>
+                                    </form>
+                                </div>
+                                <div class="modal-footer"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>z
+            </div>
             <footer class="bg-white sticky-footer">
                 <footer>
                     <p class="text-center">Inventario 1.0.0</p>
@@ -135,6 +176,50 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'assets/js/script.js' %}"></script>
     <script src="{% static 'assets/js/theme.js' %}"></script>
+
+    <script>
+        $("#contrato-alert").hide()
+
+        if (localStorage.getItem('displayContrato') == 'true')
+        {
+            $(document).ready(function () {
+                $("#contrato-alert").fadeTo(5000, 500).slideUp(500, function(){
+                $("#contrato-alert").slideUp(500)})
+                 
+            });
+            localStorage.setItem('displayContrato', 'false')
+        }
+        
+
+
+        $(document).ready(function() {
+          $('#contratoform').submit(function(e) {
+            e.preventDefault(); 
+           
+            const formData = $(this).serialize();
+      
+            const method = 'POST'; 
+            const url = 'agregar_contrato/'; 
+            $.ajax({
+              type: method,
+              url: url,
+              data: formData,
+              success: function(response) {
+                location.reload()
+                localStorage.setItem('displayContrato', 'true');
+                console.log('POST request succesful');
+
+              },
+              error: function(error) {
+                location.reload()
+                localStorage.setItem('displayError', 'true');
+                console.error('POST request failed');
+              }
+            });
+          });
+        });
+      </script>
+
 
     <script>
         $("#error-alert").hide();
@@ -166,7 +251,6 @@
     </script>
     <script>
         $("#update-alert").hide()
-        $("#error-alert").hide();
         // Check if the flag is set in local storage
         if (localStorage.getItem('displayAlert') === 'true') {
             // Display the Bootstrap alert

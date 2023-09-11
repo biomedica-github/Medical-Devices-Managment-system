@@ -5,6 +5,7 @@ from datetime import timedelta
 import pytz
 from rest_framework.response import Response
 from core.models import User
+from django.core.validators import FileExtensionValidator
 
 
 
@@ -88,26 +89,41 @@ class CrearContratoSerializer(serializers.ModelSerializer):
     extra_kwargs = {'proveedor': {'required':True}, 'equipos': {'required':False}}
 
 
+class AgregarContratoProveedorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contrato
+        fields = ['num_contrato', 'fecha_vencimiento','tipo_contrato', 'tipo_servicio_estipulado']
+
+    def save(self, **kwargs):
+        proveedor_id = self.context['proveedor']
+        proveedor_objeto = Proveedor.objects.get(id=proveedor_id)
+        self.instance = Contrato.objects.create(proveedor = proveedor_objeto, **self.validated_data)
+        return self.instance
+
+
+
 class CrearOrdenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Orden_Servicio
-        fields = '__all__'
+        fields = ['id','numero_orden', 'fecha', 'motivo', 'tipo_orden', 'estatus','responsable','autorizo_jefe_biomedica','autorizo_jefe_conservacion','descripcion_servicio','equipo_complementario','ing_realizo','num_mantenimiento_preventivo','fallo_paciente', 'equipo_medico', 'orden_escaneada']
     
     estatus = serializers.ChoiceField(choices=Orden_Servicio.ESTATUS_OPCIONES)
     motivo = serializers.ChoiceField(choices=Orden_Servicio.MOTIVO_OPCIONES)
     tipo_orden = serializers.ChoiceField(choices=Orden_Servicio.TIPO_OPCIONES)
     id = serializers.IntegerField(read_only=True)
+    orden_escaneada = serializers.FileField(validators=[FileExtensionValidator(allowed_extensions=['pdf'])])
     extra_kwargs = {'equipo_medico': {'required':False}}
 
 class OrdenEquipoSerializer(serializers.ModelSerializer):
 
     class Meta: 
         model = Orden_Servicio
-        fields = ['id','numero_orden', 'fecha', 'motivo', 'tipo_orden', 'estatus','responsable','autorizo_jefe_biomedica','autorizo_jefe_conservacion','descripcion_servicio','equipo_complementario','ing_realizo','num_mantenimiento_preventivo','fallo_paciente', 'equipo_medico']
+        fields = ['id','numero_orden', 'fecha', 'motivo', 'tipo_orden', 'estatus','responsable','autorizo_jefe_biomedica','autorizo_jefe_conservacion','descripcion_servicio','equipo_complementario','ing_realizo','num_mantenimiento_preventivo','fallo_paciente', 'equipo_medico', 'orden_escaneada']
     id = serializers.IntegerField(read_only=True)
     tipo_orden = serializers.SerializerMethodField(method_name= 'get_tipo_orden')
     motivo = serializers.SerializerMethodField(method_name= 'get_motivo')
     estatus = serializers.SerializerMethodField(method_name= 'get_estatus')
+    orden_escaneada = serializers.FileField(validators=[FileExtensionValidator(allowed_extensions=['pdf'])])
     extra_kwargs = {'equipo_medico': {'required':False}}
 
     def get_motivo(self, orden: Orden_Servicio):
