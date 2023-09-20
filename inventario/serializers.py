@@ -56,7 +56,7 @@ class ContratoEquiposSerializer(serializers.ModelSerializer):
 class ContratoSerializers(serializers.ModelSerializer):
     class Meta:
         model = Contrato
-        fields = ['num_contrato', 'proveedor', 'fecha_vencimiento', 'dias_restantes', 'tipo_contrato', 'tipo_servicio_estipulado', 'equipos_contrato']
+        fields = ['id','num_contrato', 'proveedor', 'fecha_vencimiento', 'dias_restantes', 'tipo_contrato', 'tipo_servicio_estipulado', 'equipos_contrato']
     num_contrato = serializers.CharField(max_length = 100)
     proveedor = serializers.StringRelatedField()
     fecha_vencimiento = serializers.DateField()
@@ -88,7 +88,7 @@ class ModificarContratoSerializer(serializers.ModelSerializer):
     tipo_servicio_estipulado = serializers.ChoiceField(choices=Contrato.SERVICIO_OPCIONES)
     class Meta:
         model = Contrato
-        fields = ["num_contrato", "fecha_vencimiento", "tipo_contrato", "tipo_servicio_estipulado"]
+        fields = ["num_contrato",'proveedor', "fecha_vencimiento", "tipo_contrato", "tipo_servicio_estipulado"]
 
 
 class CrearContratoSerializer(serializers.ModelSerializer):
