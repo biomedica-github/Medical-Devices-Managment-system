@@ -1,0 +1,135 @@
+{%block scripts%}
+{%load static%}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+<script defer src="{% static 'assets/js/script.js' %}"></script>
+<script src="{% static 'assets/js/theme.js' %}"></script>
+
+<script>
+    console.log("hola")
+    $("#contrato-alert").hide()
+
+    if (localStorage.getItem('displayContrato') == 'true')
+    {
+        $(document).ready(function () {
+            $("#contrato-alert").fadeTo(5000, 500).slideUp(500, function(){
+            $("#contrato-alert").slideUp(500)})
+             
+        });
+        localStorage.setItem('displayContrato', 'false')
+    }
+    
+
+
+    $(document).ready(function() {
+      $('#contratoform').submit(function(e) {
+        e.preventDefault(); 
+       
+        const formData = $(this).serialize();
+  
+        const method = 'POST'; 
+        const url = 'agregar_contrato/'; 
+        $.ajax({
+          type: method,
+          url: url,
+          data: formData,
+          success: function(response) {
+            location.reload()
+            localStorage.setItem('displayContrato', 'true');
+            console.log('POST request succesful');
+
+          },
+          error: function(error) {
+            location.reload()
+            localStorage.setItem('displayError', 'true');
+            console.error('POST request failed');
+          }
+        });
+      });
+    });
+  </script>
+
+
+<script>
+    $("#error-alert").hide();
+    $(document).ready(function () {
+        $("#del-btn").click(function (event) {
+            event.preventDefault(); // Prevent the default link behavior
+
+            // Send the DELETE request
+            $.ajax({
+                url: "{{request.build_absolute_uri }}", // Replace with your delete URL
+                type: "DELETE",
+                success: function (response) {
+                    // Handle the success response
+                    localStorage.setItem('displayBorrado', 'true')
+                    window.location.href = "http://127.0.0.1:8000/proveedores/";
+                    $("#error-alert").hide();
+                    console.log("DELETE request successful");
+                    // You can update the page or display a success message here
+                },
+                error: function (error) {
+                    // Handle the error response
+                    localStorage.setItem('displayError', 'true')
+                    console.error("DELETE request failed");
+                    // You can display an error message here
+                }
+            });
+        });
+    });
+</script>
+<script>
+    $("#update-alert").hide()
+    // Check if the flag is set in local storage
+    if (localStorage.getItem('displayAlert') === 'true') {
+        // Display the Bootstrap alert
+        $(document).ready(function () {
+            $("#update-alert").fadeTo(5000, 500).slideUp(500, function(){
+            $("#update-alert").slideUp(500)})
+             
+        });
+    }
+    if (localStorage.getItem('displayError') == 'true'){
+        $(document).ready(function () {
+            $("#error-alert").fadeTo(5000, 500).slideUp(500, function(){
+            $("#error-alert").slideUp(500)})
+        });
+    }
+    localStorage.setItem('displayError','false');
+    localStorage.setItem('displayAlert', 'false');
+        
+</script>
+<script>
+    $(document).ready(function () {
+        $("#put-form").submit(function (event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            // Serialize the form data
+            var formData = $(this).serialize();
+
+            // Send the PUT request
+            $.ajax({
+                url: $(this).attr("action"),
+                type: "PUT",
+                data: formData,
+                success: function (response) {
+                    // Handle the success response
+                    location.reload()
+                    
+                    
+                    localStorage.setItem('displayAlert', 'true')
+                    console.log("PUT request successful");
+                    // You can update the page or display a success message here
+                },
+                error: function (error) {
+                    // Handle the error response 
+                    location.reload()
+                    localStorage.setItem('displayError', 'true')
+                    console.error("PUT request failed");
+                    // You can display an error message here
+                }
+            });
+        });
+    });
+</script>
+{%endblock%}

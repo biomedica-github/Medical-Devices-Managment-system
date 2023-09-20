@@ -1,0 +1,9 @@
+    <div class="form-floating mb-3">
+        <input class="form-control form-control" type={{input.input_type}} placeholder="HGsOFT" name="{% if input.name|wordcount > 1 %}{{ input.name|slugify }}{% else %}{{ input.name }}{% endif %}" value="{{ input.value }}"
+        {% if input.input_type != "hidden" %}
+            class="{{ input.field_classes }}"
+            id="{{ input.id }}"
+        {% endif %}
+        {{ input.flat_attrs }}/>
+        <label class="form-label" for="floatingInput">{{input.name}}</label>
+    </div>

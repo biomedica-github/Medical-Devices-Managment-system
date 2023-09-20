@@ -1,0 +1,176 @@
+{%extends "/home/edgar/Desktop/Proyectos/UMAE_db/inventario/templates/inventario/interfaz/base.html"%}
+{%load static%}
+
+{%block alerts%}
+<div class="alert alert-warning alert-dismissible" role="alert" id="error-alert"><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="alert"></button><span><strong>Algo salio mal, intentelo de nuevo</strong></span></div>
+<div id="update-alert" class="alert alert-info alert-dismissible" role="alert"><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="alert"></button>
+    {%block anuncioModificado%}
+    <span><strong>Proveedor modificado de forma exitosa</strong></span>
+    {%endblock%}
+</div>
+<div id="agregado-alert" class="alert alert-info alert-dismissible" role="alert"><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="alert"></button>
+    {%block anuncioAgregado%}
+    <span><strong>Contrato agregado de manera exitosa</strong></span>
+    {%endblock%}
+</div>        
+{%endblock%}
+
+
+
+{%block scripts%}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+<script defer src="{% static 'assets/js/script.js' %}"></script>
+<script src="{% static 'assets/js/theme.js' %}"></script>
+<script>
+    $("#error-alert").hide();
+    $("#update-alert").hide();
+    $("#agregado-alert").hide();
+    
+    url = "{{request.build_absolute_uri}}"
+    function Previous (url) {
+        url_reversed = url.split("").reverse().slice(1)
+        while(url_reversed[0] != "/"){
+            url_reversed.shift()
+        }
+        return url_reversed.reverse().join("")
+        
+
+    }
+    
+</script>
+
+{%block alertaagregado%}
+<script>
+    if (localStorage.getItem('displayAgregado') == 'true')
+    {
+        $(document).ready(function () {
+            $("#agregado-alert").fadeTo(5000, 500).slideUp(500, function(){
+            $("#agregado-alert").slideUp(500)})
+             
+        });
+        localStorage.setItem('displayAgregado', 'false')
+    }
+    
+</script>
+{%endblock%}
+{%block POSTform%}
+<script>
+    $(document).ready(function() {
+      $('#agregarform').submit(function(e) {
+        e.preventDefault(); 
+       
+        const formData = $(this).serialize();
+  
+        const method = 'POST'; 
+        const url = '{{request.build_absolute_uri}}'; 
+        $.ajax({
+          type: method,
+          url: url,
+          data: formData,
+          success: function(response) {
+            location.reload()
+            localStorage.setItem('displayAgregado', 'true');
+            console.log('POST request succesful');
+
+          },
+          error: function(error) {
+            location.reload()
+            localStorage.setItem('displayError', 'true');
+            console.error('POST request failed');
+          }
+        });
+      });
+    });
+  </script>
+  {%endblock%}
+
+{%block DELETEform%}
+<script>
+    $(document).ready(function () {
+        $("#del-btn").click(function (event) {
+            event.preventDefault();
+
+            
+            $.ajax({
+                url: "{{request.build_absolute_uri }}",
+                type: "DELETE",
+                success: function (response) {
+                    
+                    localStorage.setItem('displayBorrado', 'true')
+                    window.location.href = Previous(url);
+                    console.log("DELETE request successful");
+                    
+                },
+                error: function (error) {
+                    
+                    localStorage.setItem('displayError', 'true')
+                    console.error("DELETE request failed");
+                    
+                }
+            });
+        });
+    });
+</script>
+{%endblock%}
+<script>
+    if (localStorage.getItem('displayAlert') === 'true') {
+        
+        $(document).ready(function () {
+            $("#update-alert").fadeTo(5000, 500).slideUp(500, function(){
+            $("#update-alert").slideUp(500)})
+             
+        });
+    }
+    if (localStorage.getItem('displayError') == 'true'){
+        $(document).ready(function () {
+            $("#error-alert").fadeTo(5000, 500).slideUp(500, function(){
+            $("#error-alert").slideUp(500)})
+        });
+    }
+    localStorage.setItem('displayError','false');
+    localStorage.setItem('displayAlert', 'false');
+        
+</script>
+{%block PUTform%}
+<script>
+    $(document).ready(function () {
+        $("#put-form").submit(function (event) {
+            event.preventDefault();
+
+           
+            var formData = $(this).serialize();
+
+            
+            $.ajax({
+                url: $(this).attr("action"),
+                type: "PUT",
+                data: formData,
+                success: function (response) {
+                    
+                    location.reload()
+                    
+                    
+                    localStorage.setItem('displayAlert', 'true')
+                    console.log("PUT request successful");
+                    
+                },
+                error: function (error) {
+                    
+                    location.reload()
+                    localStorage.setItem('displayError', 'true')
+                    console.error("PUT request failed");
+                   
+                }
+            });
+        });
+    });
+</script>
+{%endblock%}
+{%endblock%}
+
+
+
+
+
+

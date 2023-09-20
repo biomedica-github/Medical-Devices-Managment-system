@@ -1,0 +1,10 @@
+{% load crispy_forms_field %}
+
+
+        <div class="control">
+          {% if field.errors %}
+              {% crispy_field field "class" "is-danger" %}
+          {% else %}
+              {% crispy_field field %}
+          {% endif %}
+        </div>

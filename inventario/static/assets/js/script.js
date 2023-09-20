@@ -13,13 +13,3 @@ $("#del-btn").click(function showAlert() {
    $("#delete-alert").slideUp(500);
     });   
 });
-
-$("#error-alert").hide();
-$("#put-btn").click(function showAlert() {
-    $("#put-alert").fadeTo(5000, 500).slideUp(500, function(){
-   $("#put-alert").slideUp(500);
-    });   
-});
-
-        
-

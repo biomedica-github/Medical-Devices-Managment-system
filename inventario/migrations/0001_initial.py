@@ -21,7 +21,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Contrato',
             fields=[
-                ('num_contrato', models.CharField(max_length=100, primary_key=True, serialize=False)),
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('num_contrato', models.CharField(max_length=100, unique=True, serialize=False)),
                 ('tipo_contrato', models.CharField(choices=[('L', 'Contrato local'), ('G', 'Contrato garantia'), ('C', 'Contrato consolidado')], default='L', max_length=1)),
                 ('tipo_servicio_estipulado', models.CharField(choices=[('P/C', 'Servicio preventivo y correctivo'), ('PRV', 'Servicio  preventivo'), ('N/A', 'Proveedor no brinda servicio')], default='PRV', max_length=3)),
                 ('fecha_vencimiento', models.DateField()),
@@ -31,7 +32,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Equipo_medico',
             fields=[
-                ('numero_nacional_inv', models.CharField(max_length=100, primary_key=True, serialize=False)),
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('numero_nacional_inv', models.CharField(max_length=100, unique=True, serialize=False)),
                 ('nombre_equipo', models.CharField(max_length=100)),
                 ('estado', models.CharField(max_length=100)),
                 ('observaciones', models.CharField(max_length=255, null=True)),

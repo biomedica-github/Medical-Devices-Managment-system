@@ -1,6 +1,7 @@
 from . import models
 import django_filters
 from datetime import date
+from django_filters.rest_framework import backends
 
 fecha_choices = [
         (1, 'Enero'),
@@ -18,12 +19,13 @@ fecha_choices = [
     ]
 
 
+
 class filtro_proveedor(django_filters.FilterSet):
     nombre_proveedor = django_filters.CharFilter(field_name='nombre_proveedor', lookup_expr='icontains', label= 'Nombre del proveedor')
-
     class Meta:
         model = models.Proveedor
         fields = ['nombre_proveedor']
+        
 
 
 class filtro_equipo(django_filters.FilterSet):
@@ -80,8 +82,6 @@ class filtro_contrato(django_filters.FilterSet):
     num_contrato = django_filters.CharFilter(field_name='num_contrato', lookup_expr='icontains', label= 'Numero de contrato')
     año_vencimiento = django_filters.NumberFilter(field_name='fecha_vencimiento', lookup_expr='year', label= 'Año de vencimiento')
     mes_vencimiento = django_filters.ChoiceFilter(choices=fecha_choices,field_name='fecha_vencimiento', lookup_expr='month', label= 'Mes de vencimiento')
-
-    
 
     class Meta:
         model = models.Contrato

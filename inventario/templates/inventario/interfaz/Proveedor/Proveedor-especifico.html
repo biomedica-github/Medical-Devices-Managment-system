@@ -1,70 +1,19 @@
+{%extends "/home/edgar/Desktop/Proyectos/UMAE_db/inventario/templates/inventario/interfaz/base_PUT-DELETE.html"%}
 {% load static%}
 {%load rest_framework%}
-<!DOCTYPE html>
-<html data-bs-theme="light" lang="es-mx">
 
-
-<head>
-    {%block head%}
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Inventario - Proveedores</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="{% static 'assets/img/apple-touch-icon.png'}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/img/favicon-16x16.png'%}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/img/favicon-32x32.png' %}">
-    <link rel="icon" type="image/png" sizes="180x180" href="{% static 'assets/img/apple-touch-icon.png'%}">
-    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'assets/img/android-chrome-192x192.png'%}">
-    <link rel="icon" type="image/png" sizes="512x512" href="{% static 'assets/img/android-chrome-512x512.png' %}">
-    <link rel="stylesheet" href="{% static 'assets/bootstrap/css/bootstrap.min_inventario.css'%}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i&amp;display=swap">
-    <link rel="stylesheet" href="{% static 'assets/fonts/fontawesome-all.min.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/Boostrap-Tabs.css'%}">
-    <link rel="stylesheet" href="{% static 'assets/css/Calendar-BS4-news.css'%}">
-    <link rel="stylesheet" href="{% static 'assets/css/Calendar-BS4.css'%}">
-    <link rel="stylesheet" href="{% static 'assets/css/Features-Large-Icons-icons.css' %}">
-    {%endblock%}
-</head>
-
-<body id="page-top">
-    <div id="wrapper" style="--bs-primary: #0f35c3;--bs-primary-rgb: 15,53,195;">
-        <nav class="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark" style="--bs-primary: #dfe2ea;--bs-primary-rgb: 223,226,234;--bs-info: #91cad2;--bs-info-rgb: 145,202,210;background: var(--bs-secondary);color: rgb(241,245,243);--bs-secondary: rgb(37,126,62);--bs-secondary-rgb: 37,126,62;">
-            <div class="container-fluid d-flex flex-column p-0"><a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="/index.html"><img src="{% static 'assets/img/imss3.png'%}" width="48" height="43">
-                    <div class="sidebar-brand-icon rotate-n-15"></div>
-                    <div class="sidebar-brand-text mx-3"><span style="--bs-primary: #07b122;--bs-primary-rgb: 7,177,34;--bs-body-bg: #f9f7f7;">Inventario</span></div>
-                </a>
-                <hr class="sidebar-divider my-0">
-                <ul class="navbar-nav text-light" id="accordionSidebar">
-                    <li class="nav-item"><a class="nav-link active" href="http://127.0.0.1:8000/proveedores/" style="background: var(--bs-secondary);--bs-success: #0f5125;--bs-success-rgb: 15,81,37;"><i class="far fa-comments"></i><span style="--bs-info: #ffffff;--bs-info-rgb: 255,255,255;">Proveedores</span></a></li>
-                    <li class="nav-item"><a class="nav-link" href="http://127.0.0.1:8000/contratos/"><i class="far fa-handshake"></i><span>Contratos</span></a></li>
-                    <li class="nav-item"><a class="nav-link" href="http://127.0.0.1:8000/area/general/"><i class="far fa-images"></i><span>Areas</span></a><a class="nav-link" href="http://127.0.0.1:8000/orden/"><i class="far fa-file-alt"></i>Ordenes de servicio</a></li>
-                    <li class="nav-item"><a class="nav-link" href="http://127.0.0.1:8000/reportes/"><i class="far fa-newspaper"></i><span>Tickets</span></a></li>
-                    <li class="nav-item"><a class="nav-link" href="http://127.0.0.1:8000/equipo_medico/general/"><i class="far fa-sun"></i><span>Equipo medico</span></a></li>
-                    <li class="nav-item"><a class="nav-link" href="http://127.0.0.1:8000/checklists/"><i class="far fa-clipboard"></i><span>Checklist</span></a><a class="nav-link" href="http://127.0.0.1:8000/agenda/"><i class="far fa-calendar-alt"></i><span>Agenda</span></a><a class="nav-link" href="/Ordenes/equipos-orden_pendientes.html"><i class="far fa-edit"></i><span>Pendientes</span></a></li>
-                </ul>
-                <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button></div>
-            </div>
-        </nav>
-        <div class="d-flex flex-column" id="content-wrapper">
-            <nav class="navbar navbar-expand bg-white shadow mb-4 topbar static-top navbar-light">
-                <div class="container-fluid"><button class="btn btn-link d-md-none rounded-circle me-3" id="sidebarToggleTop" type="button" style="--bs-primary: rgb(37,126,62);--bs-primary-rgb: 37,126,62;color: rgb(37,126,62);"><i class="fas fa-align-justify"></i></button></div>
-            </nav>
-            <div id="content">
-                <div class="container-lg">
+        
+                    {%block botones%}
                     <div class="row">
                         <div class="col text-end">
+                            
                             <div class="btn-group flex-wrap" role="group"><a class="btn btn-secondary" role="button" style="margin: 10px;" data-bs-target="#modal-3" data-bs-toggle="modal"><i class="fas fa-clipboard-check" style="margin-right: 10px;"></i>Agregar contrato</a><button class="btn btn-danger button-form" type="button" style="margin: 10px;" data-bs-target="#modal-2" data-bs-toggle="modal"><i class="fas fa-trash" style="margin-right: 10px;"></i>Dar de baja proveedor</button><button class="btn btn-primary" type="button" data-bs-target="#modal-1" data-bs-toggle="modal" style="margin: 10px;"><i class="far fa-edit" style="margin-right: 10px;"></i>Editar Proveedor</button>  </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col">
-                    <div class="alert alert-warning alert-dismissible" role="alert" id="error-alert"><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="alert"></button><span><strong>Algo salio mal, intentelo de nuevo</strong></span></div>
-                    <div id="update-alert" class="alert alert-info alert-dismissible" role="alert"><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="alert"></button><span><strong>Proveedor modificado de forma exitosa </strong></span></div>
-                    <div id="contrato-alert" class="alert alert-info alert-dismissible" role="alert"><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="alert"></button><span><strong>Contrato agregado de manera exitosa</strong></span></div>        
+                    {%endblock%}
+                    {%block body%}
                     <div>
-                                <p style="font-size: 36px;"><strong><span style="color: rgb(37, 126, 62);">{{contenido.nombre_proveedor}}</span></strong></p>
-                            </div>
-                        </div>
+                        <p style="font-size: 36px;"><strong><span style="color: rgb(37, 126, 62);">{{contenido.nombre_proveedor}}</span></strong></p>
                     </div>
                     <div class="row">
                         <div class="col">
@@ -85,7 +34,7 @@
                             {%for contrato in contenido.proveedor_contrato%}
                             <div class="card mx-auto" style="margin: 10px;">
                                 <div class="card-body border rounded-0 d-inline-flex justify-content-between flex-wrap p-2">
-                                    <div class="ms-0"><a class="fs-4 d-inline text-decoration-none stretched-link text-break" href="/contratos/{{contrato.num_contrato}}"><strong><span style="color: rgb(37, 126, 62); background-color: rgb(248, 249, 252);">{{contrato.num_contrato}}</span></strong></a>
+                                    <div class="ms-0"><a class="fs-4 d-inline text-decoration-none stretched-link text-break" href="/contratos/{{contrato.id}}"><strong><span style="color: rgb(37, 126, 62); background-color: rgb(248, 249, 252);">{{contrato.num_contrato}}</span></strong></a>
                                         <p>{{contrato.tipo_contrato}}</p>
                                     </div>
                                     <div class="d-inline ms-0 text-break">
@@ -104,6 +53,7 @@
                             </nav>
                         </div>
                     </div>
+                    
                     <div class="modal fade" role="dialog" tabindex="-1" id="modal-1">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
@@ -129,9 +79,7 @@
                                     <h4 class="modal-title" style="font-size: 30px;">Eliminar Proveedor</h4><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <form>
-
-                                    </form>
+                                    {%csrf_token%}
                                     <span style="font-size: 20px;">Estas a punto de eliminar este proveedor de la base de datos de forma permanente. ¿Estas seguro que deseas continuar?</span></div>
                                 <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cerrar</button><button id="del-btn" class="btn btn-danger text-end" type="button" data-bs-dismiss="modal">Eliminar</button></div>
                             </div>
@@ -144,7 +92,8 @@
                                     <h4 class="modal-title">Agregar contrato</h4><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <form id="contratoform">
+                                    <form id="agregarform">
+                                        {%csrf_token%}
                                         <div class="form-floating mb-3"><input class="form-control form-control" type="text" placeholder="HGsOFT" name="num_contrato" required /><label class="form-label" for="floatingInput">Numero de contrato</label></div>
                                         <div class="form-floating mb-3"><input class="form-control" type="date" name="fecha_vencimiento" required /><label class="form-label" for="floatingInput">Fecha de vencimiento</label></div>
                                         <div class="form-floating mb-3"><select name="tipo_contrato" class="form-select">
@@ -156,154 +105,48 @@
                                                 <option value="P/C" selected>Servicio preventivo y correctivo</option>
                                                 <option value="PRV">Servicio preventivo</option>
                                                 <option value="N/A">Proveedor no brinda servicio</option>
-                                            </select><label class="form-label" for="floatingInput">Servicio estipulado</label></div><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cerrar</button><button id="guardar_proveedor" class="btn btn-primary" type="submit">Guardar</button>
+                                            </select><label class="form-label" for="floatingInput">Servicio estipulado</label></div>
+                                            <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cerrar</button><button id="guardar_proveedor" class="btn btn-primary" type="submit">Guardar</button></div>
                                     </form>
                                 </div>
+
                                 <div class="modal-footer"></div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <footer class="bg-white sticky-footer">
-                <footer>
-                    <p class="text-center">Inventario 1.0.0</p>
-                </footer>
-            </footer>
-        </div>
-    </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{% static 'assets/js/script.js' %}"></script>
-    <script src="{% static 'assets/js/theme.js' %}"></script>
+                    
+    {%endblock%}
+    {%block POSTform%}
+<script>
+    $(document).ready(function() {
+      $('#agregarform').submit(function(e) {
+        e.preventDefault(); 
+       
+        const formData = $(this).serialize();
+  
+        const method = 'POST'; 
+        const url = 'agregar_contrato/'; 
+        $.ajax({
+          type: method,
+          url: url,
+          data: formData,
+          success: function(response) {
+            location.reload()
+            localStorage.setItem('displayAgregado', 'true');
+            console.log('POST request succesful');
 
-    <script>
-        $("#contrato-alert").hide()
-
-        if (localStorage.getItem('displayContrato') == 'true')
-        {
-            $(document).ready(function () {
-                $("#contrato-alert").fadeTo(5000, 500).slideUp(500, function(){
-                $("#contrato-alert").slideUp(500)})
-                 
-            });
-            localStorage.setItem('displayContrato', 'false')
-        }
-        
-
-
-        $(document).ready(function() {
-          $('#contratoform').submit(function(e) {
-            e.preventDefault(); 
-           
-            const formData = $(this).serialize();
-      
-            const method = 'POST'; 
-            const url = 'agregar_contrato/'; 
-            $.ajax({
-              type: method,
-              url: url,
-              data: formData,
-              success: function(response) {
-                location.reload()
-                localStorage.setItem('displayContrato', 'true');
-                console.log('POST request succesful');
-
-              },
-              error: function(error) {
-                location.reload()
-                localStorage.setItem('displayError', 'true');
-                console.error('POST request failed');
-              }
-            });
-          });
+          },
+          error: function(error) {
+            location.reload()
+            localStorage.setItem('displayError', 'true');
+            console.error('POST request failed');
+          }
         });
-      </script>
+      });
+    });
+  </script>
+  {%endblock%}
 
-
-    <script>
-        $("#error-alert").hide();
-        $(document).ready(function () {
-            $("#del-btn").click(function (event) {
-                event.preventDefault(); // Prevent the default link behavior
-    
-                // Send the DELETE request
-                $.ajax({
-                    url: "{{request.build_absolute_uri }}", // Replace with your delete URL
-                    type: "DELETE",
-                    success: function (response) {
-                        // Handle the success response
-                        localStorage.setItem('displayBorrado', 'true')
-                        window.location.href = "http://127.0.0.1:8000/proveedores/";
-                        $("#error-alert").hide();
-                        console.log("DELETE request successful");
-                        // You can update the page or display a success message here
-                    },
-                    error: function (error) {
-                        // Handle the error response
-                        localStorage.setItem('displayError', 'true')
-                        console.error("DELETE request failed");
-                        // You can display an error message here
-                    }
-                });
-            });
-        });
-    </script>
-    <script>
-        $("#update-alert").hide()
-        // Check if the flag is set in local storage
-        if (localStorage.getItem('displayAlert') === 'true') {
-            // Display the Bootstrap alert
-            $(document).ready(function () {
-                $("#update-alert").fadeTo(5000, 500).slideUp(500, function(){
-                $("#update-alert").slideUp(500)})
-                 
-            });
-        }
-        if (localStorage.getItem('displayError') == 'true'){
-            $(document).ready(function () {
-                $("#error-alert").fadeTo(5000, 500).slideUp(500, function(){
-                $("#error-alert").slideUp(500)})
-            });
-        }
-        localStorage.setItem('displayError','false');
-        localStorage.setItem('displayAlert', 'false');
-            
-    </script>
-    <script>
-        $(document).ready(function () {
-            $("#put-form").submit(function (event) {
-                event.preventDefault(); // Prevent the default form submission
-    
-                // Serialize the form data
-                var formData = $(this).serialize();
-    
-                // Send the PUT request
-                $.ajax({
-                    url: $(this).attr("action"),
-                    type: "PUT",
-                    data: formData,
-                    success: function (response) {
-                        // Handle the success response
-                        location.reload()
-                        
-                        
-                        localStorage.setItem('displayAlert', 'true')
-                        console.log("PUT request successful");
-                        // You can update the page or display a success message here
-                    },
-                    error: function (error) {
-                        // Handle the error response 
-                        location.reload()
-                        localStorage.setItem('displayError', 'true')
-                        console.error("PUT request failed");
-                        // You can display an error message here
-                    }
-                });
-            });
-        });
-    </script>
-    
 </body>
 
 </html>

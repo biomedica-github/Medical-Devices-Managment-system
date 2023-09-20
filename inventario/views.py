@@ -15,6 +15,7 @@ from django.db.models import Q
 from .permissions import IsAdminOrReadOnly
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.decorators import action
+from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework import filters, renderers
 from  django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import render
@@ -23,6 +24,7 @@ from datetime import date
 from . import filters as filtros
 from django.views.generic import ListView
 from django.core.paginator import Paginator
+from . import filterbackend
 
 from rest_framework.templatetags import rest_framework as template123
 
@@ -35,7 +37,7 @@ class ProveedorViewSet(ModelViewSet):
     renderer_classes = [renderers.TemplateHTMLRenderer]
     template_name = 'interfaz/Proveedor/Proveedores-general.html'
     pagination_class = PageNumberPagination
-    
+
     filterset_class = filtros.filtro_proveedor
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -70,6 +72,7 @@ class ProveedorViewSet(ModelViewSet):
         proveedor_id = objeto.id
         serializer = serializers.AgregarContratoProveedorSerializer(data=request.data, context={'proveedor': proveedor_id})
         if serializer.is_valid():
+            print(serializer.validated_data)
             proveedor_objeto = Proveedor.objects.get(id = id)
             contrato_nuevo = Contrato.objects.create(proveedor=proveedor_objeto, **serializer.validated_data)
             contrato_nuevo.save()
@@ -82,9 +85,23 @@ class ContratoViewSet(ModelViewSet):
     filterset_class = filtros.filtro_contrato
     renderer_classes = [renderers.TemplateHTMLRenderer]
     template_name = 'interfaz/Contratos/contratos-general.html'
+    filter_backends = [filterbackend.InventarioBackend]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def get_paginated_response(self, data):
-        return Response({'content': data, 'paginator': self.paginator})
+        pagination = self.paginator.get_paginated_response(data)
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        putserializer = serializers.CrearContratoSerializer
+        backend_filtro = self.filter_backends[0]
+        filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
+        return Response({'content': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer':putserializer, 'filtro':filtro_html})
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -99,8 +116,10 @@ class ContratoViewSet(ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
+        putserializer = serializers.ModificarContratoSerializer(instance)
         serializer = self.get_serializer(instance)
-        return Response(serializer.data, template_name='interfaz/Contratos/contratos-especifico.html')
+        equipo = serializers.AgregarEquipoContratoSerializer
+        return Response({'contenido':serializer.data, 'serializer':serializer, 'putserializer':putserializer, 'equipo':equipo}, template_name='interfaz/Contratos/contratos-especifico.html')
     
     def get_serializer_class(self):
         if self.request.method == 'POST' or self.request.method == 'PUT':
@@ -109,6 +128,21 @@ class ContratoViewSet(ModelViewSet):
 
     def get_serializer_context(self):
         return {'request': self.request}
+    
+    @action(methods=['post'], detail=True, serializer_class=serializers.AgregarEquipoContratoSerializer)
+    def agregar_equipo(self, request, pk):
+        objeto = self.get_object()
+        contrato_num = pk
+        serializer = serializers.AgregarEquipoContratoSerializer(data=request.data, context={'contrato':contrato_num})
+        if serializer.is_valid():
+            for i in serializer.validated_data['equipos_contrato']:
+                equipo = Equipo_medico.objects.get(id=i.id)
+                equipo.contrato = objeto
+                equipo.save()
+        return Response(serializer.data)
+                
+        
+
 
 class EquipoViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
@@ -256,6 +290,7 @@ class CrearOrdenViewSet(ModelViewSet):
             return serializers.CrearOrdenSerializer
         return OrdenEquipoSerializer
     queryset = Orden_Servicio.objects.prefetch_related('equipo_medico').exclude(estatus="PEN").order_by('-fecha').all()
+
 
 
 class OrdenPendientesViewSet(mixins.RetrieveModelMixin, mixins.DestroyModelMixin, mixins.UpdateModelMixin, mixins.ListModelMixin, GenericViewSet):

@@ -32,6 +32,8 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
+CRISPY_ALLOWED_TEMPLATE_PACKS = ('bootstrap', 'uni_form', 'bootstrap3', 'bootstrap4', '/home/edgar/Desktop/Proyectos/UMAE_db/inventario/templates/inventario/template_forms', )
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -42,6 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'django_filters',
+    'crispy_bootstrap4',
+    'crispy_forms',
     'djoser',
     'inventario',
     'debug_toolbar',

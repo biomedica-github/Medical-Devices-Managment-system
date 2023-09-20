@@ -1,77 +1,61 @@
+{%extends "/home/edgar/Desktop/Proyectos/UMAE_db/inventario/templates/inventario/interfaz/base_PUT-DELETE.html"%}
 {% load static%}
-<!DOCTYPE html>
-<html data-bs-theme="light" lang="es-mx">
+{%load rest_framework%}
 
-<head>
-    {%block head%}
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Inventario - Proveedores</title>
-    <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="{% static 'assets/img/apple-touch-icon.png'}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/img/favicon-16x16.png'%}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/img/favicon-32x32.png' %}">
-    <link rel="icon" type="image/png" sizes="180x180" href="{% static 'assets/img/apple-touch-icon.png'%}">
-    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'assets/img/android-chrome-192x192.png'%}">
-    <link rel="icon" type="image/png" sizes="512x512" href="{% static 'assets/img/android-chrome-512x512.png' %}">
-    <link rel="stylesheet" href="{% static 'assets/bootstrap/css/bootstrap.min_inventario.css'%}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i&amp;display=swap">
-    <link rel="stylesheet" href="{% static 'assets/fonts/fontawesome-all.min.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/Boostrap-Tabs.css'%}">
-    <link rel="stylesheet" href="{% static 'assets/css/Calendar-BS4-news.css'%}">
-    <link rel="stylesheet" href="{% static 'assets/css/Calendar-BS4.css'%}">
-    <link rel="stylesheet" href="{% static 'assets/css/Features-Large-Icons-icons.css' %}">
-    {%endblock%}
-</head>
-
-<body id="page-top">
-    <div id="wrapper">
-        <nav class="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark" style="--bs-primary: #dfe2ea;--bs-primary-rgb: 223,226,234;--bs-info: #91cad2;--bs-info-rgb: 145,202,210;background: var(--bs-secondary);color: rgb(241,245,243);--bs-secondary: rgb(37,126,62);--bs-secondary-rgb: 37,126,62;">
-            <div class="container-fluid d-flex flex-column p-0"><a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="/index.html"><img src="{% static 'assets/img/imss3.png'%}" width="48" height="43">
-                    <div class="sidebar-brand-icon rotate-n-15"></div>
-                    <div class="sidebar-brand-text mx-3"><span style="--bs-primary: #07b122;--bs-primary-rgb: 7,177,34;--bs-body-bg: #f9f7f7;">Inventario</span></div>
-                </a>
-                <hr class="sidebar-divider my-0">
-                <ul class="navbar-nav text-light" id="accordionSidebar">
+                    {%block sidebar%}
                     <li class="nav-item"><a class="nav-link" href="http://127.0.0.1:8000/proveedores/" style="background: var(--bs-secondary);--bs-success: #0f5125;--bs-success-rgb: 15,81,37;"><i class="far fa-comments"></i><span style="--bs-info: #ffffff;--bs-info-rgb: 255,255,255;">Proveedores</span></a></li>
                     <li class="nav-item"><a class="nav-link active" href="http://127.0.0.1:8000/contratos/"><i class="far fa-handshake"></i><span>Contratos</span></a></li>
                     <li class="nav-item"><a class="nav-link" href="http://127.0.0.1:8000/area/general/"><i class="far fa-images"></i><span>Areas</span></a><a class="nav-link" href="http://127.0.0.1:8000/orden/"><i class="far fa-file-alt"></i>Ordenes de servicio</a></li>
                     <li class="nav-item"><a class="nav-link" href="http://127.0.0.1:8000/reportes/"><i class="far fa-newspaper"></i><span>Tickets</span></a></li>
                     <li class="nav-item"><a class="nav-link" href="http://127.0.0.1:8000/equipo_medico/general/"><i class="far fa-sun"></i><span>Equipo medico</span></a></li>
                     <li class="nav-item"><a class="nav-link" href="http://127.0.0.1:8000/checklists/"><i class="far fa-clipboard"></i><span>Checklist</span></a><a class="nav-link" href="http://127.0.0.1:8000/agenda/"><i class="far fa-calendar-alt"></i><span>Agenda</span></a><a class="nav-link" href="/Ordenes/equipos-orden_pendientes.html"><i class="far fa-edit"></i><span>Pendientes</span></a></li>
-                </ul>
-                <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button></div>
-            </div>
-        </nav>
-        <div class="d-flex flex-column" id="content-wrapper">
-            <nav class="navbar navbar-expand bg-white shadow mb-4 topbar static-top navbar-light">
-                <div class="container-fluid"><button class="btn btn-link d-md-none rounded-circle me-3" id="sidebarToggleTop" type="button" style="--bs-primary: rgb(37,126,62);--bs-primary-rgb: 37,126,62;color: rgb(37,126,62);"><i class="fas fa-align-justify"></i></button></div>
-            </nav>
+                    {%endblock%}
+                    
             <div id="content">
                 <div class="container-fluid" id="contenido-contratos">
                     <div class="col">
                         <div class="row">
+                            {%block botones%}
                             <div class="col text-end">
-                                <div class="btn-group flex-wrap" role="group"><button class="btn btn-danger" type="button" style="margin: 10px;" data-bs-target="#modal-2" data-bs-toggle="modal"><i class="fas fa-trash" style="margin-right: 10px;"></i>Eliminar contrato</button><button class="btn btn-primary text-end" type="button" data-bs-target="#modal-1" data-bs-toggle="modal" style="margin: 10px;"><i class="far fa-edit" style="margin-right: 10px;"></i>Modificar Contrato</button></div>
+                                <div class="btn-group flex-wrap" role="group"><button class="btn btn-secondary" type="button" style="margin: 10px;" data-bs-target="#modal-3" data-bs-toggle="modal"><i class="fas fa-briefcase-medical" style="margin-right: 10px;"></i>Agregar Equipo Médico sin contrato</button><button class="btn btn-danger" type="button" style="margin: 10px;" data-bs-target="#modal-2" data-bs-toggle="modal"><i class="fas fa-trash" style="margin-right: 10px;"></i>Eliminar contrato</button><button class="btn btn-primary text-end" type="button" data-bs-target="#modal-1" data-bs-toggle="modal" style="margin: 10px;"><i class="far fa-edit" style="margin-right: 10px;"></i>Modificar Contrato</button></div>
                             </div>
+                            {%endblock%}
                         </div>
                     </div>
                     <div class="row">
                         <div class="col">
                             <div>
-                                <p class="text-break d-inline" style="font-size: 36px;"><strong><span style="color: rgb(37, 126, 62);">Contrato numero:&nbsp;{{num_contrato}}</span></strong></p>
+                                <p class="text-break d-inline" style="font-size: 36px;"><strong><span style="color: rgb(37, 126, 62);">Contrato numero:&nbsp;{{contenido.num_contrato}}</span></strong></p>
                             </div>
                         </div>
                     </div>
-                    <div class="row">
+                    
+                        {%block anuncioModificado%}
+                        <span><strong>Contrato modificado de forma exitosa</strong></span>
+                        {%endblock%}
+
+                        {%block anuncioAgregado%}
+                        <span><strong>Equipo medico agregado de forma exitosa</strong></span>
+                        {%endblock%}
+                    
+                        {%block body%}
+                        <div class="row">
+                            <div class="col">
+                                <div>
+                                    <p class="text-break d-inline" style="font-size: 36px;"><strong><span style="color: rgb(37, 126, 62);">Contrato numero: {{contenido.num_contrato}}</span></strong></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
                         <div class="col">
                             <div class="card shadow border-start-warning py-2" style="margin: 10px;">
                                 <div class="card-body">
                                     <div class="row align-items-center no-gutters">
                                         <div class="col me-2">
                                             <div class="text-uppercase text-warning fw-bold text-xs mb-1"><span style="color: rgb(37,126,62);border-color: var(--bs-warning-text-emphasis);font-size: 14.2px;">Proveedor</span></div>
-                                            <div class="text-dark fw-bold h5 mb-0"><span>{{proveedor}}</span></div>
+                                            <div class="text-dark fw-bold h5 mb-0"><span>{{contenido.proveedor}}</span></div>
                                         </div>
-                                        <div class="col-auto"><span>{{tipo_servicio_estipulado}}</span></div>
+                                        <div class="col-auto"><span>{{contenido.tipo_servicio_estipulado}}</span></div>
                                     </div>
                                 </div>
                             </div>
@@ -80,7 +64,7 @@
                                     <div class="row align-items-center no-gutters">
                                         <div class="col me-2">
                                             <div class="text-uppercase text-warning fw-bold text-xs mb-1"><span style="color: rgb(37,126,62);border-color: var(--bs-warning-text-emphasis);font-size: 14.2px;">Tipo de contrato</span></div>
-                                            <div class="text-dark fw-bold h5 mb-0"><span>{{tipo_contrato}}</span></div>
+                                            <div class="text-dark fw-bold h5 mb-0"><span>{{contenido.tipo_contrato}}</span></div>
                                         </div>
                                         <div class="col-auto"><span></span></div>
                                     </div>
@@ -91,9 +75,9 @@
                                     <div class="row align-items-center no-gutters">
                                         <div class="col me-2">
                                             <div class="text-uppercase text-warning fw-bold text-xs mb-1"><span style="color: rgb(37,126,62);border-color: var(--bs-warning-text-emphasis);font-size: 14.2px;">Fecha de vencimiento</span></div>
-                                            <div class="text-dark fw-bold h5 mb-0"><span>{{fecha_vencimiento}}</span></div>
+                                            <div class="text-dark fw-bold h5 mb-0"><span>{{contenido.fecha_vencimiento}}</span></div>
                                         </div>
-                                        <div class="col-auto"><span>{{dias_restantes}}</span></div>
+                                        <div class="col-auto"><span>{{contenido.dias_restantes}}</span></div>
                                     </div>
                                 </div>
                             </div>
@@ -108,7 +92,7 @@
                     </div>
                     <div class="row">
                         <div class="col">
-                            {%for equipo in equipos_contrato%}
+                            {%for equipo in contenido.equipos_contrato%}
                             <div class="card mx-auto" href="www.google.com" style="margin: 10px;">
                                 <div class="card-body border rounded-0 d-inline-flex justify-content-between flex-wrap p-2">
                                     <div class="d-inline ms-0 text-break"><a class="text-break fs-4 d-inline text-decoration-none stretched-link text-break" href="/equipo_medico/general/{{equipo.numero_nacional_inv}}"><strong><span style="color: rgb(37, 126, 62); background-color: rgb(248, 249, 252);">NNI: {{equipo.numero_nacional_inv}}</span></strong><br><strong><span style="color: rgb(37, 126, 62); background-color: rgb(248, 249, 252);">{{equipo.nombre_equipo}}&nbsp;</span></strong></a>
@@ -127,41 +111,42 @@
                             {%endfor%}
                         </div>
                     </div>
+                    {%endblock%}
                     
+                    {%block modales%}
+                    <div id="modal-3" class="modal fade" role="dialog" tabindex="-1">
+                        <div class="modal-dialog modal-lg modal-fullscreen-sm-down" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Agregar Equipo medico sin contrato</h4><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="agregarform" action="agregar_equipo/">
+                                        {%csrf_token%}
+                                        <fieldset>
+                                        {%render_form equipo template_pack='/form-fields'%}
+                                        <small class="form-text">Estos son los equipos medicos que no tienen un contrato asignado, ya sea porque su contrato vencio o porque no son parte de ningun contrato. al seleccionar uno o mas equipos, estos pasaran a formar parte del contrato en el que se encuentra actualmente.</small>
+                                        <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cerrar</button><button id="agregar_equipo" class="btn btn-primary" type="submit">Agregar</button></div>
+                                    </fieldset>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="modal fade" role="dialog" tabindex="-1" id="modal-1">
                         <div class="modal-dialog modal-lg modal-fullscreen-sm-down" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h4 class="modal-title">Agregar contrato</h4><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
+                                    <h4 class="modal-title">Modificar contrato</h4><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <form>
-                                        <div class="form-floating mb-3"><input class="form-control form-control" type="text" placeholder="HGsOFT" name="num_contrato" required=""><label class="form-label" for="floatingInput">Numero de contrato</label></div>
-                                        <div class="form-floating mb-3"><select class="form-select">
-                                                <option value="1">Absten diagnostik</option>
-                                                <option value="2">Ace medical</option>
-                                                <option value="3">Adalu Ingenieria</option>
-                                            </select><label class="form-label">Proveedor</label></div>
-                                        <div class="form-floating mb-3"><input class="form-control" type="date" required=""><label class="form-label" for="floatingInput">Fecha de vencimiento</label></div>
-                                        <div class="form-floating mb-3"><select class="form-select">
-                                                <option value="L" selected="">Contrato Local</option>
-                                                <option value="G">Contrato garantia</option>
-                                                <option value="C">Contrato consolidado</option>
-                                            </select><label class="form-label" for="floatingInput">Tipo de contrato</label></div>
-                                        <div class="form-floating mb-3"><select class="form-select">
-                                                <option value="P/C" selected="">Servicio preventivo y correctivo</option>
-                                                <option value="PRV">Servicio preventivo</option>
-                                                <option value="N/A">Proveedor no brinda servicio</option>
-                                            </select><label class="form-label" for="floatingInput">Servicio estipulado</label></div>
-                                        <div class="form-floating mb-3"><select class="form-select" multiple="">
-                                                <option value="202200009237" selected="">202200009237 || Nombre: MESA QUIRURGICA AVANZADA || num_serie: 220000697088</option>
-                                                <option value="201900038704">201900038704 || Nombre: POTENCIALES EVOCADOS || num_serie: 9400K</option>
-                                                <option value="202180004133">202180004133 || Nombre: MONITORES TRIAGE || num_serie: 100020604920</option>
-                                                <option value="202180004134">202180004134 || Nombre: MONITORES TRIAGE || num_serie: 100020594920</option>
-                                                <option value="202180004135">202180004135 || Nombre: MONITORES TRIAGE || num_serie: 100020674920</option>
-                                                <option value="2021800004136">202180004136 || Nombre: MONITORES TRIAGE || num_serie: 100020684920</option>
-                                            </select></div><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cerrar</button><button class="btn btn-primary" type="submit">Guardar</button>
-                                    </form>
+                                    <form id="put-form" action="{{request.build_absolute_uri }}">
+                                        {%csrf_token%}
+                                        <fieldset>
+                                            {% render_form putserializer template_pack='/form-fields' %}
+                                            <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cerrar</button><button id="upd-btn" class="btn btn-primary" type="submit" data-bs-dismiss="modal">Guardar</button></div>
+                                        </fieldset>
                                 </div>
                                 <div class="modal-footer"></div>
                             </div>
@@ -174,10 +159,45 @@
                                     <h4 class="modal-title" style="font-size: 30px;">Eliminar contrato</h4><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
                                 </div>
                                 <div class="modal-body"><span style="font-size: 20px;">Estas a punto de eliminar este contrato de la base de datos de forma permanente. ¿Estas seguro que deseas continuar?</span></div>
-                                <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cerrar</button><button class="btn btn-danger text-end" type="submit">Eliminar</button></div>
+                                <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cerrar</button><button id="del-btn" class="btn btn-danger text-end" type="submit">Eliminar</button></div>
                             </div>
                         </div>
                     </div>
+                  
+                 
+                   
+                    {%endblock%}
+
+                        {%block POSTform%}
+                        <script>
+                            $(document).ready(function() {
+                            $('#agregarform').submit(function(e) {
+                                e.preventDefault(); 
+                            
+                                const formData = $(this).serialize();
+                        
+                                const method = 'POST'; 
+                                const url = 'agregar_equipo/'; 
+                                $.ajax({
+                                type: method,
+                                url: url,
+                                data: formData,
+                                success: function(response) {
+                                    location.reload()
+                                    localStorage.setItem('displayAgregado', 'true');
+                                    console.log('PUT request succesful');
+
+                                },
+                                error: function(error) {
+                                    location.reload()
+                                    localStorage.setItem('displayError', 'true');
+                                    console.error('PUT request failed');
+                                }
+                                });
+                            });
+                            });
+                        </script>
+                    {%endblock%}
                 </div>
             </div>
             <footer class="bg-white sticky-footer">
@@ -187,10 +207,6 @@
             </footer>
         </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{%static 'assets/js/script.js'%}"></script>
-    <script src="{%static 'assets/js/theme.js'%}"></script>
 </body>
 
 </html>

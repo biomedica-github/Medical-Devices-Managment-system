@@ -30,7 +30,8 @@ class Contrato(models.Model):
         (SERVICIO_PREVENTIVO, 'Servicio  preventivo'),
         (NO_SERVICIO, 'Proveedor no brinda servicio')
     ]
-    num_contrato = models.CharField(max_length=100, primary_key=True)
+    
+    num_contrato = models.CharField(max_length=100, unique=True)
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, related_name='proveedor_contrato')
     tipo_contrato = models.CharField(max_length=1, choices=CONTRATO_OPCIONES, default=CONTRATO_LOCAL, null=True)
     tipo_servicio_estipulado = models.CharField(max_length=3, choices=SERVICIO_OPCIONES, default=SERVICIO_PREVENTIVO)
@@ -54,6 +55,7 @@ class Area_hospital(models.Model):
     class Meta:
         ordering = ['nombre_sala']
 
+
 class Equipo_medico(models.Model):
     ESTADO_FUNCIONAL = 'FUNC'
     ESTADO_FUERA_SERVICIO = 'OUT'
@@ -64,7 +66,7 @@ class Equipo_medico(models.Model):
         (ESTADO_SERVICIO, 'Equipo en mantenimiento')
     ]
 
-    numero_nacional_inv = models.CharField(max_length= 100, primary_key=True)
+    numero_nacional_inv = models.CharField(max_length= 100, unique=True)
     nombre_equipo = models.CharField(max_length=100)
     estado = models.CharField(max_length=4, choices=ESTADO_OPCIONES, default=ESTADO_FUNCIONAL)
     observaciones = models.CharField(max_length=255, null=True)

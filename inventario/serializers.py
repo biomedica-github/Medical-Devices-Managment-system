@@ -12,7 +12,7 @@ from django.core.validators import FileExtensionValidator
 class ContratoProveedor(serializers.ModelSerializer):
     class Meta:
         model = Contrato
-        fields = ['num_contrato', 'fecha_vencimiento', 'tipo_contrato', 'dias_restantes']
+        fields = ['id','num_contrato', 'fecha_vencimiento', 'tipo_contrato', 'dias_restantes']
     tipo_contrato = serializers.SerializerMethodField(method_name="tipo_de_contrato")
    
     dias_restantes = serializers.SerializerMethodField(method_name='calcular_dias_restantes')
@@ -53,7 +53,10 @@ class ContratoEquiposSerializer(serializers.ModelSerializer):
         return orden.get_estado_display()
     #cama = serializers.StringRelatedField()
 
-class ContratoSerializers(serializers.Serializer):
+class ContratoSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Contrato
+        fields = ['num_contrato', 'proveedor', 'fecha_vencimiento', 'dias_restantes', 'tipo_contrato', 'tipo_servicio_estipulado', 'equipos_contrato']
     num_contrato = serializers.CharField(max_length = 100)
     proveedor = serializers.StringRelatedField()
     fecha_vencimiento = serializers.DateField()
@@ -79,15 +82,37 @@ class ContratoSerializers(serializers.Serializer):
             return "Contrato vencido"
         else:
             return f"Faltan {dias} dias para el vencimiento"
-        
+
+class ModificarContratoSerializer(serializers.ModelSerializer):
+    tipo_contrato = serializers.ChoiceField(choices=Contrato.CONTRATO_OPCIONES)
+    tipo_servicio_estipulado = serializers.ChoiceField(choices=Contrato.SERVICIO_OPCIONES)
+    class Meta:
+        model = Contrato
+        fields = ["num_contrato", "fecha_vencimiento", "tipo_contrato", "tipo_servicio_estipulado"]
+
+
 class CrearContratoSerializer(serializers.ModelSerializer):
     tipo_contrato = serializers.ChoiceField(choices=Contrato.CONTRATO_OPCIONES)
     tipo_servicio_estipulado = serializers.ChoiceField(choices=Contrato.SERVICIO_OPCIONES)
     class Meta:
         model = Contrato
-        fields = ["num_contrato", "proveedor", "fecha_vencimiento", "tipo_contrato", "tipo_servicio_estipulado", 'equipos_contrato']
-    extra_kwargs = {'proveedor': {'required':True}, 'equipos': {'required':False}}
+        fields = ["num_contrato", "proveedor", "fecha_vencimiento", "tipo_contrato", "tipo_servicio_estipulado", "equipos_contrato"]
+    equipos_contrato = serializers.PrimaryKeyRelatedField(many=True, queryset=Equipo_medico.objects.filter(contrato=None), label= 'Equipos medicos sin contrato')
 
+class AgregarEquipoContratoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contrato
+        fields = ["equipos_contrato"]
+    equipos_contrato = serializers.PrimaryKeyRelatedField(many=True, queryset=Equipo_medico.objects.filter(contrato=None), label= 'Equipos medicos sin contrato')
+
+    def save(self, **kwargs):
+        contrato_pk = self.context['contrato']
+        for equipo in self.validated_data['equipos_contrato']:
+            equipo_med = Equipo_medico.objects.get(id=equipo)
+            equipo_med.contrato = Contrato.objects.get(id=contrato_pk)
+            equipo_med.save()
+            print(equipo_med)
+        return self.instance
 
 class AgregarContratoProveedorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -105,7 +130,7 @@ class AgregarContratoProveedorSerializer(serializers.ModelSerializer):
 class CrearOrdenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Orden_Servicio
-        fields = ['id','numero_orden', 'fecha', 'motivo', 'tipo_orden', 'estatus','responsable','autorizo_jefe_biomedica','autorizo_jefe_conservacion','descripcion_servicio','equipo_complementario','ing_realizo','num_mantenimiento_preventivo','fallo_paciente', 'equipo_medico', 'orden_escaneada']
+        fields = ['id','pendejo','numero_orden', 'fecha', 'motivo', 'tipo_orden', 'estatus','responsable','autorizo_jefe_biomedica','autorizo_jefe_conservacion','descripcion_servicio','equipo_complementario','ing_realizo','num_mantenimiento_preventivo','fallo_paciente', 'equipo_medico', 'orden_escaneada']
     
     estatus = serializers.ChoiceField(choices=Orden_Servicio.ESTATUS_OPCIONES)
     motivo = serializers.ChoiceField(choices=Orden_Servicio.MOTIVO_OPCIONES)
