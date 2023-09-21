@@ -21,17 +21,17 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('proveedores/', include('inventario.urls_proveedor')),
+    path('proveedores/', include(('inventario.urls_proveedor','inventario'), namespace='proveedornamespace')),
     path("__debug__/", include("debug_toolbar.urls")),
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
-    path('contratos/', include('inventario.urls_contrato')),
-    path('equipo_medico/', include('inventario.urls_equipo')),
-    path('area/', include('inventario.urls_area')),
-    path('orden/', include('inventario.urls_orden')),
-    path('agenda/', include('inventario.urls_agenda')),
-    path('checklists/', include('inventario.urls_checklist')),
-    path('reportes/', include('inventario.urls_reportes'))
+    path('contratos/', include(('inventario.urls_contrato', 'inventario'), namespace='contratonamespace')),
+    path('equipo_medico/', include(('inventario.urls_equipo', 'inventario'), namespace='equiponamespace')),
+    path('area/', include(('inventario.urls_area', 'inventario'), namespace='areanamespace')),
+    path('orden/', include(('inventario.urls_orden', 'inventario'), namespace='ordennamespace')),
+    path('agenda/', include(('inventario.urls_agenda', 'inventario'), namespace='agendanamespace')),
+    path('checklists/', include(('inventario.urls_checklist', 'inventario'), namespace="checklistnamespace")),
+    path('reportes/', include(('inventario.urls_reportes', 'inventario'), namespace='reportesnamespace'))
 ] 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

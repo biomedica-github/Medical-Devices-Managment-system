@@ -44,7 +44,7 @@ class ProveedorSerializers(serializers.ModelSerializer):
 class ContratoEquiposSerializer(serializers.ModelSerializer):
     class Meta:
         model = Equipo_medico
-        fields = ['numero_nacional_inv', 'nombre_equipo', 'modelo', 'estado', 'numero_serie', 'marca','area','cama']
+        fields = ['id','numero_nacional_inv', 'nombre_equipo', 'modelo', 'estado', 'numero_serie', 'marca','area','cama']
     #contrato = serializers.StringRelatedField()
     area = serializers.StringRelatedField()
     estado = serializers.SerializerMethodField(method_name='get_estado')
@@ -130,7 +130,7 @@ class AgregarContratoProveedorSerializer(serializers.ModelSerializer):
 class CrearOrdenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Orden_Servicio
-        fields = ['id','pendejo','numero_orden', 'fecha', 'motivo', 'tipo_orden', 'estatus','responsable','autorizo_jefe_biomedica','autorizo_jefe_conservacion','descripcion_servicio','equipo_complementario','ing_realizo','num_mantenimiento_preventivo','fallo_paciente', 'equipo_medico', 'orden_escaneada']
+        fields = ['id','numero_orden', 'fecha', 'motivo', 'tipo_orden', 'estatus','responsable','autorizo_jefe_biomedica','autorizo_jefe_conservacion','descripcion_servicio','equipo_complementario','ing_realizo','num_mantenimiento_preventivo','fallo_paciente', 'equipo_medico', 'orden_escaneada']
     
     estatus = serializers.ChoiceField(choices=Orden_Servicio.ESTATUS_OPCIONES)
     motivo = serializers.ChoiceField(choices=Orden_Servicio.MOTIVO_OPCIONES)
@@ -282,13 +282,26 @@ class CrearEquipoSerializer(serializers.ModelSerializer):
 
         extra_kwargs = {'area': {'required': False}}
 
+
 class Equipo_Serializer(serializers.ModelSerializer):
     cama = serializers.IntegerField(required =False, allow_null=True)
     class Meta:
         model = Equipo_medico
-        fields = ['numero_nacional_inv', 'nombre_equipo', 'modelo', 'estado', 'numero_serie', 'marca', 'observaciones', 'contrato','area','cama']
-    #contrato = serializers.StringRelatedField()
+        fields = ['id','numero_nacional_inv', 'nombre_equipo', 'modelo', 'estado', 'numero_serie', 'marca', 'observaciones', 'contrato','area','cama','area_href','contrato_href']
+    contrato = serializers.StringRelatedField()
     area = serializers.StringRelatedField()
+    estado = serializers.SerializerMethodField(method_name='get_estado', read_only=True)
+    area_href = serializers.SerializerMethodField(method_name='get_area', read_only=True)
+    contrato_href = serializers.SerializerMethodField(method_name='get_contrato', read_only=True)
+
+    def get_contrato(self, equipo: Equipo_medico):
+        return equipo.contrato
+
+    def get_area(self, equipo: Equipo_medico):
+        return equipo.area
+    
+    def get_estado(self, equipo: Equipo_medico):
+        return equipo.get_estado_display()
     #cama = serializers.StringRelatedField()
 
 class AreaEquipoSerializer(serializers.ModelSerializer):

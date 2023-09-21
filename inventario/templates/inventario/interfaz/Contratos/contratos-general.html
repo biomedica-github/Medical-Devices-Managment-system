@@ -1,16 +1,8 @@
-{%extends "/home/edgar/Desktop/Proyectos/UMAE_db/inventario/templates/inventario/interfaz/base_ONLY_POST_DELETEalert.html"%}
+{%extends "/home/edgar/Desktop/Proyectos/UMAE_db/inventario/templates/inventario/interfaz/base_ONLY_POST_DELETE-GENERAL.html"%}
 {% load static%}
 {%load rest_framework%}
 
-                    {%block sidebar%}
-                    <li class="nav-item"><a class="nav-link" href="http://127.0.0.1:8000/proveedores/" style="background: var(--bs-secondary);--bs-success: #0f5125;--bs-success-rgb: 15,81,37;"><i class="far fa-comments"></i><span style="--bs-info: #ffffff;--bs-info-rgb: 255,255,255;">Proveedores</span></a></li>
-                    <li class="nav-item"><a class="nav-link active" href="http://127.0.0.1:8000/contratos/"><i class="far fa-handshake"></i><span>Contratos</span></a></li>
-                    <li class="nav-item"><a class="nav-link" href="http://127.0.0.1:8000/area/general/"><i class="far fa-images"></i><span>Areas</span></a><a class="nav-link" href="http://127.0.0.1:8000/orden/"><i class="far fa-file-alt"></i>Ordenes de servicio</a></li>
-                    <li class="nav-item"><a class="nav-link" href="http://127.0.0.1:8000/reportes/"><i class="far fa-newspaper"></i><span>Tickets</span></a></li>
-                    <li class="nav-item"><a class="nav-link" href="http://127.0.0.1:8000/equipo_medico/general/"><i class="far fa-sun"></i><span>Equipo medico</span></a></li>
-                    <li class="nav-item"><a class="nav-link" href="http://127.0.0.1:8000/checklists/"><i class="far fa-clipboard"></i><span>Checklist</span></a><a class="nav-link" href="http://127.0.0.1:8000/agenda/"><i class="far fa-calendar-alt"></i><span>Agenda</span></a><a class="nav-link" href="/Ordenes/equipos-orden_pendientes.html"><i class="far fa-edit"></i><span>Pendientes</span></a></li>
-                    {%endblock%}
-                    </ul>
+{%block contratoactivo%} active {%endblock%}
                         {%block botones%}
                         <div class="row">
                             <div class="col text-end">

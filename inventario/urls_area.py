@@ -4,7 +4,7 @@ from rest_framework.routers import SimpleRouter
 from rest_framework_nested import routers
 
 router = routers.DefaultRouter()
-router.register('general', views.AreaViewSet, basename= 'Area')
+router.register('general', views.AreaViewSet, basename= 'area_urls')
 
 area_router = routers.NestedDefaultRouter(router, 'general', lookup='id')
 area_router.register('equipos_area', views.AreaEquipoViewSet, basename='area-equipo')

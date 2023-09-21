@@ -1,9 +1,9 @@
 from django.urls import path, re_path
 from . import views
-from rest_framework.routers import SimpleRouter
+from rest_framework.routers import SimpleRouter, DefaultRouter
 
-router = SimpleRouter()
-router.register('', views.ProveedorViewSet)
+router = DefaultRouter()
+router.register('', views.ProveedorViewSet, basename='proveedorurls')
 
 
 # URLConf

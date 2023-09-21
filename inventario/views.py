@@ -147,13 +147,47 @@ class ContratoViewSet(ModelViewSet):
 class EquipoViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
     filterset_class = filtros.filtro_equipo
-    
+    renderer_classes = [renderers.TemplateHTMLRenderer]
+    queryset = Equipo_medico.objects.select_related('contrato','area').all()
+    template_name = 'interfaz/Equipo/equipos-general.html'
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def get_paginated_response(self, data):
+        pagination = self.paginator.get_paginated_response(data)
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        putserializer = serializers.CrearEquipoSerializer
+        backend_filtro = self.filter_backends[0]
+        filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
+        return Response({'content': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer':putserializer, 'filtro':filtro_html})
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        putserializer = serializers.CrearEquipoSerializer(instance)
+        serializer = serializers.Equipo_Serializer(instance)
+        return Response({'contenido':serializer.data, 'serializer':serializer, 'putserializer':putserializer}, template_name='interfaz/Equipo/equipos-especifico-admin.html')    
+
     def get_serializer_class(self):
         if self.request.method == 'POST' or self.request.method == 'PUT':
             return serializers.CrearEquipoSerializer
         return Equipo_Serializer
-
-    queryset = Equipo_medico.objects.select_related('contrato','area').all()
 
     def get_serializer_context(self):
         return {'request': self.request}
