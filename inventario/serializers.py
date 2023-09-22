@@ -6,7 +6,16 @@ import pytz
 from rest_framework.response import Response
 from core.models import User
 from django.core.validators import FileExtensionValidator
+import locale
 
+locale.setlocale(locale.LC_ALL, 'es_ES')
+
+def calcular_fecha(datetimeobject: datetime.date) -> dict:
+    return {'dia': datetimeobject.strftime("%A").capitalize(), 
+            'dia_numero':datetimeobject.strftime("%d").capitalize(), 
+            'mes':datetimeobject.strftime("%B").capitalize(), 
+            'año':datetimeobject.strftime("%G").capitalize(),
+            'mes_ab':datetimeobject.strftime("%b").upper()}
 
 
 class ContratoProveedor(serializers.ModelSerializer):
@@ -56,7 +65,7 @@ class ContratoEquiposSerializer(serializers.ModelSerializer):
 class ContratoSerializers(serializers.ModelSerializer):
     class Meta:
         model = Contrato
-        fields = ['id','num_contrato', 'proveedor', 'fecha_vencimiento', 'dias_restantes', 'tipo_contrato', 'tipo_servicio_estipulado', 'equipos_contrato']
+        fields = ['id','num_contrato', 'proveedor', 'fecha_vencimiento', 'dias_restantes', 'tipo_contrato', 'tipo_servicio_estipulado', 'equipos_contrato', 'fecha']
     num_contrato = serializers.CharField(max_length = 100)
     proveedor = serializers.StringRelatedField()
     fecha_vencimiento = serializers.DateField()
@@ -64,6 +73,11 @@ class ContratoSerializers(serializers.ModelSerializer):
     tipo_contrato = serializers.SerializerMethodField(method_name="tipo_de_contrato")
     tipo_servicio_estipulado = serializers.SerializerMethodField(method_name='tipo_servicio')
     equipos_contrato = ContratoEquiposSerializer(many = True, read_only=True)
+    fecha = serializers.SerializerMethodField(method_name='get_fecha')
+
+    def get_fecha(self, contrato:Contrato):
+        fecha = contrato.fecha_vencimiento
+        return f'{fecha.strftime("%A").capitalize()} {fecha.strftime("%d")} de {fecha.strftime("%B").capitalize()} del {fecha.strftime("%G")}'
 
 
     def tipo_servicio(self, contrato: Contrato):
@@ -111,7 +125,6 @@ class AgregarEquipoContratoSerializer(serializers.ModelSerializer):
             equipo_med = Equipo_medico.objects.get(id=equipo)
             equipo_med.contrato = Contrato.objects.get(id=contrato_pk)
             equipo_med.save()
-            print(equipo_med)
         return self.instance
 
 class AgregarContratoProveedorSerializer(serializers.ModelSerializer):
@@ -210,24 +223,53 @@ class OrdenAgendaAreaUsuarioVerSerializer(serializers.ModelSerializer):
         else:
             return f"Faltan {dias} para el siguiente servicio"
 
+
+class EquipoOrdenAgendaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Equipo_medico
+        fields = ['id', 'numero_nacional_inv', 'nombre_equipo']
+
+
 class OrdenAgendaSerializer(serializers.ModelSerializer):
     class Meta: 
         model = Orden_Servicio
-        fields = ['id','fecha', 'equipo_medico', 'dias_restantes']
-    equipo_medico = serializers.PrimaryKeyRelatedField(many = True, read_only=True)
+        fields = ['id','fecha', 'equipo_medico', 'dias_restantes', 'fecha_read', 'dias_restantes_num']
+    fecha_read = serializers.SerializerMethodField(method_name='get_fecha')
+    equipo_medico = serializers.StringRelatedField(many = True, read_only=True)
     dias_restantes = serializers.SerializerMethodField(method_name='calcular_dias_restantes', read_only=True)
+    dias_restantes_num = serializers.SerializerMethodField(method_name='get_dias_faltan', read_only=True)
 
     def save(self, **kwargs):
-        equipo = self.context['equipo']
-        fecha_data = self.validated_data['fecha']
-        equipo_med = Equipo_medico.objects.get(numero_nacional_inv=equipo)
-        contrato_equipo = Equipo_medico.objects.values('contrato').get(numero_nacional_inv = equipo)
-        contrato_objeto = Contrato.objects.get(num_contrato = contrato_equipo['contrato'])
-        
-        self.instance = orden = Orden_Servicio.objects.create(fecha = fecha_data, contrato = contrato_objeto)
-        orden.equipo_medico.add(equipo_med)
+        validated_data = {**self.validated_data, **kwargs}
+        if self.instance is not None:
+            self.instance = self.update(self.instance, validated_data)
+            assert self.instance is not None, (
+                '`update()` did not return an object instance.'
+            )
+        else:
+            equipo = self.context['equipo']
+            fecha_data = self.validated_data['fecha']
+            equipo_med = Equipo_medico.objects.get(id=equipo)
+            contrato_equipo = Equipo_medico.objects.values('contrato').get(id = equipo)
+            contrato_objeto = Contrato.objects.get(id = contrato_equipo['contrato'])
+            
+            self.instance = orden = Orden_Servicio.objects.create(fecha = fecha_data, contrato = contrato_objeto)
+            orden.equipo_medico.add(equipo_med)
         
         return self.instance
+
+    def get_dias_faltan(self, orden: Orden_Servicio):
+        today = date.today()
+        
+        fecha_vencimiento = orden.fecha - today
+        dias = fecha_vencimiento.days
+
+        return dias
+
+    def get_fecha(self, orden:Orden_Servicio):
+        fecha_str = calcular_fecha(orden.fecha)
+        return fecha_str
+
 
     def calcular_dias_restantes(self, orden: Orden_Servicio):
         today = date.today()
@@ -307,7 +349,7 @@ class Equipo_Serializer(serializers.ModelSerializer):
 class AreaEquipoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Equipo_medico
-        fields = ['numero_nacional_inv', 'nombre_equipo', 'modelo', 'marca', 'cama', 'area']
+        fields = ['id','numero_nacional_inv', 'nombre_equipo', 'modelo', 'marca', 'cama', 'area']
 
     area = serializers.StringRelatedField()
 

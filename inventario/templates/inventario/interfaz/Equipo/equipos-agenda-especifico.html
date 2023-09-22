@@ -1,0 +1,79 @@
+{%extends "/home/edgar/Desktop/Proyectos/UMAE_db/inventario/templates/inventario/interfaz/base_PUT-DELETE-ESPECIFICO.html"%}
+{%load rest_framework%}
+
+
+{%block equipoactivo%} active {%endblock%}
+
+                            {%block botones%}
+                            <div class="row">
+                                <div class="col text-end">
+                                    <div class="btn-group" role="group"><button class="btn btn-danger" type="button" style="margin: 10px;" data-bs-target="#modal-2" data-bs-toggle="modal"><i class="fas fa-trash" style="margin-right: 10px;"></i>Eliminar servicio agendado</button><button class="btn btn-primary" type="button" style="padding: 6px 15px;--bs-primary: rgb(37,126,62);--bs-primary-rgb: 37,126,62;margin: 10px;" data-bs-target="#modal-1" data-bs-toggle="modal"><i class="far fa-edit" style="margin-right: 10px;"></i>Reagendar Servicio</button></div>
+                                </div>
+                            </div>
+                            {%endblock%}
+                            {%block anuncioModificado%}
+                            <span><strong>Servicio modificado de forma exitosa</strong></span>
+                            {%endblock%}
+
+                            {%block body%}
+                            <div class="col">
+                                <div class="row">
+                                    <div class="col">
+                                        <p class="text-break d-inline" style="font-size: 36px;"><strong><span style="color: rgb(37, 126, 62);">Servicio programado para el dia: {{contenido.fecha_read.dia}} {{contenido.fecha_read.dia_numero}} 
+                                        de {{contenido.fecha_read.mes}} del año {{contenido.fecha_read.año}}</span></strong></p>
+                                    </div>
+                                </div>
+                                
+                                <div class="col">
+                                    <p class="text-break d-inline" style="font-size: 20px;"><strong><span style="color: rgb(37, 126, 62);">Equipos programados: 
+                                    </span></strong></p>
+                                </div>
+                                {%for equipo in contenido.equipo_medico%}
+                                <div class="card mx-auto" href="www.google.com" style="margin: 10px;">
+                                    <div class="card-body border rounded-0 d-inline-flex justify-content-between flex-wrap p-2">
+                                        <div class="d-inline ms-0 text-break"><a class="text-break fs-4 d-inline text-decoration-none stretched-link text-break"><strong><span style="color: rgb(37, 126, 62); background-color: rgb(248, 249, 252);">{{equipo}}</span></strong></a>
+                                            
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                                {%endfor%}
+                                
+                                
+                                </div>
+                                {%endblock%}
+                                
+                                {%block modales%}
+                                <div class="modal fade" role="dialog" tabindex="-1" id="modal-2">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h4 class="modal-title" style="font-size: 30px;">Eliminar servicio agendado</h4><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body"><span style="font-size: 20px;">Estas a punto de eliminar este evento agendado de la base de datos de forma permanente. ¿Estas seguro que deseas continuar?</span></div>
+                                            <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cerrar</button><button id="del-btn" class="btn btn-danger text-end" type="submit">Eliminar</button></div>
+                                        </div>
+                                    </div>
+                                </div>
+                <div class="modal fade" role="dialog" tabindex="-1" id="modal-1">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title">Reagendar Servicio</h4><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="put-form">
+                                    {%csrf_token%}
+                                    {%if putserializer%}
+                                    <fieldset>
+                                        {%render_form putserializer template_pack='/form-fields'%}
+                                        <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cerrar</button><button class="btn btn-primary text-end" type="submit">Guardar</button></div>
+                                    </fieldset>
+                                    {%endif%}
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {%endblock%}
+                            

@@ -79,7 +79,7 @@ class Equipo_medico(models.Model):
     
 
     def __str__(self) -> str:
-        return self.numero_nacional_inv + f" || Nombre: {self.nombre_equipo} || num_serie: {self.numero_serie}"
+        return f"NNI: {self.numero_nacional_inv} || Nombre: {self.nombre_equipo} || Numero de serie: {self.numero_serie}"
     
 
 

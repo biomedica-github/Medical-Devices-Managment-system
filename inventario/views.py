@@ -334,7 +334,7 @@ class OrdenPendientesViewSet(mixins.RetrieveModelMixin, mixins.DestroyModelMixin
         if self.request.method == 'PUT':
             return serializers.CrearOrdenSerializer
         return OrdenEquipoSerializer
-    queryset = Orden_Servicio.objects.prefetch_related('equipo_medico').filter(estatus='PEN').order_by('-fecha').all()
+    queryset = Orden_Servicio.objects.prefetch_related('equipo_medico').filter(estatus='PEN').order_by('fecha').all()
 
 
 class AreaEquipoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, GenericViewSet):
@@ -420,16 +420,59 @@ class AgendaAdminViewset(ModelViewSet):
     queryset = Orden_Servicio.objects.prefetch_related('equipo_medico', 'equipo_medico__area').filter(tipo_orden='A', fecha__gte=today).order_by('fecha').all()
 
 
-
-
-
 class AgendaViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
     serializer_class = OrdenAgendaSerializer
     filterset_class = filtros.filtro_equipo_agenda
+    renderer_classes = [renderers.TemplateHTMLRenderer]
+    template_name = 'interfaz/Equipo/equipos-agenda.html'
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        print(serializer.validated_data)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
+
+    def get_paginated_response(self, data):
+        pagination = self.paginator.get_paginated_response(data)
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        backend_filtro = self.filter_backends[0]
+        filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
+        contexto = self.get_serializer_context()
+        equipo_med = Equipo_medico.objects.get(id=contexto['equipo'])
+        return Response({'results': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer': self.get_serializer_class(), 'equipo':equipo_med, 'filtro':filtro_html})
     
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        putserializer = serializers.OrdenAgendaSerializer(instance)
+        serializer = serializers.OrdenAgendaSerializer(instance)
+        return Response({'contenido':serializer.data, 'serializer':serializer, 'putserializer':putserializer}, template_name='interfaz/Equipo/equipos-agenda-especifico.html')    
+
+
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({'results': serializer.data, 'equipo':self.instance}, template_name='interfaz/Equipo/equipos-agenda.html')
+
     def get_queryset(self):
-        return Orden_Servicio.objects.prefetch_related('equipo_medico', 'equipo_medico__area').filter(tipo_orden='A', equipo_medico__numero_nacional_inv = self.kwargs['equipo_pk'], estatus='PEN')
+        return Orden_Servicio.objects.prefetch_related('equipo_medico', 'equipo_medico__area').filter(tipo_orden='A', equipo_medico__id = self.kwargs['equipo_pk'], estatus='PEN').order_by('fecha')
 
     def get_serializer_context(self):
         return {'equipo': self.kwargs['equipo_pk']}
