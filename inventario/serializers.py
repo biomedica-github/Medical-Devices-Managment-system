@@ -17,6 +17,11 @@ def calcular_fecha(datetimeobject: datetime.date) -> dict:
             'año':datetimeobject.strftime("%G").capitalize(),
             'mes_ab':datetimeobject.strftime("%b").upper()}
 
+def get_time(time:int) -> str:
+    if time >= 12:
+        return "PM"
+    return "AM"
+
 
 class ContratoProveedor(serializers.ModelSerializer):
     class Meta:
@@ -335,6 +340,7 @@ class Equipo_Serializer(serializers.ModelSerializer):
     estado = serializers.SerializerMethodField(method_name='get_estado', read_only=True)
     area_href = serializers.SerializerMethodField(method_name='get_area', read_only=True)
     contrato_href = serializers.SerializerMethodField(method_name='get_contrato', read_only=True)
+    
 
     def get_contrato(self, equipo: Equipo_medico):
         return equipo.contrato
@@ -377,7 +383,7 @@ class AgregarServicioEquipo(serializers.ModelSerializer):
 
     def save(self, **kwargs):
         equipo = self.context['equipo']
-        equipo_med = Equipo_medico.objects.get(numero_nacional_inv=equipo)
+        equipo_med = Equipo_medico.objects.get(id=equipo)
         self.instance = orden = Orden_Servicio.objects.create(**self.validated_data)
         orden.equipo_medico.add(equipo_med)
         return self.instance
@@ -394,7 +400,7 @@ class CrearCheckListSerializer(serializers.ModelSerializer):
         sala = self.context['area']
         sala_query = Area_hospital.objects.get(id=sala)
         equipo_med = self.context['equipo']
-        equipo_query = Equipo_medico.objects.get(numero_nacional_inv=equipo_med)
+        equipo_query = Equipo_medico.objects.get(id=equipo_med)
         CheckList.objects.create(area=sala_query, equipo = equipo_query, **self.validated_data)
         return self.instance
 
@@ -449,8 +455,60 @@ class CheckListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CheckList
         fields = '__all__'
-    sala = serializers.StringRelatedField()
+    
+    equipo = serializers.StringRelatedField()
+    area = serializers.StringRelatedField()
+    hora = serializers.SerializerMethodField(method_name='get_hora')
+    fecha_str = serializers.SerializerMethodField(method_name='get_fecha')
+    bateria = serializers.SerializerMethodField(method_name='get_bateria')
+    condicion_general = serializers.SerializerMethodField(method_name='get_condic')
+    sensor_SPO2 = serializers.SerializerMethodField(method_name='get_spo2')
+    sensor_TEMP = serializers.SerializerMethodField(method_name='get_temp')
+    PANI = serializers.SerializerMethodField(method_name='get_pani')
+    sensor_ECG = serializers.SerializerMethodField(method_name='get_ecg')
+    sensor_PAI = serializers.SerializerMethodField(method_name='get_pai')
+    rango = serializers.SerializerMethodField(method_name='get_rango')
     extra_kwargs = {'sala': {'required': True}, 'equipo': {'required':True}}
+
+    def get_rango(self, checklist:CheckList):
+        return range(checklist.desempeño_general)
+
+    def get_bateria(self, checklist:CheckList):
+        return checklist.get_bateria_display()
+    
+    def get_condic(self, checklist:CheckList):
+        return checklist.get_condicion_general_display()
+    
+    def get_spo2(self, checklist:CheckList):
+        return checklist.get_sensor_SPO2_display()
+    
+    def get_temp(self, checklist:CheckList):
+        return checklist.get_sensor_TEMP_display()
+    
+    def get_pani(self, checklist:CheckList):
+        return checklist.get_PANI_display()
+    
+    def get_ecg(self, checklist:CheckList):
+        return checklist.get_sensor_ECG_display()
+    
+    def get_pai(self, checklist:CheckList):
+        return checklist.get_sensor_PAI_display()
+    
+    def get_fecha(self, checklist:CheckList):
+        fecha = calcular_fecha(checklist.fecha_hora)
+        
+        
+        return f"{fecha['dia']} {fecha['dia_numero']} de {fecha['mes']} del año {fecha['año']}"
+
+    def get_hora(self, checklist:CheckList):
+        hora = checklist.fecha_hora
+
+        time = get_time(hora.hour)
+
+        hora_str= hora.strftime("%I:%M %p")
+
+        return hora_str + time
+
 
     def save(self, **kwargs):
         return super().save(**kwargs)

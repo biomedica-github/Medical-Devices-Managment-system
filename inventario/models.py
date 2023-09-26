@@ -169,7 +169,6 @@ class ReporteUsuario(models.Model):
 
         class Meta:
             ordering = ['-fecha_hora']
-    
 
 class CheckList(models.Model):
     CONDICION_BUENA = "B"
@@ -179,6 +178,18 @@ class CheckList(models.Model):
         (CONDICION_BUENA, 'Buena'),
         (CONDICION_MALA, 'Mala'),
         (CONDICION_NA, 'N/A')
+    ]
+    CALIF_1=1
+    CALIF_2=2
+    CALIF_3=3
+    CALIF_4=4
+    CALIF_5=5
+    CALIF_OPCIONES=[
+        (CALIF_1,'1'),
+        (CALIF_2,'2'),
+        (CALIF_3,'3'),
+        (CALIF_4,'4'),
+        (CALIF_5,'5')
     ]
     fecha_hora = models.DateTimeField(auto_now_add=True)
     area = models.ForeignKey(Area_hospital, on_delete=models.SET_NULL, null=True, related_name='area_checklist')
@@ -192,7 +203,7 @@ class CheckList(models.Model):
     sensor_ECG = models.CharField(max_length= 1, choices=CONDICION_OPCIONES, default= CONDICION_NA)
     sensor_PAI = models.CharField(max_length= 1, choices=CONDICION_OPCIONES, default= CONDICION_NA)
     observaciones = models.CharField(max_length= 800, null=True)
-    desempeño_general = models.PositiveSmallIntegerField(validators=[MaxValueValidator(5)])
+    desempeño_general = models.PositiveSmallIntegerField(validators=[MaxValueValidator(5)], choices=CALIF_OPCIONES)
 
     class Meta:
         ordering = ['-fecha_hora']

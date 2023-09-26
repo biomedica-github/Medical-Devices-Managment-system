@@ -70,13 +70,8 @@ class filtro_agenda(django_filters.FilterSet):
 class filtro_equipo_checklist(django_filters.FilterSet):
     mes = django_filters.ChoiceFilter(choices=fecha_choices, field_name='fecha_hora', lookup_expr='month', label='Mes')
     dia = django_filters.NumberFilter(field_name='fecha_hora', lookup_expr='day', label='Dia')
-    enciende = django_filters.BooleanFilter(field_name='enciende')
-    class Meta:
-        model = models.CheckList
-        fields = ['bateria', 'condicion_general',\
-                         'sensor_SPO2', 'sensor_TEMP',\
-                        'PANI', 'sensor_ECG', 'sensor_PAI', \
-                        'desempeño_general']
+    año = django_filters.NumberFilter(field_name='fecha_hora', lookup_expr='year', label='Año')
+    
 
 class filtro_contrato(django_filters.FilterSet):
     num_contrato = django_filters.CharFilter(field_name='num_contrato', lookup_expr='icontains', label= 'Numero de contrato')

@@ -25,6 +25,7 @@ from . import filters as filtros
 from django.views.generic import ListView
 from django.core.paginator import Paginator
 from . import filterbackend
+import django
 
 from rest_framework.templatetags import rest_framework as template123
 
@@ -179,10 +180,12 @@ class EquipoViewSet(ModelViewSet):
         return Response(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
+        
         instance = self.get_object()
         putserializer = serializers.CrearEquipoSerializer(instance)
         serializer = serializers.Equipo_Serializer(instance)
-        return Response({'contenido':serializer.data, 'serializer':serializer, 'putserializer':putserializer}, template_name='interfaz/Equipo/equipos-especifico-admin.html')    
+        checklist = serializers.CrearCheckListSerializer
+        return Response({'contenido':serializer.data, 'serializer':serializer, 'checklist':checklist, 'putserializer':putserializer}, template_name='interfaz/Equipo/equipos-especifico-admin.html')    
 
     def get_serializer_class(self):
         if self.request.method == 'POST' or self.request.method == 'PUT':
@@ -212,6 +215,26 @@ class LevantarMultipleCheckList(ModelViewSet):
 
 class CheckListEspecificoViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
+    renderer_classes = [renderers.TemplateHTMLRenderer]
+    template_name='interfaz/Checklists/equipo-checklist.html'
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data, template_name='interfaz/Checklists/ver-checklists-especifica.html')
+
+    def get_paginated_response(self, data):
+        
+        pagination = self.paginator.get_paginated_response(data)
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        putserializer = serializers.CrearEquipoSerializer
+        equipo=Equipo_medico.objects.get(id=self.kwargs['equipo_pk'])
+        backend_filtro = self.filter_backends[0]
+        filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
+        return Response({'content': data, 'paginator': self.paginator, 'serializer':serializer, 'equipo':equipo, 'putserializer':putserializer, 'filtro':filtro_html})
+
+
     def get_serializer_class(self):
         if self.request.method == 'POST' or self.request.method == 'PUT':
             return serializers.CrearCheckListSerializer
@@ -219,7 +242,7 @@ class CheckListEspecificoViewSet(ModelViewSet):
     filterset_class = filtros.filtro_equipo_checklist
 
     def get_serializer_context(self):
-        sala = Equipo_medico.objects.values('area').get(numero_nacional_inv=self.kwargs['equipo_pk'])
+        sala = Equipo_medico.objects.values('area').get(id=self.kwargs['equipo_pk'])
         return {'equipo': self.kwargs['equipo_pk'], 'area': sala['area']}
 
 
@@ -398,7 +421,7 @@ class OrdenViewSet(ModelViewSet):
     
     
     def get_queryset(self):
-        queryset = Orden_Servicio.objects.prefetch_related('equipo_medico').filter(equipo_medico__numero_nacional_inv=self.kwargs['equipo_pk']).exclude(numero_orden = None)
+        queryset = Orden_Servicio.objects.prefetch_related('equipo_medico').filter(id=self.kwargs['equipo_pk']).exclude(numero_orden = None)
         return queryset
     
     def get_serializer_context(self):
@@ -432,7 +455,7 @@ class AgendaViewSet(ModelViewSet):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
-        print(serializer.validated_data)
+        
         self.perform_update(serializer)
 
         if getattr(instance, '_prefetched_objects_cache', None):
@@ -458,7 +481,8 @@ class AgendaViewSet(ModelViewSet):
         serializer = serializers.OrdenAgendaSerializer(instance)
         return Response({'contenido':serializer.data, 'serializer':serializer, 'putserializer':putserializer}, template_name='interfaz/Equipo/equipos-agenda-especifico.html')    
 
-
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
     
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())

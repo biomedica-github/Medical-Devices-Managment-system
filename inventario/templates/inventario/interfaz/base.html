@@ -32,14 +32,14 @@
                 </a>
                 <hr class="sidebar-divider my-0">
                 <ul class="navbar-nav text-light" id="accordionSidebar">
-                    {%block sidebar%}
+                    
                     <li class="nav-item"><a class="nav-link{%block proveedoractivo%} {%endblock%}" href="{%url 'proveedornamespace:proveedorurls-list'%}" style="background: var(--bs-secondary);--bs-success: #0f5125;--bs-success-rgb: 15,81,37;"><i class="far fa-comments"></i><span style="--bs-info: #ffffff;--bs-info-rgb: 255,255,255;">Proveedores</span></a></li>
                     <li class="nav-item"><a class="nav-link{%block contratoactivo%} {%endblock%}" href="{%url 'contratonamespace:contratos_urls-list'%}"><i class="far fa-handshake"></i><span>Contratos</span></a></li>
                     <li class="nav-item"><a class="nav-link{%block areaactivo%}{%endblock%}" href="{%url 'areanamespace:area_urls-list'%}"><i class="far fa-images"></i><span>Areas</span></a><a class="nav-link{%block ordenactivo%}{%endblock%}" href="{%url 'ordennamespace:orden-list'%}"><i class="far fa-file-alt"></i>Ordenes de servicio</a></li>
                     <li class="nav-item"><a class="nav-link{%block ticketactivo%} {%endblock%}" href="{%url 'reportesnamespace:pendientes-list'%}"><i class="far fa-newspaper"></i><span>Tickets</span></a></li>
                     <li class="nav-item"><a class="nav-link{%block equipoactivo%} {%endblock%}" href="{%url 'equiponamespace:equipo_urls-list'%}"><i class="far fa-sun"></i><span>Equipo medico</span></a></li>
                     <li class="nav-item"><a class="nav-link{%block checklistactivo%} {%endblock%}" href="{%url 'checklistnamespace:checklist_urls-list'%}"><i class="far fa-clipboard"></i><span>Checklist</span></a><a class="nav-link{%block agendaactivo%} {%endblock%}" href="{%url 'agendanamespace:agenda_urls-list'%}"><i class="far fa-calendar-alt"></i><span>Agenda</span></a><a class="nav-link {%block pendienteactivo%} {%endblock%}" href="{%url 'ordennamespace:orden_pendiente-list'%}"><i class="far fa-edit"></i><span>Pendientes</span></a></li>
-                    {%endblock%}
+                    
                 </ul>
                 <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button></div>
             </div>
