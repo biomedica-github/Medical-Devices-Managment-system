@@ -143,7 +143,27 @@ class AgregarContratoProveedorSerializer(serializers.ModelSerializer):
         self.instance = Contrato.objects.create(proveedor = proveedor_objeto, **self.validated_data)
         return self.instance
 
+class Equipo_Serializer(serializers.ModelSerializer):
+    cama = serializers.IntegerField(required =False, allow_null=True)
+    class Meta:
+        model = Equipo_medico
+        fields = ['id','numero_nacional_inv', 'nombre_equipo', 'modelo', 'estado', 'numero_serie', 'marca', 'observaciones', 'contrato','area','cama','area_href','contrato_href']
+    contrato = serializers.StringRelatedField()
+    area = serializers.StringRelatedField()
+    estado = serializers.SerializerMethodField(method_name='get_estado', read_only=True)
+    area_href = serializers.SerializerMethodField(method_name='get_area', read_only=True)
+    contrato_href = serializers.SerializerMethodField(method_name='get_contrato', read_only=True)
+    
 
+    def get_contrato(self, equipo: Equipo_medico):
+        return equipo.contrato
+
+    def get_area(self, equipo: Equipo_medico):
+        return equipo.area
+    
+    def get_estado(self, equipo: Equipo_medico):
+        return equipo.get_estado_display()
+    #cama = serializers.StringRelatedField()
 
 class CrearOrdenSerializer(serializers.ModelSerializer):
     class Meta:
@@ -154,11 +174,13 @@ class CrearOrdenSerializer(serializers.ModelSerializer):
     motivo = serializers.ChoiceField(choices=Orden_Servicio.MOTIVO_OPCIONES)
     tipo_orden = serializers.ChoiceField(choices=Orden_Servicio.TIPO_OPCIONES)
     id = serializers.IntegerField(read_only=True)
-    orden_escaneada = serializers.FileField(validators=[FileExtensionValidator(allowed_extensions=['pdf'])])
+    orden_escaneada = serializers.FileField(validators=[FileExtensionValidator(allowed_extensions=['pdf'])], required=False)
     extra_kwargs = {'equipo_medico': {'required':False}}
 
-class OrdenEquipoSerializer(serializers.ModelSerializer):
 
+
+class OrdenEquipoSerializer(serializers.ModelSerializer):
+    equipo_medico= Equipo_Serializer(many=True, read_only=True)
     class Meta: 
         model = Orden_Servicio
         fields = ['id','numero_orden', 'fecha', 'motivo', 'tipo_orden', 'estatus','responsable','autorizo_jefe_biomedica','autorizo_jefe_conservacion','descripcion_servicio','equipo_complementario','ing_realizo','num_mantenimiento_preventivo','fallo_paciente', 'equipo_medico', 'orden_escaneada']
@@ -166,7 +188,7 @@ class OrdenEquipoSerializer(serializers.ModelSerializer):
     tipo_orden = serializers.SerializerMethodField(method_name= 'get_tipo_orden')
     motivo = serializers.SerializerMethodField(method_name= 'get_motivo')
     estatus = serializers.SerializerMethodField(method_name= 'get_estatus')
-    orden_escaneada = serializers.FileField(validators=[FileExtensionValidator(allowed_extensions=['pdf'])])
+    orden_escaneada = serializers.FileField(validators=[FileExtensionValidator(allowed_extensions=['pdf'])],required=False)
     extra_kwargs = {'equipo_medico': {'required':False}}
 
     def get_motivo(self, orden: Orden_Servicio):
@@ -330,27 +352,7 @@ class CrearEquipoSerializer(serializers.ModelSerializer):
         extra_kwargs = {'area': {'required': False}}
 
 
-class Equipo_Serializer(serializers.ModelSerializer):
-    cama = serializers.IntegerField(required =False, allow_null=True)
-    class Meta:
-        model = Equipo_medico
-        fields = ['id','numero_nacional_inv', 'nombre_equipo', 'modelo', 'estado', 'numero_serie', 'marca', 'observaciones', 'contrato','area','cama','area_href','contrato_href']
-    contrato = serializers.StringRelatedField()
-    area = serializers.StringRelatedField()
-    estado = serializers.SerializerMethodField(method_name='get_estado', read_only=True)
-    area_href = serializers.SerializerMethodField(method_name='get_area', read_only=True)
-    contrato_href = serializers.SerializerMethodField(method_name='get_contrato', read_only=True)
-    
 
-    def get_contrato(self, equipo: Equipo_medico):
-        return equipo.contrato
-
-    def get_area(self, equipo: Equipo_medico):
-        return equipo.area
-    
-    def get_estado(self, equipo: Equipo_medico):
-        return equipo.get_estado_display()
-    #cama = serializers.StringRelatedField()
 
 class AreaEquipoSerializer(serializers.ModelSerializer):
     class Meta:
