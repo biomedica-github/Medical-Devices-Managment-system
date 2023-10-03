@@ -343,15 +343,17 @@ class CrearOrdenViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
     filterset_class = filtros.filtro_ordenservicio
     renderer_classes = [renderers.TemplateHTMLRenderer]
-    template_name = "interfaz\Ordenes\equipos-orden_general.html"
+    template_name = "interfaz/Ordenes/equipos-orden_general.html"
     queryset = Orden_Servicio.objects.prefetch_related('equipo_medico').exclude(estatus="PEN").order_by('-fecha').all()
     
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        if serializer.is_valid():
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        else:
+            return Response({'field':serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
     
     def get_serializer_context(self):
         return {'request': self.request}
@@ -386,7 +388,7 @@ class CrearOrdenViewSet(ModelViewSet):
         putserializer = serializers.CrearOrdenSerializer(instance)
         serializer = self.get_serializer(instance)
         orden = serializers.OrdenEquipoSerializer
-        return Response({'contenido':serializer.data, 'serializer':serializer, 'putserializer':putserializer, 'orden':orden}, template_name='interfaz\Ordenes\orden_servicio_especifica-admin.html')
+        return Response({'contenido':serializer.data, 'serializer':serializer, 'putserializer':putserializer, 'orden':orden}, template_name='interfaz/Ordenes/orden_servicio_especifica-admin.html')
 
 
 
