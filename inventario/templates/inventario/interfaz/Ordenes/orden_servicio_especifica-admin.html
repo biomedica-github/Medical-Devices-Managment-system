@@ -1,4 +1,4 @@
-{%extends "../base_PUT-DELETE-ESPECIFICO.html"%}
+{%extends "D:\UMAE\Medical-Devices-Managment-system\inventario\templates\inventario\interfaz\base_PUT-DELETE-ESPECIFICO.html"%}
 {% load static%}
 {%load rest_framework%}
 
@@ -37,7 +37,7 @@
                                     <div class="row align-items-center no-gutters">
                                         <div class="col me-2">
                                             <div class="text-uppercase text-warning fw-bold text-xs mb-1"><span style="font-size: 13.2px;color: var(--bs-success-text-emphasis);">Motivo</span></div>
-                                            <div class="text-dark fw-bold h5 mb-0"><a class="nav-link active" style="font-size: 20px;">{{contenido.motivo}}</a></div>
+                                            <div class="text-dark fw-bold h5 mb-0"><a class="nav-link active" href="../Contratos/contratos-especifico.html" style="font-size: 20px;">{{contenido.motivo}}</a></div>
                                         </div>
                                     </div>
                                 </div>
@@ -61,7 +61,7 @@
                                     <div class="row align-items-center no-gutters">
                                         <div class="col me-2">
                                             <div class="text-uppercase text-warning fw-bold text-xs mb-1"><span style="font-size: 13.2px;color: var(--bs-success-text-emphasis);">Responsable</span></div>
-                                            <div class="text-dark fw-bold h5 mb-0"><a class="nav-link active" style="font-size: 20px;">{{contenido.responsable}}</a></div>
+                                            <div class="text-dark fw-bold h5 mb-0"><a class="nav-link active" href="/Area/areas-especifico-camas-admin.html" style="font-size: 20px;">{{contenido.responsable}}</a></div>
                                         </div>
                                     </div>
                                 </div>
@@ -134,7 +134,7 @@
                                         <p class="text-center" style="text-decoration: underline;">Area</p>
                                         <p class="text-center d-block text-break">{{equipo.area}}</p>
                                     </div>
-                                    <div class="text-center d-inline ms-2"><a class="fs-4 text-decoration-none"></a>
+                                    <div class="text-center d-inline ms-2"><a class="fs-4 text-decoration-none" href="#"></a>
                                         <p class="text-black-50" style="text-decoration: underline;">Estado</p>
                                         <p class="d-inline text-break" style="font-size: 16px;">{{equipo.estado}}</p>
                                     </div>
