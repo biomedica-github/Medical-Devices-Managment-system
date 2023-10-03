@@ -8,7 +8,8 @@
       {{ field.label }}
     </label>
   {% endif %}
-  <select multiple {{ field.choices|yesno:",disabled" }} class="form-control" style="margin-bottom: 10px" name="{{ field.name }}">
+
+  <select multiple {{ field.choices|yesno:",disabled" }} class="form-control" name="{{ field.name }}">
     {% for select in field.iter_options %}
         {% if select.start_option_group %}
           <optgroup label="{{ select.label }}">
