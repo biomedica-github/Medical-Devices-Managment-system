@@ -28,6 +28,7 @@ $(document).ready(function() {
           }
           else {
             document.cookie = `Token=${response['access']}; sessionCookie=value; path=/`;
+            window.location.href = baseURL + 'area/general/';
           }
 
           console.log('POST request succesful');
