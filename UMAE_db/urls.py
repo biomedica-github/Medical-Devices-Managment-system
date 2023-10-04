@@ -31,7 +31,8 @@ urlpatterns = [
     path('orden/', include(('inventario.urls_orden', 'inventario'), namespace='ordennamespace')),
     path('agenda/', include(('inventario.urls_agenda', 'inventario'), namespace='agendanamespace')),
     path('checklists/', include(('inventario.urls_checklist', 'inventario'), namespace="checklistnamespace")),
-    path('reportes/', include(('inventario.urls_reportes', 'inventario'), namespace='reportesnamespace'))
+    path('reportes/', include(('inventario.urls_reportes', 'inventario'), namespace='reportesnamespace')),
+    path('login/', include('core.urls'))
 ] 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

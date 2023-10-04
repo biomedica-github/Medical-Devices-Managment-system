@@ -1,11 +1,51 @@
+{%load static%}
+
 <!DOCTYPE html>
-<html lang="en">
+<html data-bs-theme="light" lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Login_def</title>
+    <link rel="stylesheet" href="{%static 'assets/bootstrap/css/bootstrap.min.css'%}">
+    <link rel="stylesheet" href="{%static 'assets/css/Toggle-Checkbox-boostrap-toggle.min.css'%}">
 </head>
-<body>
-    <p>pendejoe</p>
+
+<body style="background: linear-gradient(151deg, var(--bs-secondary-bg-subtle), #257e3e 66%);min-height: 100vh;">
+    <div class="container">
+        <div class="row d-flex justify-content-center">
+            <div class="col-md-6 col-xl-4" style="padding-top: 0px;margin-top: 5%;">
+                <div class="card mb-5" style="margin-top: 31px;">
+                    <div class="card-body d-flex flex-column align-items-center" style="margin-top: 22px;margin-right: -2px;margin-bottom: 18px;padding-right: 20px;"><img style="width: 90px;height: 110px;margin: 0% 0% 0% 50%;margin-top: 0px;padding-left: 0px;margin-right: 32px;margin-left: 32px;margin-bottom: 20px;" src="{%static 'assets/img/IMSS_Logosímbolo.webp'%}">
+                        <div class="col-md-8 col-lg-9 col-xl-6 text-center mx-auto" style="margin-top: -1px;margin-right: -6px;margin-left: -16px;padding-right: 0px;padding-bottom: 0px;width: 80%;margin-bottom: 4px;">
+                            <h2 style="font-size: 40px;font-weight: bold;color: #054f2e;"><sup>Iniciar Sesión.</sup></h2>
+                            <p class="w-lg-50" style="font-size: 20px;margin-right: 0px;margin-bottom: 11px;margin-top: 7px;padding-bottom: 0px;padding-top: 0px;padding-right: 0px;"><sup>Introduzca su usuario y contraseña correctamente.</sup></p>
+                        </div>
+                        {%csrf_token%}
+                        <form id="login" class="text-center">
+                            <fieldset>
+                            <div class="mb-3"><input class="form-control" name="username" placeholder="Usuario" style="width: 270px;"></div>
+                            <div class="mb-3"><input class="form-control" type="password" name="password" placeholder="Contraseña"></div>
+                            <div class="form-check form-switch text-start" style="margin: 10px;margin-bottom: 21px;margin-top: 18px;"><input id="formCheck-1" class="form-check-input" type="checkbox" /><label class="form-check-label" for="formCheck-1">Recordarme</label></div>
+                            <div class="mb-3"><button id="entrar" class="btn btn-primary d-block w-100" type="submit" style="background: #054f2e;">Entrar</button></div>
+                        </fieldset>
+                        </form>
+                        <script src="https://cdn.lordicon.com/bhenfmcm.js"></script>
+                        <lord-icon id="loader"
+                            src="https://cdn.lordicon.com/dpinvufc.json"
+                            trigger="loop"
+                            colors="primary:#121331,secondary:#08a88a"
+                            style="width:50px;height:50px">
+                        </lord-icon>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'assets/bootstrap/js/bootstrap.min.js'%}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="{%static 'assets/bootstrap/js/script.js'%}"></script>
+    <script src="{%static 'assets/bootstrap/js/Toggle-Checkbox-bootstrap-toggle.min.js'%}"></script>
 </body>
+
 </html>

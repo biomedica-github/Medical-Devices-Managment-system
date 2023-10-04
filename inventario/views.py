@@ -25,7 +25,6 @@ from . import filters as filtros
 from django.views.generic import ListView
 from django.core.paginator import Paginator
 from . import filterbackend
-import django
 
 from rest_framework.templatetags import rest_framework as template123
 
@@ -55,7 +54,7 @@ class ProveedorViewSet(ModelViewSet):
         pagination = self.paginator.get_paginated_response(data)
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
-        return Response({'content': data, 'paginator': self.paginator, 'serializer':serializer}, headers={'Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjk2NDgzNzkyLCJpYXQiOjE2OTU4Nzg5OTIsImp0aSI6IjY5N2YyZDVjMDZjZTQxMTlhNjVhNTlkZWMxZWQ3NWEyIiwidXNlcl9pZCI6MX0.a-OjD5XJNAgFgcopu-guL3B7HAqLhoQlBdXYf0kX9gM'})
+        return Response({'content': data, 'paginator': self.paginator, 'serializer':serializer})
     
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
