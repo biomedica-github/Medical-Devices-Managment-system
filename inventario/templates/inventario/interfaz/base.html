@@ -47,7 +47,18 @@
         </nav>
         <div class="d-flex flex-column" id="content-wrapper">
             <nav class="navbar navbar-expand bg-white shadow mb-4 topbar static-top navbar-light">
-                <div class="container-fluid"><button class="btn btn-link d-md-none rounded-circle me-3" id="sidebarToggleTop" type="button" style="--bs-primary: rgb(37,126,62);--bs-primary-rgb: 37,126,62;color: rgb(37,126,62);"><i class="fas fa-align-justify"></i></button></div>
+                <div class="container-fluid"><button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle me-3" type="button" style="--bs-primary: rgb(37,126,62);--bs-primary-rgb: 37,126,62;color: rgb(37,126,62);"><i class="fas fa-align-justify"></i></button>
+                    <span 
+                    {%if user.is_staff%}
+                    class="badge rounded-pill bg-info text-truncate d-inline ms-auto"
+                    {%else%}
+                    class="badge rounded-pill bg-warning text-truncate d-inline ms-auto"
+                    {%endif%}
+                    style="margin: 10px;">{{user}}</span>
+                    <div class="dropdown"><a class="dropdown-toggle text-truncate text-decoration-none" aria-expanded="false" data-bs-toggle="dropdown" href="#"><i class="fa fa-user fs-4" style="width: 16.4px;color: var(--bs-success-text-emphasis);"></i></a>
+                        <div class="dropdown-menu dropdown-menu-end"><a class="dropdown-item link-danger" href="#" data-bs-target="#modal-logout" data-bs-toggle="modal">Cerrar sesión</a></div>
+                    </div>
+                </div>
             </nav>
             <div id="content">
                 <div class="container-lg">
@@ -90,12 +101,26 @@
         </div>
     </div>
 
+    <div id="modal-logout" class="modal fade" role="dialog" tabindex="-1">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" style="font-size: 30px;">Cerrar sesión</h4><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body"><span style="font-size: 20px;">Estas a punto de cerrar sesión. ¿Deseas continuar?</span></div>
+                <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cerrar</button><a id="logout-link" class="btn btn-danger text-end"  href="{%url 'authnamespace:logout'%}" role="button">Cerrar sesión</a></div>
+            </div>
+        </div>
+    </div>
+
 {%block scripts%}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'assets/js/script.js' %}"></script>
     <script src="{% static 'assets/js/theme.js' %}"></script>
 {%endblock%}
+
+<script src="{% static 'assets/js/scriptbase.js' %}"></script>
 
 </body>
 

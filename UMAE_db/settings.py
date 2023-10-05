@@ -30,6 +30,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+LOGOUT_REDIRECT_URL = '/login/'
 
 # Application definition
 CRISPY_ALLOWED_TEMPLATE_PACKS = ('bootstrap', 'uni_form', 'bootstrap3', 'bootstrap4', '/home/edgar/Desktop/Proyectos/UMAE_db/inventario/templates/inventario/template_forms', )
@@ -172,3 +173,4 @@ DJOSER = {
 }
 
 AUTH_USER_MODEL = 'core.User'
+

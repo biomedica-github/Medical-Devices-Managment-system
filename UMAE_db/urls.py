@@ -24,7 +24,6 @@ urlpatterns = [
     path('proveedores/', include(('inventario.urls_proveedor','inventario'), namespace='proveedornamespace')),
     path("__debug__/", include("debug_toolbar.urls")),
     path('auth/', include('djoser.urls')),
-    path('auth/', include('djoser.urls.jwt')),
     path('contratos/', include(('inventario.urls_contrato', 'inventario'), namespace='contratonamespace')),
     path('equipo_medico/', include(('inventario.urls_equipo', 'inventario'), namespace='equiponamespace')),
     path('area/', include(('inventario.urls_area', 'inventario'), namespace='areanamespace')),
@@ -32,7 +31,7 @@ urlpatterns = [
     path('agenda/', include(('inventario.urls_agenda', 'inventario'), namespace='agendanamespace')),
     path('checklists/', include(('inventario.urls_checklist', 'inventario'), namespace="checklistnamespace")),
     path('reportes/', include(('inventario.urls_reportes', 'inventario'), namespace='reportesnamespace')),
-    path('login/', include('core.urls'))
+    path('login/', include(('core.urls','core'), namespace='authnamespace'))
 ] 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

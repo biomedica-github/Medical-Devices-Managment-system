@@ -14,23 +14,13 @@ $(document).ready(function() {
       const method = 'POST'; 
       const parsedUrl = new URL(window.location.href);
       const baseURL = `${parsedUrl.protocol}//${parsedUrl.hostname}${parsedUrl.port ? `:${parsedUrl.port}` : ''}/`;
-      const url = baseURL + 'auth/jwt/create/'
+      const url = baseURL + 'login/auth'
     $.ajax({
         type: method,
         url: url,
         data: formData,
         success: function(response) {
-          if ($('#formCheck-1')[0].checked){
-            const expirationDate = new Date();
-            expirationDate.setDate(expirationDate.getDate() + 30);
-            document.cookie = `Token=${response['access']}; rememberMeCookie=value; expires=${expirationDate.toUTCString()}; path=/`;
-            window.location.href = baseURL + 'area/general/';
-          }
-          else {
-            document.cookie = `Token=${response['access']}; sessionCookie=value; path=/`;
-            window.location.href = baseURL + 'area/general/';
-          }
-
+          window.location.href = baseURL + 'area/general/';
           console.log('POST request succesful');
 
         },
