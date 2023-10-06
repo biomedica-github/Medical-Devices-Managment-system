@@ -415,7 +415,7 @@ class CrearReporteSerializer(serializers.ModelSerializer):
         area_equipo = self.context['area']
         sala_query = Area_hospital.objects.get(id=area_equipo)
         equipo_med = self.context['equipo']
-        equipo_query = Equipo_medico.objects.get(numero_nacional_inv=equipo_med)
+        equipo_query = Equipo_medico.objects.get(id=equipo_med)
         usuario_context = self.context['usuario']
         usuario = User.objects.get(id=usuario_context)
 

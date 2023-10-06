@@ -50,7 +50,7 @@ class ProveedorViewSet(ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
     
     def get_paginated_response(self, data):
-        print(self.request.auth)
+        print(self.request.user.is_staff)
         pagination = self.paginator.get_paginated_response(data)
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
@@ -271,7 +271,7 @@ class CrearReporteViewSet(mixins.CreateModelMixin, GenericViewSet):
     serializer_class = serializers.CrearReporteSerializer
 
     def create(self, request, *args, **kwargs):
-        equipo = Equipo_medico.objects.filter(area__responsable = request.user.id, numero_nacional_inv = kwargs['area_equipo_pk'])
+        equipo = Equipo_medico.objects.filter(area__responsable = request.user.id, id = kwargs['area_equipo_pk'])
         if equipo:
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
