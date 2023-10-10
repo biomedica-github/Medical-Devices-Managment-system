@@ -25,18 +25,27 @@ from . import filters as filtros
 from django.views.generic import ListView
 from django.core.paginator import Paginator
 from . import filterbackend
-
+from django.contrib.auth.mixins import AccessMixin
 from rest_framework.templatetags import rest_framework as template123
+from django.shortcuts import redirect
+from django.core.exceptions import PermissionDenied
 
 
-class ProveedorViewSet(ModelViewSet):
-    permission_classes = [IsAdminUser]
+class ProveedorViewSet(ModelViewSet, AccessMixin):
+    permission_classes = [IsAdminUser, IsAuthenticated]
     queryset = Proveedor.objects.prefetch_related('proveedor_contrato').all()
     serializer_class = ProveedorSerializers
     lookup_field = 'id'
     renderer_classes = [renderers.TemplateHTMLRenderer]
     template_name = 'interfaz/Proveedor/Proveedores-general.html'
     pagination_class = PageNumberPagination
+    raise_exception = True
+
+    def handle_no_permission(self):
+        print('hola')
+        if self.raise_exception:
+            raise PermissionDenied(self.get_permission_denied_message())
+        return redirect(self.login_url)
 
     filterset_class = filtros.filtro_proveedor
     def retrieve(self, request, *args, **kwargs):
@@ -141,8 +150,7 @@ class ContratoViewSet(ModelViewSet):
                 equipo.contrato = objeto
                 equipo.save()
         return Response(serializer.data)
-                
-        
+    
 
 
 class EquipoViewSet(ModelViewSet):

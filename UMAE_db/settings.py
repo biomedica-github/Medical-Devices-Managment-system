@@ -31,6 +31,8 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 LOGOUT_REDIRECT_URL = '/login/'
+LOGIN_URL = '/login/'
+HOME = '/area/general/'
 
 # Application definition
 CRISPY_ALLOWED_TEMPLATE_PACKS = ('bootstrap', 'uni_form', 'bootstrap3', 'bootstrap4', '/home/edgar/Desktop/Proyectos/UMAE_db/inventario/templates/inventario/template_forms', )
@@ -66,6 +68,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'inventario.custom_code.SessionTimeoutMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -158,6 +161,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     'PAGE_SIZE': 15,
+    'EXCEPTION_HANDLER':'inventario.custom_code.custom_exception_handler',
     
 }
 

@@ -8,7 +8,7 @@ from core.models import User
 from django.core.validators import FileExtensionValidator
 import locale
 
-locale.setlocale(locale.LC_ALL, 'es_ES')
+locale.setlocale(locale.LC_ALL, 'es_MX.utf8')
 
 def calcular_fecha(datetimeobject: datetime.date) -> dict:
     return {'dia': datetimeobject.strftime("%A").capitalize(), 
@@ -150,7 +150,17 @@ class CrearOrdenSerializer(serializers.ModelSerializer):
         model = Orden_Servicio
         fields = ['id','numero_orden', 'fecha', 'motivo', 'tipo_orden', 'estatus','responsable','autorizo_jefe_biomedica','autorizo_jefe_conservacion','descripcion_servicio','equipo_complementario','ing_realizo','num_mantenimiento_preventivo','fallo_paciente', 'equipo_medico', 'orden_escaneada']
     
-    estatus = serializers.ChoiceField(choices=Orden_Servicio.ESTATUS_OPCIONES)
+
+    ESTATUS_FUERA = 'OUT'
+    ESTATUS_FUNCIONAL = 'FUN'
+    ESTATUS_NO_SERVICIO = 'N/A'
+    ESTATUS_OPCIONES = [
+        (ESTATUS_FUNCIONAL, 'Equipo funcional'),
+        (ESTATUS_FUERA, 'Equipo fuera de servicio'),
+        (ESTATUS_NO_SERVICIO, 'No se realizo servicio')
+    ]
+
+    estatus = serializers.ChoiceField(choices=ESTATUS_OPCIONES)
     motivo = serializers.ChoiceField(choices=Orden_Servicio.MOTIVO_OPCIONES)
     tipo_orden = serializers.ChoiceField(choices=Orden_Servicio.TIPO_OPCIONES)
     id = serializers.IntegerField(read_only=True)
@@ -287,7 +297,7 @@ class OrdenAgendaSerializer(serializers.ModelSerializer):
         elif dias <= 0 and orden.estatus != 'PEN':
             return "Servicio atendido"
         else:
-            return f"Faltan {dias} para el siguiente servicio"
+            return f"Faltan {dias} dias para el siguiente servicio"
 
 class AgregarOrdenAgendaAreaSerializer(serializers.ModelSerializer):
     class Meta:
