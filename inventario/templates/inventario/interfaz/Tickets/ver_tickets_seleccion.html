@@ -1,85 +1,74 @@
-<!DOCTYPE html>
-<html data-bs-theme="light" lang="es-mx">
+{%extends "../base.html"%}
+{% load static%}
+{%block ticketactivo%} active {%endblock%}
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Inventario - Tickets</title>
-    <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../assets/img/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="180x180" href="../assets/img/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="../assets/img/android-chrome-192x192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="../assets/img/android-chrome-512x512.png">
-    <link rel="stylesheet" href="../assets/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i&amp;display=swap">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
-    <link rel="stylesheet" href="../assets/css/Boostrap-Tabs.css">
-    <link rel="stylesheet" href="../assets/css/Calendar-BS4-news.css">
-    <link rel="stylesheet" href="../assets/css/Calendar-BS4.css">
-    <link rel="stylesheet" href="../assets/css/Features-Large-Icons-icons.css">
-</head>
-
-<body id="page-top">
-    <div id="wrapper">
-        <nav class="navbar align-items-start sidebar sidebar-dark accordion bg-gradient-primary p-0 navbar-dark" style="--bs-primary: #dfe2ea;--bs-primary-rgb: 223,226,234;--bs-info: #91cad2;--bs-info-rgb: 145,202,210;background: var(--bs-secondary);color: rgb(241,245,243);--bs-secondary: rgb(37,126,62);--bs-secondary-rgb: 37,126,62;">
-            <div class="container-fluid d-flex flex-column p-0"><a class="navbar-brand d-flex justify-content-center align-items-center sidebar-brand m-0" href="/index.html"><img src="../assets/img/imss3.png" width="48" height="43">
-                    <div class="sidebar-brand-icon rotate-n-15"></div>
-                    <div class="sidebar-brand-text mx-3"><span style="--bs-primary: #07b122;--bs-primary-rgb: 7,177,34;--bs-body-bg: #f9f7f7;">Inventario</span></div>
-                </a>
-                <hr class="sidebar-divider my-0">
-                <ul class="navbar-nav text-light" id="accordionSidebar">
-                    <li class="nav-item"><a class="nav-link" href="/Proveedor/Proveedores-general.html" style="background: var(--bs-secondary);--bs-success: #0f5125;--bs-success-rgb: 15,81,37;"><i class="far fa-comments"></i><span style="--bs-info: #ffffff;--bs-info-rgb: 255,255,255;">Proveedores</span></a></li>
-                    <li class="nav-item"><a class="nav-link" href="/Contratos/contratos-general.html"><i class="far fa-handshake"></i><span>Contratos</span></a></li>
-                    <li class="nav-item"><a class="nav-link" href="/Area/areas-general.html"><i class="far fa-images"></i><span>Areas</span></a><a class="nav-link" href="/Ordenes/equipos-orden_general.html"><i class="far fa-file-alt"></i>Ordenes de servicio</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="/Tickets/ver_tickets_seleccion.html"><i class="far fa-newspaper"></i><span>Tickets</span></a></li>
-                    <li class="nav-item"><a class="nav-link" href="/Equipo/equipos-general.html"><i class="far fa-sun"></i><span>Equipo medico</span></a></li>
-                    <li class="nav-item"><a class="nav-link" href="/Checklists/ver-checklists-general.html"><i class="far fa-clipboard"></i><span>Checklist</span></a><a class="nav-link" href="/Agenda/agenda-general-todos.html"><i class="far fa-calendar-alt"></i><span>Agenda</span></a><a class="nav-link" href="/Ordenes/equipos-orden_pendientes.html"><i class="far fa-edit"></i><span>Pendientes</span></a></li>
-                </ul>
-                <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button></div>
-            </div>
-        </nav>
-        <div class="d-flex flex-column" id="content-wrapper">
-            <nav class="navbar navbar-expand bg-white shadow mb-4 topbar static-top navbar-light">
-                <div class="container-fluid"><button class="btn btn-link d-md-none rounded-circle me-3" id="sidebarToggleTop" type="button" style="--bs-primary: rgb(37,126,62);--bs-primary-rgb: 37,126,62;color: rgb(37,126,62);"><i class="fas fa-align-justify"></i></button></div>
-            </nav>
-            <div id="content">
-                <div class="container-fluid" style="--bs-primary: rgb(37,126,62);--bs-primary-rgb: 37,126,62;">
-                    <div class="row">
+{%block body%}
+<div id="wrapper">
+           <div id="content">
+                <div class="container py-4 py-xl-5" style="min-height: 100vh;">
+                    <div class="row mb-5">
+                        <div class="col-md-8 col-xl-6 text-center mx-auto" style="margin-bottom: 1%;">
+                            <h2 style="font-size: 40px;"><strong><span style="color: rgb(37, 126, 62);">Tickets</span></strong></h2>
+                            <p class="w-lg-50">Selecciona los tickets que te gustaria visualizar a continuacion.</p>
+                        </div>
+                    </div>
+                    <div class="row gy-4 gy-xl-0 row-cols-1 row-cols-md-2 row-cols-xl-3 d-xl-flex align-items-xl-center gutter-y" style="height: 100hv;">
+                        <div class="col" style="height: 100hv;">
+                            <div class="card" style="height: 100%;flex: auto;">
+                                <div class="card-body text-center p-4">
+                                    <h6 class="text-uppercase text-muted card-subtitle">TICKETS</h6>
+                                    <h4 class="display-4 fw-bold card-title" style="font-size: 40px;color: #257e3e;">Atendidos</h4><i class="icon-check" style="font-size: 86px;padding-top: 0px;margin-right: 0px;margin-bottom: 0px;margin-top: 0px;"></i>
+                                </div>
+                                <div class="card-footer d-grid d-sm-flex flex-column align-items-center align-content-center flex-sm-column justify-content-sm-center align-items-sm-center p-4" style="height: 45%;">
+                                    <div>
+                                        <ul class="list-unstyled">
+                                            <li class="d-flex mb-2"><span class="bs-icon-xs bs-icon-rounded bs-icon-primary-light bs-icon me-2" style="background: var(--bs-success-border-subtle);"><svg class="bi bi-check-lg" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" style="color: #257e3e;">
+                                                        <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"></path>
+                                                    </svg></span><span>Permite ver los tickets que ya fueron atendidos.</span></li>
+                                        </ul>
+                                    </div><a class="btn btn-primary d-block w-100" role="button" href="{%url 'reportesnamespace:atendidos-list'%}" style="background: radial-gradient(#00a310 22%, #257e3e 76%), var(--bs-btn-color);margin-bottom: 0px;">ACCEDER</a>
+                                </div>
+                            </div>
+                        </div>
                         <div class="col">
-                            <div class="mx-auto p-4 text-center shadow-lg m-5 rounded-5" id="cardEntrada-2" style="background: #19562a;">
-                                <h3 class="text-white text-center pt-2">Tickets atendidos</h3>
-                                <p class="fw-light text-white m-0">Permite ver aquellos tickets que ya fueron atendidos.</p>
-                                <hr class="text-white">
-                                <div class="col-12"><a class="btn btn-secondary" role="button" href="/Tickets/ver_tickets_atendidos.html">Accesar</a></div>
+                            <div class="card" style="height: 100%;">
+                                <div class="card-body text-center p-4">
+                                    <h6 class="text-uppercase text-muted card-subtitle">TICKETS</h6>
+                                    <h4 class="display-4 fw-bold card-title" style="font-size: 40px;color: #257e3e;">Todos</h4><i class="icon-docs" style="font-size: 86px;margin-top: 0px;"></i>
+                                </div>
+                                <div class="card-footer d-grid flex-column justify-content-center align-items-center align-content-center flex-sm-column justify-content-sm-center align-items-sm-center p-4" style="height: 45%;">
+                                    <div>
+                                        <ul class="list-unstyled">
+                                            <li class="d-flex mb-2"><span class="bs-icon-xs bs-icon-rounded bs-icon-primary-light bs-icon me-2" style="background: var(--bs-success-border-subtle);"><svg class="bi bi-check-lg" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" style="color: #257e3e;">
+                                                        <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"></path>
+                                                    </svg></span><span>Perimite ver todos los tickets, atendidos y pendientes.</span></li>
+                                        </ul>
+                                    </div><a class="btn btn-primary d-block w-100" role="button" href="{%url 'reportesnamespace:general-list'%}" style="background: radial-gradient(#00a310 22%, #257e3e 76%), var(--bs-btn-color);">ACCEDER</a>
+                                </div>
                             </div>
-                            <div class="mx-auto p-4 text-center shadow-lg m-5 rounded-5 card-body" id="cardEntrada-1" style="background: #0b3b19;margin-right: 69px;margin-bottom: 6px;padding-bottom: 82px;">
-                                <h3 class="text-white text-center pt-2">Todos los tickets</h3>
-                                <p class="fw-light text-white m-0">Permite ver todos los tickets, sin importar si ya fueron atendidos o no.</p>
-                                <hr class="text-white">
-                                <div class="col-12" style="padding-top: 0px;padding-bottom: 3px;margin-top: -26px;"><a class="btn btn-secondary" role="button" href="/Tickets/ver_tickets_todos.html" style="margin-top: 30px;">Accesar</a></div>
-                            </div>
-                            <div class="mx-auto p-4 text-center shadow-lg m-5 rounded-5" id="cardEntrada-2" style="background: var(--bs-primary);margin-right: 69px;margin-bottom: 6px;padding-bottom: 82px;">
-                                <h3 class="text-white text-center pt-2">Tickets pendientes</h3>
-                                <p class="fw-light text-white m-0">Permite ver aquellos tickets que aun&nbsp; no se han atendido.</p>
-                                <hr class="text-white">
-                                <div class="col-12" style="padding-top: 0px;padding-bottom: 3px;margin-top: -26px;"><a class="btn btn-secondary" role="button" href="/Tickets/ver_tickets_pendientes.html" style="margin-top: 30px;">Accesar</a></div>
+                        </div>
+                        <div class="col">
+                            <div class="card" style="height: 100%;">
+                                <div class="card-body text-center p-4">
+                                    <h6 class="text-uppercase text-muted card-subtitle">TICKETS</h6>
+                                    <h4 class="display-4 fw-bold card-title" style="font-size: 40px;color: #257e3e;">Pendientes</h4><i class="icon-clock" style="font-size: 86px;margin-top: 0px;"></i>
+                                </div>
+                                <div class="card-footer d-grid d-sm-flex flex-column align-items-center align-content-center flex-sm-column align-items-sm-center p-4" style="height: 45%;">
+                                    <div>
+                                        <ul class="list-unstyled">
+                                            <li class="d-flex mb-2"><span class="bs-icon-xs bs-icon-rounded bs-icon-primary-light bs-icon me-2" style="background: var(--bs-success-border-subtle);"><svg class="bi bi-check-lg" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" style="color: #257e3e;">
+                                                        <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"></path>
+                                                    </svg></span><span>Permite ver aquellos tickets que no han sido atendidos.</span></li>
+                                        </ul>
+                                    </div><a class="btn btn-primary d-block w-100" role="button" href="{%url 'reportesnamespace:pendientes-list'%}" style="background: radial-gradient(#00a310 22%, #257e3e 76%), var(--bs-btn-color);">ACCEDER</a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                
             </div>
-            <footer class="bg-white sticky-footer">
-                <div class="container my-auto">
-                    <div class="text-center my-auto copyright"><span>Inventario v1.0.0</span></div>
-                </div>
-            </footer>
-        </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
-    </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../assets/js/script.js"></script>
-    <script src="../assets/js/theme.js"></script>
+            {%endblock%}
 </body>
 
 </html>

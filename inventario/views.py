@@ -347,14 +347,34 @@ class AgendaUsuarioViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, Gen
         filter(equipo_medico__area__responsable = self.request.user.id, tipo_orden = 'A', fecha__gte=today).order_by('fecha').all()
 
 
+
 class CrearOrdenViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
     filterset_class = filtros.filtro_ordenservicio
+    renderer_classes = [renderers.TemplateHTMLRenderer]
+    template_name = "interfaz\Ordenes\equipos-orden_general.html"
+    queryset = Orden_Servicio.objects.prefetch_related('equipo_medico').exclude(estatus="PEN").order_by('-fecha').all()
+    
     def get_serializer_class(self):
         if self.request.method == 'POST' or self.request.method == 'PUT':
             return serializers.CrearOrdenSerializer
         return OrdenEquipoSerializer
-    queryset = Orden_Servicio.objects.prefetch_related('equipo_medico').exclude(estatus="PEN").order_by('-fecha').all()
+    
+
+    def get_paginated_response(self, data):
+        pagination = self.paginator.get_paginated_response(data)
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        backend_filtro = self.filter_backends[0]
+        filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
+        contexto = self.get_serializer_context()
+        return Response({'content': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer': self.get_serializer_class(), 'filtro':filtro_html})
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        putserializer = serializers.CrearOrdenSerializer(instance)
+        serializer = serializers.OrdenEquipoSerializer(instance)
+        return Response({'contenido':serializer.data, 'serializer':serializer, 'putserializer':putserializer,}, template_name='interfaz/Ordenes/orden_servicio_especifica-admin.html')
 
 
 
@@ -512,6 +532,9 @@ class AgendaViewSet(ModelViewSet):
 class VerReportesViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, mixins.UpdateModelMixin, GenericViewSet):
     permission_classes = [IsAdminUser]
     filterset_class = filtros.filtro_reportes
+    renderer_classes= [renderers.TemplateHTMLRenderer]
+    template_name = "interfaz/Tickets/ver_tickets_todos.html"
+
     def get_serializer_class(self):
         if self.request.method == 'PUT' or self.request.method == 'PATCH':
             return serializers.AtenderReporteSerializer
@@ -532,10 +555,33 @@ class VerReportesViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, mixin
             instance._prefetched_objects_cache = {}
 
         return Response('Reporte actualizado exitosamente')
+    
+    def get_paginated_response(self, data):
+        pagination = self.paginator.get_paginated_response(data)
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        backend_filtro = self.filter_backends[0]
+        filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
+        contexto = self.get_serializer_context()
+        return Response({'results': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer': self.get_serializer_class(), 'filtro':filtro_html})
+    
+
+class VerSeleccionReportesViewSet(ModelViewSet):
+    permission_classes = [IsAdminUser]
+    renderer_classes = [renderers.TemplateHTMLRenderer]
+    template_name = 'interfaz/Tickets/ver_tickets_seleccion.html'
+    queryset = ReporteUsuario.objects.select_related('area', 'equipo')
+    def get_serializer_class(self):
+        if self.request.method == 'PUT' or self.request.method == 'PATCH':
+            return serializers.AtenderReporteSerializer
+        return serializers.VerReportesSerializer
 
 class VerReportesPendientesViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, mixins.UpdateModelMixin, GenericViewSet):
     permission_classes = [IsAdminUser]
     filterset_class = filtros.filtro_reportes
+    renderer_classes= [renderers.TemplateHTMLRenderer]
+    template_name = "interfaz/Tickets/ver_tickets_pendientes.html"
+
     def get_serializer_class(self):
         if self.request.method == 'PUT' or self.request.method == 'PATCH':
             return serializers.AtenderReporteSerializer
@@ -562,29 +608,52 @@ class VerReportesPendientesViewSet(mixins.RetrieveModelMixin, mixins.ListModelMi
         return Response('Reporte actualizado exitosamente')
 
     queryset = ReporteUsuario.objects.select_related('area', 'equipo').filter(estado="PEN")
+    
+    def get_paginated_response(self, data):
+        pagination = self.paginator.get_paginated_response(data)
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        backend_filtro = self.filter_backends[0]
+        filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
+        contexto = self.get_serializer_context()
+        return Response({'results': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer': self.get_serializer_class(), 'filtro':filtro_html})
+    
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        putserializer = serializers.AtenderReporteSerializer(instance)
+        serializer = serializers.VerReportesSerializer(instance)
+        return Response({'contenido':serializer.data, 'serializer':serializer, 'putserializer':putserializer,}, template_name='interfaz/Tickets/ver_tickets_especifico.html')
 
-
+ 
 class VerReportesCompletadosViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, mixins.UpdateModelMixin, GenericViewSet):
     permission_classes = [IsAdminUser]
     filterset_class = filtros.filtro_reportes
+    renderer_classes= [renderers.TemplateHTMLRenderer]
+    template_name = "interfaz/Tickets/ver_tickets_atendidos.html"
+
+    def get_serializer_context(self):
+        
+        if 'pk' in self.kwargs:
+            return {'ticket':self.kwargs['pk']}
+        return 
+
+        
     def get_serializer_class(self):
         if self.request.method == 'PUT' or self.request.method == 'PATCH':
             return serializers.AtenderReporteSerializer
-        elif self.request.method == 'POST':
-            return serializers.AgregarServicioEquipo
         return serializers.VerReportesSerializer
     
-    @action(detail=True, methods= ['post'])
-    def servicio(self, request, pk):
-        ticket = self.get_object()
-        equipo = ticket.equipo.numero_nacional_inv
-        serializer = serializers.AgregarServicioEquipo(data=request.data, context={'equipo': equipo})
-        if serializer.is_valid():
-            orden_creada = Orden_Servicio.objects.create(**serializer.validated_data)
-            ticket.orden = orden_creada
-            ticket.save()
-            return  Response({'Mensaje':'Orden creada satisfactoriamente'}, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # @action(detail=True, methods= ['post'])
+    # def servicio(self, request, pk):
+    #     ticket = self.get_object()
+    #     equipo = ticket.equipo.id
+    #     serializer = serializers.AgregarServicioEquipo(data=request.data, context={'equipo': equipo})
+    #     if serializer.is_valid():
+    #         orden_creada = Orden_Servicio.objects.create(**serializer.validated_data)
+    #         ticket.orden = orden_creada
+    #         ticket.save()
+    #         return  Response({'Mensaje':'Orden creada satisfactoriamente'}, status=status.HTTP_200_OK)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
@@ -598,7 +667,24 @@ class VerReportesCompletadosViewSet(mixins.RetrieveModelMixin, mixins.ListModelM
             # forcibly invalidate the prefetch cache on the instance.
             instance._prefetched_objects_cache = {}
 
-        return Response('Reporte actualizado exitosamente')
+        return Response({'results': serializer.data, 'serializer':serializer, 'putserializer': self.get_serializer_class()}, template_name='interfaz/Tickets/ver_tickets_especifico.html')
 
     queryset = ReporteUsuario.objects.select_related('area', 'equipo').filter(estado="COM")
+
+     
+    def get_paginated_response(self, data):
+        pagination = self.paginator.get_paginated_response(data)
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        backend_filtro = self.filter_backends[0]
+        filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
+        contexto = self.get_serializer_context()
+        return Response({'results': data, 'serializer':serializer, 'putserializer': self.get_serializer_class(), 'filtro':filtro_html})
+    
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        putserializer = serializers.AtenderReporteSerializer(instance)
+        serializer = serializers.VerReportesSerializer(instance)
+        orden= serializers.CrearOrdenSerializer()
+        return Response({'contenido':serializer.data, 'serializer':serializer, 'putserializer':putserializer, 'orden':orden}, template_name='interfaz/Tickets/ver_tickets_especifico.html')
     
