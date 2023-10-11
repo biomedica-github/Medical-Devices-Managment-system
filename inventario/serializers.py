@@ -8,7 +8,7 @@ from core.models import User
 from django.core.validators import FileExtensionValidator
 import locale
 
-locale.setlocale(locale.LC_ALL, 'es_MX.utf8')
+locale.setlocale(locale.LC_ALL, 'es_ES')
 
 def calcular_fecha(datetimeobject: datetime.date) -> dict:
     return {'dia': datetimeobject.strftime("%A").capitalize(), 
@@ -24,7 +24,7 @@ def get_time(time:int) -> str:
 
 def corta_nombre(falla):
     if falla == "SENSOR":
-        return "Fallo en sensor"
+        return "Falla en sensor"
     elif falla == "NO/TRB":
         return "Equipo no trabaja adecuadamente"
     else:
@@ -491,18 +491,6 @@ class AtenderReporteSerializer(serializers.ModelSerializer):
         ticket_id = self.context['ticket']
         self.instance = ReporteUsuario.objects.filter(id=ticket_id).update(estado='COM', **self.validated_data)
         return self.instance
-    
-# class AgregarOrdenReporteSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Orden_Servicio
-#         fields = ['numero_orden', 'fecha', 'motivo', 'tipo_orden', 'estatus','responsable','autorizo_jefe_biomedica','autorizo_jefe_conservacion','descripcion_servicio','equipo_complementario','ing_realizo','num_mantenimiento_preventivo','fallo_paciente', 'equipo_medico', 'orden_escaneada']
-#         equipo_medico = serializers.PrimaryKeyRelatedField(many = True, read_only=True)
-
-#     def save(self, **kwargs):
-#         reporte_id = self.context['reporte']
-#         reporte_objeto = ReporteUsuario.objects.get(id=reporte_id)
-#         self.instance = Orden_Servicio.objects.create(reporte = reporte_objeto, **self.validated_data)
-#         return self.instance
 
 
 
