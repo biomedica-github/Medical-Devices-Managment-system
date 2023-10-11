@@ -8,7 +8,7 @@ from core.models import User
 from django.core.validators import FileExtensionValidator
 import locale
 
-locale.setlocale(locale.LC_ALL, 'es_MX.utf8')
+locale.setlocale(locale.LC_ALL, 'es_ES')
 
 def calcular_fecha(datetimeobject: datetime.date) -> dict:
     return {'dia': datetimeobject.strftime("%A").capitalize(), 
@@ -21,6 +21,15 @@ def get_time(time:int) -> str:
     if time >= 12:
         return "PM"
     return "AM"
+
+def corta_nombre(falla):
+    if falla == "SENSOR":
+        return "Falla en sensor"
+    elif falla == "NO/TRB":
+        return "Equipo no trabaja adecuadamente"
+    else:
+        return
+    
 
 
 class ContratoProveedor(serializers.ModelSerializer):
@@ -178,6 +187,7 @@ class OrdenEquipoSerializer(serializers.ModelSerializer):
     estatus = serializers.SerializerMethodField(method_name= 'get_estatus')
     orden_escaneada = serializers.FileField(validators=[FileExtensionValidator(allowed_extensions=['pdf'])])
     extra_kwargs = {'equipo_medico': {'required':False}}
+    equipo_medico = ContratoEquiposSerializer(many=True, read_only=True)
 
     def get_motivo(self, orden: Orden_Servicio):
         return orden.get_motivo_display()
@@ -438,15 +448,39 @@ class VerReportesSerializer(serializers.ModelSerializer):
         model = ReporteUsuario
         fields = '__all__'
     area = serializers.StringRelatedField()
-    equipo = serializers.StringRelatedField()
+    #equipo = serializers.StringRelatedField()
     estado = serializers.SerializerMethodField(method_name='get_estado')
     falla = serializers.SerializerMethodField()
     responsable = serializers.StringRelatedField()
+    fecha_str= serializers.SerializerMethodField(method_name='get_fecha')
+    hora= serializers.SerializerMethodField(method_name='get_hora')
+    equipo= ContratoEquiposSerializer(many=False, read_only=True)
+    corto= serializers.SerializerMethodField(method_name="get_nombreCorto")
+
     def get_falla(self, reporte: ReporteUsuario):
         return reporte.get_falla_display()
 
     def get_estado(self, reporte: ReporteUsuario):
         return reporte.get_estado_display()
+    
+    def get_fecha(self, reporte: ReporteUsuario):
+        fecha = calcular_fecha(reporte.fecha_hora)
+        
+        
+        return f"{fecha['dia']} {fecha['dia_numero']} de {fecha['mes']} del año {fecha['año']}"
+
+    def get_hora(self, reporte:ReporteUsuario):
+        hora = reporte.fecha_hora
+
+        time = get_time(hora.hour)
+
+        hora_str= hora.strftime("%I:%M %p")
+
+        return hora_str + time
+    
+    def get_nombreCorto(self, reporte: ReporteUsuario):
+        corto=corta_nombre(reporte.falla)
+        return corto
 
 class AtenderReporteSerializer(serializers.ModelSerializer):
     class Meta:
@@ -455,9 +489,8 @@ class AtenderReporteSerializer(serializers.ModelSerializer):
 
     def save(self, **kwargs):
         ticket_id = self.context['ticket']
-        self.instance = ticket = ReporteUsuario.objects.filter(id=ticket_id).update(estado='COM', **self.validated_data)
+        self.instance = ReporteUsuario.objects.filter(id=ticket_id).update(estado='COM', **self.validated_data)
         return self.instance
-    
 
 
 

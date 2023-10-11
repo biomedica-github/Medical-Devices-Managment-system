@@ -1,4 +1,4 @@
-{%extends "/home/edgar/Desktop/Proyectos/UMAE_db/inventario/templates/inventario/interfaz/base_PUT-DELETE-ESPECIFICO.html"%}
+{%extends "../base_PUT-DELETE-ESPECIFICO.html"%}
 {% load static%}
 {%load rest_framework%}
 
@@ -22,6 +22,7 @@
                         {%endblock%}
 
                         {%block body%}
+                            
                                 <p class="fs-1 text-primary m-0 fw-bold" style="--bs-secondary: rgb(37,126,62);--bs-secondary-rgb: 37,126,62;color: rgb(37,126,62);--bs-primary: rgb(37,126,62);--bs-primary-rgb: 37,126,62;">{{contenido.nombre_equipo}} | Marca: {{contenido.marca}}&nbsp;| Modelo: {{contenido.modelo}} | NNI:{{contenido.numero_nacional_inv}}</p>
                                 </div>
                                 <div class="card-body">
