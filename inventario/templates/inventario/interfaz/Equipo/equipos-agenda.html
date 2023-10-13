@@ -7,8 +7,12 @@
                             {%block botones%}
                             <div class="row">
                                 <div class="col text-end">
-                                    <div class="btn-group" role="group"><button class="btn btn-primary" type="button" style="padding: 6px 15px;--bs-primary: rgb(37,126,62);--bs-primary-rgb: 37,126,62;margin: 10px;background: var(--bs-dark-text-emphasis);" data-bs-target="#modal-2" data-bs-toggle="modal"><i class="fas fa-search" style="margin-right: 10px;"></i>Filtrar</button><button class="btn btn-primary" type="button" style="padding: 6px 15px;--bs-primary: rgb(37,126,62);--bs-primary-rgb: 37,126,62;margin: 10px;" data-bs-target="#modal-1" data-bs-toggle="modal"><i class="far fa-edit" style="margin-right: 10px;"></i>Agregar servicio agendado</button></div>
-                                </div>
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-primary" type="button" style="padding: 6px 15px;--bs-primary: rgb(37,126,62);--bs-primary-rgb: 37,126,62;margin: 10px;background: var(--bs-dark-text-emphasis);" data-bs-target="#modal-2" data-bs-toggle="modal"><i class="fas fa-search" style="margin-right: 10px;"></i>Filtrar</button>
+                                        {%if user.is_staff%}
+                                        <button class="btn btn-primary" type="button" style="padding: 6px 15px;--bs-primary: rgb(37,126,62);--bs-primary-rgb: 37,126,62;margin: 10px;" data-bs-target="#modal-1" data-bs-toggle="modal"><i class="far fa-edit" style="margin-right: 10px;"></i>Agregar servicio agendado</button></div>
+                                        {%endif%}
+                                    </div>
                             </div>
                             {%endblock%}
                             {%block anuncioAgregado%}
@@ -22,7 +26,11 @@
                             <div class="col">
                                 <div class="row">
                                     <div class="col">
+                                        {%if not area%}
                                         <p class="text-break d-inline" style="font-size: 36px;"><strong><span style="color: rgb(37, 126, 62);">Agenda de proximos servicios de: {{equipo.nombre_equipo}} | NNI: {{equipo.numero_nacional_inv}} | Num. Serie: {{equipo.numero_serie}}</span></strong></p>
+                                        {%else%}
+                                        <p class="text-break d-inline" style="font-size: 36px;"><strong><span style="color: rgb(37, 126, 62);">Agenda de proximos servicios para el area de: {{area.nombre_sala}} </span></strong></p>
+                                        {%endif%}
                                     </div>
                                 </div>
                                 
@@ -46,12 +54,26 @@
                                                 {%endif%}
                                             >{{orden.fecha_read.dia_numero}}</span></h1>
                                         <h5>{{orden.fecha_read.mes}}</h5>
+                                        {%if not area%}
                                         <a class="stretched-link" href="{{orden.id}}"></a>
+                                        {%endif%}
                                     </div>
                                     <div class="col-10">
                                         <ul class="list-inline">
                                             <li class="list-inline-item list-inline-item" style="font-size: 20px;"><i class="fa fa-calendar" aria-hidden="true"></i> {{orden.fecha_read.dia}}</li>
+                                            {%if not area%}
                                             <li class="list-inline-item list-inline-item" style="font-size: 20px;"><i class="fas fa-location-arrow" aria-hidden="true"></i>{{equipo.area}}</li>
+                                            {%else%}
+                                            <li class="list-inline-item list-inline-item" style="font-size: 20px;"><i class="fas fa-briefcase-medical" aria-hidden="true"></i>
+                                                {%for equipo in orden.equipo_medico%}
+                                                {{equipo.nombre_equipo}} | NNI: {{equipo.numero_nacional_inv}}</li>
+                                                {%if equipo.cama%}
+                                                <li class="list-inline-item list-inline-item" style="font-size: 20px;"><i class="fas fa-bed" aria-hidden="true"></i> Cama #{{equipo.cama}}</li>
+                                                {%else%}
+                                                <li class="list-inline-item list-inline-item" style="font-size: 20px;"><i class="fas fa-bed" aria-hidden="true"></i> Equipo móvil/no tiene cama</li>
+                                                {%endif%}
+                                                {%endfor%}
+                                            {%endif%}
                                             {%if equipo.cama%}
                                             <li class="list-inline-item list-inline-item" style="font-size: 20px;"><i class="fas fa-bed" aria-hidden="true"></i> Cama #{{equipo.cama}}</li>
                                             {%endif%}

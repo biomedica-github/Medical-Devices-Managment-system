@@ -231,12 +231,47 @@ class EquiposAgendaAreaUsuarioSerializer(serializers.ModelSerializer):
 class OrdenAgendaAreaUsuarioVerSerializer(serializers.ModelSerializer):
     class Meta: 
         model = Orden_Servicio
-        fields = ['id','fecha', 'equipo_medico', 'dias_restantes']
+        fields = ['id','fecha', 'equipo_medico', 'dias_restantes', 'fecha_read', 'dias_restantes_num']
+    fecha_read = serializers.SerializerMethodField(method_name='get_fecha')
     equipo_medico = EquiposAgendaAreaUsuarioSerializer(many = True, read_only=True)
     dias_restantes = serializers.SerializerMethodField(method_name='calcular_dias_restantes', read_only=True)
+    dias_restantes_num = serializers.SerializerMethodField(method_name='get_dias_faltan', read_only=True)
+
+    def save(self, **kwargs):
+        validated_data = {**self.validated_data, **kwargs}
+        if self.instance is not None:
+            self.instance = self.update(self.instance, validated_data)
+            assert self.instance is not None, (
+                '`update()` did not return an object instance.'
+            )
+        else:
+            equipo = self.context['equipo']
+            fecha_data = self.validated_data['fecha']
+            equipo_med = Equipo_medico.objects.get(id=equipo)
+            contrato_equipo = Equipo_medico.objects.values('contrato').get(id = equipo)
+            contrato_objeto = Contrato.objects.get(id = contrato_equipo['contrato'])
+            
+            self.instance = orden = Orden_Servicio.objects.create(fecha = fecha_data, contrato = contrato_objeto)
+            orden.equipo_medico.add(equipo_med)
+        
+        return self.instance
+
+    def get_dias_faltan(self, orden: Orden_Servicio):
+        today = date.today()
+        
+        fecha_vencimiento = orden.fecha - today
+        dias = fecha_vencimiento.days
+
+        return dias
+
+    def get_fecha(self, orden:Orden_Servicio):
+        fecha_str = calcular_fecha(orden.fecha)
+        return fecha_str
+
 
     def calcular_dias_restantes(self, orden: Orden_Servicio):
         today = date.today()
+        
         fecha_vencimiento = orden.fecha - today
         dias = fecha_vencimiento.days
 
@@ -245,8 +280,7 @@ class OrdenAgendaAreaUsuarioVerSerializer(serializers.ModelSerializer):
         elif dias <= 0 and orden.estatus != 'PEN':
             return "Servicio atendido"
         else:
-            return f"Faltan {dias} para el siguiente servicio"
-
+            return f"Faltan {dias} dias para el siguiente servicio"
 
 class EquipoOrdenAgendaSerializer(serializers.ModelSerializer):
     class Meta:

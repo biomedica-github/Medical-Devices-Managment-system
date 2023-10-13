@@ -331,11 +331,12 @@ class AreaViewSet(ModelViewSet):
 
 
     
-    @action(detail=True, methods=['GET'])
+    @action(detail=True, methods=['GET'], template_name='interfaz/Equipo/equipos-agenda.html', filterset_class=filtros.filtro_equipo_agenda)
     def agenda(self, request, pk):
         salas_permitidas = Area_hospital.objects.values('nombre_sala').get(id=pk)
-        orden = Orden_Servicio.objects.prefetch_related('equipo_medico', 'equipo_medico__area').filter(equipo_medico__area__responsable = request.user.id, tipo_orden = 'A', equipo_medico__area=pk).all()
+        orden = Orden_Servicio.objects.prefetch_related('equipo_medico', 'equipo_medico__area').filter(equipo_medico__area__responsable = request.user.id, tipo_orden = 'A', equipo_medico__area=pk, estatus='PEN').order_by('fecha').all()
         serializer = serializers.OrdenAgendaAreaUsuarioVerSerializer(orden, many=True)
+        area = Area_hospital.objects.get(id=self.kwargs['pk'])
         for i in serializer.data:
             lista_equipos_locales = []
             for j in enumerate(i['equipo_medico']):
@@ -343,8 +344,10 @@ class AreaViewSet(ModelViewSet):
                     lista_equipos_locales.append(j[1])
             i['equipo_medico'].clear()
             [i['equipo_medico'].append(key) for key in lista_equipos_locales]               
-                
-        return Response(serializer.data)
+        backend_filtro = self.filter_backends[0]
+        filtro_html = backend_filtro().to_html(request=self.request, queryset=orden, view=self)
+        return Response({'results':serializer.data, 'filtro':filtro_html, 'area':area})
+    
 class ServicioAreaViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):
         permission_classes = [IsAuthenticated]
         renderer_classes = [renderers.TemplateHTMLRenderer]
