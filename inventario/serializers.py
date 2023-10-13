@@ -153,7 +153,6 @@ class AgregarContratoProveedorSerializer(serializers.ModelSerializer):
         return self.instance
 
 
-
 class CrearOrdenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Orden_Servicio
@@ -180,7 +179,7 @@ class OrdenEquipoSerializer(serializers.ModelSerializer):
 
     class Meta: 
         model = Orden_Servicio
-        fields = ['id','numero_orden', 'fecha', 'motivo', 'tipo_orden', 'estatus','responsable','autorizo_jefe_biomedica','autorizo_jefe_conservacion','descripcion_servicio','equipo_complementario','ing_realizo','num_mantenimiento_preventivo','fallo_paciente', 'equipo_medico', 'orden_escaneada']
+        fields = '__all__'
     id = serializers.IntegerField(read_only=True)
     tipo_orden = serializers.SerializerMethodField(method_name= 'get_tipo_orden')
     motivo = serializers.SerializerMethodField(method_name= 'get_motivo')
@@ -380,15 +379,17 @@ class AreaEquipoSerializer(serializers.ModelSerializer):
     area = serializers.StringRelatedField()
 
 class AreaSerializer(serializers.ModelSerializer):
-    equipos_area = AreaEquipoSerializer(many = True,read_only = True)
     class Meta:
         model = Area_hospital
-        fields = ['nombre_sala', 'responsable', 'equipos_area']
+        fields = ['id','nombre_sala', 'responsable']
+    responsable = serializers.StringRelatedField(many=True)
+    
 
 class AgregarEquipoAreaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Area_hospital
-        fields = ['equipos_area', 'responsable']
+        fields = ['id','nombre_sala','equipos_area', 'responsable']
+    equipos_area = serializers.PrimaryKeyRelatedField(many=True, queryset=Equipo_medico.objects.filter(area=None), label= 'Equipos medicos sin area establecida')
     extra_kwargs = {'responsable': {'required':False}}
 
 class AgregarServicioEquipo(serializers.ModelSerializer):

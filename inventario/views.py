@@ -301,6 +301,27 @@ class AreaViewSet(ModelViewSet):
 
     permission_classes = [IsAdminOrReadOnly, IsAuthenticated]
     filterset_class = filtros.filtro_areas_general
+    renderer_classes = [renderers.TemplateHTMLRenderer]
+    template_name = 'interfaz/Area/areas-general.html'
+
+    
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        putserializer = serializers.AgregarEquipoAreaSerializer(instance)
+        serializer = self.get_serializer(instance)
+        equipo = serializers.AgregarEquipoContratoSerializer
+        return Response({'contenido':serializer.data, 'serializer':serializer, 'putserializer':putserializer, 'equipo':equipo}, template_name='interfaz/Area/areas-especifico-general-usuario.html')
+    
+
+    def get_paginated_response(self, data):
+        pagination = self.paginator.get_paginated_response(data)
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        putserializer = AgregarEquipoAreaSerializer
+        backend_filtro = self.filter_backends[0]
+        filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
+        return Response({'content': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer':putserializer, 'filtro':filtro_html})
+
 
     def get_serializer_class(self):
         if self.request.method == 'PUT':
@@ -314,12 +335,17 @@ class AreaViewSet(ModelViewSet):
 
     def get_queryset(self):
         return Area_hospital.objects.prefetch_related('equipos_area', 'responsable').filter(responsable = self.request.user.id)
+
+
+
     
-    @action(detail=True, methods= ['GET'])
+    @action(detail=True, methods= ['GET'], template_name='interfaz/Ordenes/equipos-orden_general.html', filterset_class= filtros.filtro_equipo_servicio)
     def servicio(self, request, pk):
-        orden = Orden_Servicio.objects.prefetch_related('equipo_medico').filter(equipo_medico__area__responsable = request.user.id, equipo_medico__area=pk).exclude(tipo_orden='A', estatus='PEN').all()
+        orden = Orden_Servicio.objects.prefetch_related('equipo_medico').filter(equipo_medico__area__responsable = request.user.id, equipo_medico__area=pk).exclude(estatus='PEN').all()
         serializer = OrdenEquipoSerializer(orden, many=True)
-        return Response(serializer.data)
+        backend_filtro = self.filter_backends[0]
+        filtro_html = backend_filtro().to_html(request=self.request, queryset=self.filter_queryset(orden), view=self)
+        return Response({'content': serializer.data, 'serializer':serializer, 'filtro':filtro_html})
     
     @action(detail=True, methods=['GET'])
     def agenda(self, request, pk):
@@ -335,7 +361,8 @@ class AreaViewSet(ModelViewSet):
             [i['equipo_medico'].append(key) for key in lista_equipos_locales]               
                 
         return Response(serializer.data)
-
+class ServicioAreaViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
+    pass
     
 class AgendaUsuarioViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
     serializer_class = OrdenAgendaSerializer
@@ -352,7 +379,7 @@ class CrearOrdenViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
     filterset_class = filtros.filtro_ordenservicio
     renderer_classes = [renderers.TemplateHTMLRenderer]
-    template_name = "interfaz\Ordenes\equipos-orden_general.html"
+    template_name = "interfaz/Ordenes/equipos-orden_general.html"
     queryset = Orden_Servicio.objects.prefetch_related('equipo_medico').exclude(estatus="PEN").order_by('-fecha').all()
     
     def get_serializer_class(self):
@@ -368,7 +395,8 @@ class CrearOrdenViewSet(ModelViewSet):
         backend_filtro = self.filter_backends[0]
         filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
         contexto = self.get_serializer_context()
-        return Response({'content': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer': self.get_serializer_class(), 'filtro':filtro_html})
+        putserializer = serializers.CrearOrdenSerializer
+        return Response({'content': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer': putserializer, 'filtro':filtro_html})
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -388,7 +416,7 @@ class OrdenPendientesViewSet(mixins.RetrieveModelMixin, mixins.DestroyModelMixin
     queryset = Orden_Servicio.objects.prefetch_related('equipo_medico').filter(estatus='PEN').order_by('fecha').all()
 
 
-class AreaEquipoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, GenericViewSet):
+class AreaEquipoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
     permission_classes = [IsAdminOrReadOnly, IsAuthenticated]
     filterset_class = filtros.filtro_areas_equipo
 
