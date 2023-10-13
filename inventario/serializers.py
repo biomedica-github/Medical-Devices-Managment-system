@@ -172,7 +172,7 @@ class CrearOrdenSerializer(serializers.ModelSerializer):
     motivo = serializers.ChoiceField(choices=Orden_Servicio.MOTIVO_OPCIONES)
     tipo_orden = serializers.ChoiceField(choices=Orden_Servicio.TIPO_OPCIONES)
     id = serializers.IntegerField(read_only=True)
-    orden_escaneada = serializers.FileField(validators=[FileExtensionValidator(allowed_extensions=['pdf'])])
+    orden_escaneada = serializers.FileField(validators=[FileExtensionValidator(allowed_extensions=['pdf'])], required=False)
     extra_kwargs = {'equipo_medico': {'required':False}}
 
 class OrdenEquipoSerializer(serializers.ModelSerializer):
