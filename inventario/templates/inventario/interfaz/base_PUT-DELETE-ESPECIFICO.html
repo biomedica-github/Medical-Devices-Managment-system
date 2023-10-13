@@ -60,7 +60,7 @@
       $('#agregarform').submit(function(e) {
         e.preventDefault(); 
        
-        var formData = new FormData(this);
+        const formData = $(this).serialize();
   
         const method = 'POST'; 
         const url = '{{request.build_absolute_uri}}'; 
@@ -140,7 +140,7 @@
             event.preventDefault();
 
            
-            var formData = new FormData(this);
+            var formData = $(this).serialize();
 
             
             $.ajax({

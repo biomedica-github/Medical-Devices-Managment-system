@@ -55,7 +55,9 @@
                                             >{{orden.fecha_read.dia_numero}}</span></h1>
                                         <h5>{{orden.fecha_read.mes}}</h5>
                                         {%if not area%}
+                                        {%if user.is_staff%}
                                         <a class="stretched-link" href="{{orden.id}}"></a>
+                                        {%endif%}
                                         {%endif%}
                                     </div>
                                     <div class="col-10">
@@ -81,6 +83,7 @@
                                     </div>
                                 </div>
                                 {%endfor%}
+                                {%if user.is_staff%}
                                 {%block modales%}
                 <div class="modal fade" role="dialog" tabindex="-1" id="modal-1">
                     <div class="modal-dialog modal-lg" role="document">
@@ -120,5 +123,6 @@
                     </div>
                 </div>
                 {%endblock%}
+                {%endif%}
                             {%endblock%}
                     
