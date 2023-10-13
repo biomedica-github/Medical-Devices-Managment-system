@@ -8,6 +8,7 @@ router.register('general', views.AreaViewSet, basename= 'area_urls')
 
 area_router = routers.NestedDefaultRouter(router, 'general', lookup='id')
 area_router.register('equipos_area', views.AreaEquipoViewSet, basename='area-equipo')
+area_router.register('servicio', views.ServicioAreaViewSet, basename='servicio-area')
 
 checklist_router = routers.NestedDefaultRouter(area_router, 'equipos_area', lookup = 'area_equipo')
 checklist_router.register('agenda', views.AgendaAreaViewSet, basename='equipo-agenda')

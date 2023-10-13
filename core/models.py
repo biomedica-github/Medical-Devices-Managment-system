@@ -15,5 +15,5 @@ class User(AbstractUser):
     cargo = models.CharField(choices=cargo_choices, max_length=9)
 
     def __str__(self) -> str:
-        return f"{self.username}"
+        return self.username
 
