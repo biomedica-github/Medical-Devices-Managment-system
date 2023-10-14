@@ -175,6 +175,26 @@ class CrearOrdenSerializer(serializers.ModelSerializer):
     orden_escaneada = serializers.FileField(validators=[FileExtensionValidator(allowed_extensions=['pdf'])], required=False)
     extra_kwargs = {'equipo_medico': {'required':False}}
 
+class OrdenServicioSerializer(serializers.ModelSerializer):
+    class Meta: 
+        model = Orden_Servicio
+        fields = '__all__'
+    id = serializers.IntegerField(read_only=True)
+    tipo_orden = serializers.SerializerMethodField(method_name= 'get_tipo_orden')
+    motivo = serializers.SerializerMethodField(method_name= 'get_motivo')
+    estatus = serializers.SerializerMethodField(method_name= 'get_estatus')
+    orden_escaneada = serializers.FileField(validators=[FileExtensionValidator(allowed_extensions=['pdf'])])
+    equipo_medico = serializers.StringRelatedField()
+
+    def get_motivo(self, orden: Orden_Servicio):
+        return orden.get_motivo_display()
+
+    def get_tipo_orden(self, orden: Orden_Servicio):
+        return orden.get_tipo_orden_display()
+    
+    def get_estatus(self, orden: Orden_Servicio):
+        return orden.get_estatus_display()
+
 class OrdenEquipoSerializer(serializers.ModelSerializer):
 
     class Meta: 
@@ -408,9 +428,12 @@ class Equipo_Serializer(serializers.ModelSerializer):
 class AreaEquipoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Equipo_medico
-        fields = ['id','numero_nacional_inv', 'nombre_equipo', 'modelo', 'marca', 'cama', 'area']
-
+        fields = ['id','numero_nacional_inv', 'nombre_equipo', 'modelo', 'marca', 'cama', 'area', 'estado']
+    estado = serializers.SerializerMethodField(method_name='get_estado')
     area = serializers.StringRelatedField()
+
+    def get_estado(self, equipo: Equipo_medico):
+        return equipo.get_estado_display()
 
 class AreaSerializer(serializers.ModelSerializer):
     class Meta:

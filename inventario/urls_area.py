@@ -14,7 +14,7 @@ checklist_router = routers.NestedDefaultRouter(area_router, 'equipos_area', look
 checklist_router.register('agenda', views.AgendaAreaViewSet, basename='equipo-agenda')
 checklist_router.register('checklist', views.CheckListCrearViewSet, basename='checklist_area')
 checklist_router.register('levantar_reporte', views.CrearReporteViewSet, basename='reporte_area')
-checklist_router.register('agregar_orden', views.CrearOrdenAreaViewset, basename='orden-area')
+checklist_router.register('servicio', views.OrdenEquipoUsuarioViewSet, basename='orden-area')
 
 
 # URLConf

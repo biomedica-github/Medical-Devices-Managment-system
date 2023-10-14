@@ -2,8 +2,6 @@
 {% load static%}
 {%load rest_framework%}
 
-{%block equipoactivo%} active {%endblock%}
-
 {%block anuncioModificado%}
 <span><strong>Su reporte a sido enviado, y pronto sera atendido por el ingeniero biomedico a cargo.</strong></span>
 {%endblock%}
@@ -15,8 +13,9 @@
                         <div class="col">
                             <div class="btn-group flex-wrap" role="group">
                                 <button class="btn btn-danger" type="button" style="padding: 6px 17px;--bs-primary: rgb(37,126,62);--bs-primary-rgb: 37,126,62;margin: 10px;" data-bs-target="#modal-2" data-bs-toggle="modal"><i class="fas fa-medkit" style="margin-right: 10px;"></i>Reportar falla/Falta de insumo</button>
-                                <a class="btn btn-secondary disabled" role="button" style="margin: 10px;" href="checklists/"><i class="far fa-calendar-check" style="margin-right: 10px;"></i>Ver checklists</a>
-                                <a class="btn btn-info disabled" role="button" href="{{request.build_absolute_uri}}servicio" style="margin: 10px;color: var(--bs-body-bg);"><i class="fas fa-book" style="margin-right: 10px;"></i>Ver ordenes de servicio</a><a class="btn btn-dark" role="button" href="{{request.build_absolute_uri }}agenda" style="margin: 10px;"><i class="far fa-calendar-alt" style="margin-right: 10px;"></i>Ver agenda del equipo</a></div>
+                                <a class="btn btn-info" role="button" href="{{request.build_absolute_uri}}servicio" style="margin: 10px;color: var(--bs-body-bg);"><i class="fas fa-book" style="margin-right: 10px;"></i>Ver ordenes de servicio</a>
+                                <a class="btn btn-dark" role="button" href="{{request.build_absolute_uri }}agenda" style="margin: 10px;"><i class="far fa-calendar-alt" style="margin-right: 10px;"></i>Ver agenda del equipo</a>
+                            </div>
                         </div>
                         {%endblock%}
                     </div>

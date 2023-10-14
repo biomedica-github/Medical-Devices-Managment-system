@@ -411,7 +411,10 @@ class CrearOrdenViewSet(ModelViewSet):
     filterset_class = filtros.filtro_ordenservicio
     renderer_classes = [renderers.TemplateHTMLRenderer]
     template_name = "interfaz/Ordenes/equipos-orden_general.html"
-    queryset = Orden_Servicio.objects.prefetch_related('equipo_medico', 'equipo_medico__area').exclude(estatus="PEN").order_by('-fecha').all()
+    
+
+    def get_queryset(self):
+        return Orden_Servicio.objects.prefetch_related('equipo_medico','equipo_medico__area').exclude(estatus="PEN").order_by('-fecha').all()
     
     def get_serializer_class(self):
         if self.request.method == 'POST' or self.request.method == 'PUT':
@@ -573,17 +576,48 @@ class AreaOrdenesViewset(mixins.ListModelMixin, mixins.RetrieveModelMixin, Gener
         queryset = Orden_Servicio.objects.prefetch_related('equipo_medico').filter(equipo_medico__numero_nacional_inv=self.kwargs['equipo_pk'])
         return queryset
 
+class OrdenEquipoUsuarioViewSet(mixins.ListModelMixin, GenericViewSet):
+    permission_classes = [IsAuthenticated]
+    renderer_classes = [renderers.TemplateHTMLRenderer]
+    template_name = "interfaz/Ordenes/equipos-orden_general.html"
+    serializer_class = serializers.OrdenServicioSerializer
+
+    def get_paginated_response(self, data):
+        pagination = self.paginator.get_paginated_response(data)
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        backend_filtro = self.filter_backends[0]
+        filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
+        contexto = self.get_serializer_context()
+        putserializer = serializers.AgregarServicioEquipo
+        return Response({'content': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer': putserializer, 'filtro':filtro_html})
+
+
+    def get_queryset(self):
+            queryset = Orden_Servicio.objects.prefetch_related('equipo_medico').filter(equipo_medico__id=self.kwargs['area_equipo_pk']).exclude(numero_orden = None)
+            return queryset
 
 class OrdenViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
+    renderer_classes = [renderers.TemplateHTMLRenderer]
+    template_name = "interfaz/Ordenes/equipos-orden_general.html"
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return serializers.AgregarServicioEquipo
-        return OrdenEquipoSerializer
+        return serializers.OrdenServicioSerializer
     
     filterset_class = filtros.filtro_equipo_servicio
     
-    
+    def get_paginated_response(self, data):
+        pagination = self.paginator.get_paginated_response(data)
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        backend_filtro = self.filter_backends[0]
+        filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
+        contexto = self.get_serializer_context()
+        putserializer = serializers.AgregarServicioEquipo
+        return Response({'content': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer': putserializer, 'filtro':filtro_html})
+
     def get_queryset(self):
         queryset = Orden_Servicio.objects.prefetch_related('equipo_medico').filter(equipo_medico__id=self.kwargs['equipo_pk']).exclude(numero_orden = None)
         return queryset
@@ -779,17 +813,17 @@ class VerReportesCompletadosViewSet(mixins.RetrieveModelMixin, mixins.ListModelM
             return serializers.AtenderReporteSerializer
         return serializers.VerReportesSerializer
     
-    # @action(detail=True, methods= ['post'])
-    # def servicio(self, request, pk):
-    #     ticket = self.get_object()
-    #     equipo = ticket.equipo.id
-    #     serializer = serializers.AgregarServicioEquipo(data=request.data, context={'equipo': equipo})
-    #     if serializer.is_valid():
-    #         orden_creada = Orden_Servicio.objects.create(**serializer.validated_data)
-    #         ticket.orden = orden_creada
-    #         ticket.save()
-    #         return  Response({'Mensaje':'Orden creada satisfactoriamente'}, status=status.HTTP_200_OK)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    @action(detail=True, methods= ['post'])
+    def servicio(self, request, pk):
+        ticket = self.get_object()
+        equipo = ticket.equipo.id
+        serializer = serializers.AgregarServicioEquipo(data=request.data, context={'equipo': equipo})
+        if serializer.is_valid():
+            orden_creada = Orden_Servicio.objects.create(**serializer.validated_data)
+            ticket.orden= orden_creada
+            ticket.save()
+            return  Response({'Mensaje':'Orden creada satisfactoriamente'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
