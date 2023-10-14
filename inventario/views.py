@@ -196,10 +196,27 @@ class EquipoViewSet(ModelViewSet):
         return {'request': self.request}
 
 class CheckListViewSet(ModelViewSet):
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAdminUser]
     serializer_class = serializers.CheckListSerializer
-
     queryset = CheckList.objects.select_related('area','equipo').all()
+    renderer_classes = [renderers.TemplateHTMLRenderer]
+    template_name = 'interfaz/Checklists/equipo-checklist.html'
+    filterset_class = filtros.filtro_equipo_checklist
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data, template_name='interfaz/Checklists/ver-checklists-especifica.html')
+
+    def get_paginated_response(self, data):
+        pagination = self.paginator.get_paginated_response(data)
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        putserializer = serializers.CrearEquipoSerializer
+        backend_filtro = self.filter_backends[0]
+        filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
+        return Response({'content': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer':putserializer, 'filtro':filtro_html})
+
 
 
 class LevantarMultipleCheckList(ModelViewSet):

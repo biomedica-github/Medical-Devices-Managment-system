@@ -1,6 +1,6 @@
 {%extends "../base_ONLY_POST_DELETE-GENERAL.html"%}
 {% load rest_framework %}
-{%block equipoactivo%} active {%endblock%}
+{%block checklistactivo%} active {%endblock%}
 
 {%block anuncioBorrado%}
 <span><strong>Checklist eliminada de forma exitosa</strong></span>
@@ -16,14 +16,17 @@
                 </div>
                 {%block body%}
                 <div class="col">
-                    <p style="font-size: 36px;"><strong><span style="color: rgb(37, 126, 62);">Checklists de equipo: {{equipo.nombre_equipo}} | NNI: {{equipo.numero_nacional_inv}}</span></strong></p>
+                    <p style="font-size: 36px;"><strong><span style="color: rgb(37, 126, 62);">{%if equipo%} Checklists de equipo: {{equipo.nombre_equipo}} | NNI: {{equipo.numero_nacional_inv}} {%else%} Lista de checklists {%endif%}</span></strong></p>
                 </div>
                 <div class="row">
                 <div class="col">
                     {%for checklist in content%}
                     <div class="card mx-auto" href="www.google.com" style="margin: 10px;">
                         <div class="card-body border rounded-0 d-inline-flex justify-content-between flex-wrap p-2">
-                            <div class="d-inline ms-0 text-break"><a class="text-break fs-4 d-inline text-decoration-none stretched-link text-break" href="{{request.build_absolute_uri}}{{checklist.id}}/"><strong><span style="color: rgb(37, 126, 62); background-color: rgb(248, 249, 252);">{{checklist.fecha_str}} | {{checklist.hora}}</span></strong></a></div>
+                            <div class="d-inline ms-0 text-break"><a class="text-break fs-4 d-inline text-decoration-none stretched-link text-break" href="{{request.build_absolute_uri}}{{checklist.id}}/">
+                                <strong><span style="color: rgb(37, 126, 62); background-color: rgb(248, 249, 252);">{{checklist.fecha_str}} | {{checklist.hora}}</span></strong></a>
+                                <p>{{checklist.equipo}}</p>
+                            </div>
                             <div class="d-inline ms-0 text-break">
                                 <p class="text-center" style="text-decoration: underline;">Calificacion</p>
                                 {%for star in checklist.rango%}
