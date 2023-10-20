@@ -42,11 +42,12 @@
                                     <div class="d-flex align-items-center ms-0"><a class="fs-4 text-decoration-none" href="#"></a>
                                         <p></p>
                                     </div>
-                                    
+                                    {%if user.is_staff%}
                                     <div class="text-center ms-2"><a class="fs-4 text-decoration-none" href="#"></a>
                                         <p class="text-black-50" style="text-decoration:  underline;">Responsables del area</p>
                                         <p class="d-inline text-break" style="font-size: 16px;">{%for user in area.responsable%}{{user}} {%endfor%}</p>
                                     </div>
+                                    {%endif%}
                                 </div>
                             </div>
                             {%endfor %}

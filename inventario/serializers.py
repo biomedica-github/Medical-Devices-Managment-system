@@ -569,7 +569,11 @@ class CheckListSerializer(serializers.ModelSerializer):
     sensor_ECG = serializers.SerializerMethodField(method_name='get_ecg')
     sensor_PAI = serializers.SerializerMethodField(method_name='get_pai')
     rango = serializers.SerializerMethodField(method_name='get_rango')
+    prueba_funcionamiento = serializers.SerializerMethodField(method_name='get_prueba')
     extra_kwargs = {'sala': {'required': True}, 'equipo': {'required':True}}
+
+    def get_prueba(self, checklist:CheckList):
+        return checklist.get_prueba_funcionamiento_display()
 
     def get_rango(self, checklist:CheckList):
         return range(checklist.desempeño_general)

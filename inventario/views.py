@@ -202,12 +202,6 @@ class CheckListViewSet(ModelViewSet):
     renderer_classes = [renderers.TemplateHTMLRenderer]
     template_name = 'interfaz/Checklists/equipo-checklist.html'
     filterset_class = filtros.filtro_equipo_checklist
-
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        return Response(serializer.data, template_name='interfaz/Checklists/ver-checklists-especifica.html')
-
     def get_paginated_response(self, data):
         pagination = self.paginator.get_paginated_response(data)
         queryset = self.filter_queryset(self.get_queryset())
@@ -460,11 +454,30 @@ class CrearOrdenViewSet(ModelViewSet):
 class OrdenPendientesViewSet(mixins.RetrieveModelMixin, mixins.DestroyModelMixin, mixins.UpdateModelMixin, mixins.ListModelMixin, GenericViewSet):
     permission_classes = [IsAdminUser]
     filterset_class = filtros.filtro_ordenpendiente
+    renderer_classes = [renderers.TemplateHTMLRenderer]
+    template_name = "interfaz/Ordenes/equipos-orden_general.html"
+
     def get_serializer_class(self):
         if self.request.method == 'PUT':
             return serializers.CrearOrdenSerializer
         return OrdenEquipoSerializer
     queryset = Orden_Servicio.objects.prefetch_related('equipo_medico').filter(estatus='PEN').order_by('fecha').all()
+
+    def get_paginated_response(self, data):
+        pagination = self.paginator.get_paginated_response(data)
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        backend_filtro = self.filter_backends[0]
+        filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
+        contexto = self.get_serializer_context()
+        putserializer = serializers.CrearOrdenSerializer
+        return Response({'content': data, 'paginator': self.paginator, 'filtro':filtro_html})
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        putserializer = serializers.CrearOrdenSerializer(instance)
+        serializer = serializers.OrdenEquipoSerializer(instance)
+        return Response({'contenido':serializer.data, 'serializer':serializer, 'putserializer':putserializer,}, template_name='interfaz/Ordenes/orden_servicio_especifica-admin.html')
 
 
 class AreaEquipoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):

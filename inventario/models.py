@@ -114,7 +114,7 @@ class Orden_Servicio(models.Model):
         (ESTATUS_NO_SERVICIO, 'No se realizo servicio'),
         (ESTATUS_PENDIENTE, 'Pendiente')
     ]
-
+    
     numero_orden = models.CharField(max_length=255, null=True)
     fecha = models.DateField(auto_now_add=False, auto_now=False)
     motivo = models.CharField(max_length=1, choices=MOTIVO_OPCIONES, default=MOTIVO_PREVENTIVO)
@@ -170,6 +170,27 @@ class ReporteUsuario(models.Model):
         class Meta:
             ordering = ['-fecha_hora']
 
+        
+class Evento(models.Model):
+    TIPO_VENC_CONTRATO = "CONTR"
+    TIPO_SERVICIO = "SERVC"
+    TIPO_CAPACITACION = "CAPAC"
+    TIPO_CHECKLIST = "CHECK"
+    TIPO_OPCIONES = [
+        (TIPO_VENC_CONTRATO, 'Vencimiento de contrato'),
+        (TIPO_SERVICIO, 'Servicio agendado'),
+        (TIPO_CAPACITACION, 'Curso de capacitacion agendada'),
+        (TIPO_CHECKLIST, 'Chequeo al equipo agendado')
+    ]
+    fecha = models.DateField(auto_now=False, auto_now_add=False)
+    tipo_evento = models.CharField(max_length=5, choices=TIPO_OPCIONES)
+    descripcion = models.CharField(max_length=50, null=True)
+    contrato = models.OneToOneField(Contrato, on_delete=models.CASCADE, null=True)
+    equipo_medico = models.ManyToManyField(Equipo_medico, related_name="Evento_equipo")
+
+    class Meta:
+        ordering = ["fecha"]
+
 class CheckList(models.Model):
     CONDICION_BUENA = "B"
     CONDICION_MALA = "M"
@@ -179,6 +200,12 @@ class CheckList(models.Model):
         (CONDICION_MALA, 'Mala'),
         (CONDICION_NA, 'N/A')
     ]
+    PRUEBA_PASO = "P"
+    PRUEBA_NOPASO = "N"
+    PRUEBA_OPCIONES = [
+        (PRUEBA_PASO, "El equipo paso la prueba de funcionamiento correctamente"),
+        (PRUEBA_NOPASO, "El equipo no paso prueba de funcionamiento")
+    ] 
     CALIF_1=1
     CALIF_2=2
     CALIF_3=3
@@ -197,6 +224,7 @@ class CheckList(models.Model):
     bateria = models.CharField(max_length= 1, choices=CONDICION_OPCIONES)
     condicion_general = models.CharField(max_length= 1, choices=CONDICION_OPCIONES)
     enciende = models.BooleanField()
+    prueba_funcionamiento = models.CharField(max_length=1, choices=PRUEBA_OPCIONES)
     sensor_SPO2 = models.CharField(max_length= 1, choices=CONDICION_OPCIONES, default=CONDICION_NA)
     sensor_TEMP = models.CharField(max_length= 1, choices=CONDICION_OPCIONES, default= CONDICION_NA)
     PANI = models.CharField(max_length= 1, choices=CONDICION_OPCIONES, default=CONDICION_NA)
