@@ -166,7 +166,7 @@ class ReporteUsuario(models.Model):
         descripcion = models.CharField(max_length= 500, null=True)
         solucion_tecnico = models.CharField(max_length= 500, null=True)
         orden = models.ForeignKey(Orden_Servicio, on_delete=models.SET_NULL, null=True)
-        equipo_complementario = models.CharField(max_length=500, null=True)
+
         class Meta:
             ordering = ['-fecha_hora']
 
