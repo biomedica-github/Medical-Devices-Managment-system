@@ -60,7 +60,7 @@
       $('#agregarform').submit(function(e) {
         e.preventDefault(); 
        
-        const formData = $(this).serialize();
+        const formData = new FormData(this);
   
         const method = 'POST'; 
         const url = '{{request.build_absolute_uri}}'; 

@@ -17,6 +17,11 @@ def calcular_fecha(datetimeobject: datetime.date) -> dict:
             'año':datetimeobject.strftime("%G").capitalize(),
             'mes_ab':datetimeobject.strftime("%b").upper()}
 
+def calcular_fecha_formato(datetimeobject: datetime.date) -> dict:
+    return {'dia': datetimeobject.strftime("%d"),  
+            'mes':datetimeobject.strftime("%m").capitalize(), 
+            'año':datetimeobject.strftime("%Y").capitalize(),}
+
 def get_time(time:int) -> str:
     if time >= 12:
         return "PM"
@@ -67,8 +72,8 @@ class ProveedorSerializers(serializers.ModelSerializer):
 class ContratoEquiposSerializer(serializers.ModelSerializer):
     class Meta:
         model = Equipo_medico
-        fields = ['id','numero_nacional_inv', 'nombre_equipo', 'modelo', 'estado', 'numero_serie', 'marca','area','cama']
-    #contrato = serializers.StringRelatedField()
+        fields = ['id','numero_nacional_inv', 'nombre_equipo', 'modelo', 'estado', 'numero_serie', 'marca','area','cama','contrato']
+    contrato = ContratoProveedor(many=False)
     area = serializers.StringRelatedField()
     estado = serializers.SerializerMethodField(method_name='get_estado')
 
@@ -216,8 +221,7 @@ class OrdenEquipoSerializer(serializers.ModelSerializer):
     
     def get_estatus(self, orden: Orden_Servicio):
         return orden.get_estatus_display()
-
-
+    
 class AgendaAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = Orden_Servicio
@@ -481,7 +485,7 @@ class CrearCheckListSerializer(serializers.ModelSerializer):
         equipo_query = Equipo_medico.objects.get(id=equipo_med)
         CheckList.objects.create(area=sala_query, equipo = equipo_query, **self.validated_data)
         return self.instance
-
+   
 class CrearReporteSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReporteUsuario
@@ -540,10 +544,59 @@ class VerReportesSerializer(serializers.ModelSerializer):
         corto=corta_nombre(reporte.falla)
         return corto
 
+class verOrdenReporteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model= Orden_Servicio
+        fields= ['numero_orden', 'equipo_complementario']
+
+class AgregarOrdenTicketsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Orden_Servicio
+        fields=['equipo_complementario']
+
+class VerReportesPDFSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReporteUsuario
+        fields = '__all__'
+    area = serializers.StringRelatedField()
+    #equipo = serializers.StringRelatedField()
+    estado = serializers.SerializerMethodField(method_name='get_estado')
+    falla = serializers.SerializerMethodField()
+    responsable = serializers.StringRelatedField()
+    fecha_str= serializers.SerializerMethodField(method_name='get_fecha')
+    hora= serializers.SerializerMethodField(method_name='get_hora')
+    equipo= ContratoEquiposSerializer(many=False, read_only=True)
+    corto= serializers.SerializerMethodField(method_name="get_nombreCorto")
+    orden = verOrdenReporteSerializer(many=False,read_only=True)
+    def get_falla(self, reporte: ReporteUsuario):
+        return reporte.get_falla_display()
+
+    def get_estado(self, reporte: ReporteUsuario):
+        return reporte.get_estado_display()
+    
+    def get_fecha(self, reporte: ReporteUsuario):
+        fecha = calcular_fecha_formato(reporte.fecha_hora)
+        
+        
+        return f"{fecha['año']}-{fecha['mes']}-{fecha['dia']}"
+
+    def get_hora(self, reporte:ReporteUsuario):
+        hora = reporte.fecha_hora
+
+        time = get_time(hora.hour)
+
+        hora_str= hora.strftime("%I:%M %p")
+
+        return hora_str + time
+    
+    def get_nombreCorto(self, reporte: ReporteUsuario):
+        corto=corta_nombre(reporte.falla)
+        return corto
+
 class AtenderReporteSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReporteUsuario
-        fields = ['solucion_tecnico']
+        fields = ['solucion_tecnico','equipo_complementario']
 
     def save(self, **kwargs):
         ticket_id = self.context['ticket']
