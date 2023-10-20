@@ -29,6 +29,8 @@ from django.contrib.auth.mixins import AccessMixin
 from rest_framework.templatetags import rest_framework as template123
 from django.shortcuts import redirect
 from django.core.exceptions import PermissionDenied
+from . import pdf_generator
+
 
 
 class ProveedorViewSet(ModelViewSet, AccessMixin):
@@ -447,9 +449,10 @@ class CrearOrdenViewSet(ModelViewSet):
         instance = self.get_object()
         putserializer = serializers.CrearOrdenSerializer(instance)
         serializer = serializers.OrdenEquipoSerializer(instance)
+        print(serializer.data)
         return Response({'contenido':serializer.data, 'serializer':serializer, 'putserializer':putserializer,}, template_name='interfaz/Ordenes/orden_servicio_especifica-admin.html')
 
-
+    
 
 class OrdenPendientesViewSet(mixins.RetrieveModelMixin, mixins.DestroyModelMixin, mixins.UpdateModelMixin, mixins.ListModelMixin, GenericViewSet):
     permission_classes = [IsAdminUser]
@@ -844,17 +847,23 @@ class VerReportesCompletadosViewSet(mixins.RetrieveModelMixin, mixins.ListModelM
         return serializers.VerReportesSerializer
     
     @action(detail=True, methods= ['post'])
-    def servicio(self, request, pk):
-        ticket = self.get_object()
-        equipo = ticket.equipo.id
-        serializer = serializers.AgregarServicioEquipo(data=request.data, context={'equipo': equipo})
-        if serializer.is_valid():
-            orden_creada = Orden_Servicio.objects.create(**serializer.validated_data)
-            ticket.orden= orden_creada
-            ticket.save()
-            return  Response({'Mensaje':'Orden creada satisfactoriamente'}, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def generarPDF(self, request, pk):
+        ticket =self.get_object()
+        serializer= serializers.VerReportesPDFSerializer(ticket)
         
+        orden_creada =  Orden_Servicio.objects.create(fecha= serializer.data['fecha_str'], numero_orden= f'IB-{ticket.id}', motivo = 'C', tipo_orden= 'E', estatus='FUN', equipo_complementario = serializer.data['equipo_complementario'])
+        orden_creada.equipo_medico.set([ticket.equipo])
+        ticket.orden = orden_creada
+        ticket.save()
+            
+        ticket =self.get_object()
+        serializer= serializers.VerReportesPDFSerializer(ticket)
+        PDF_creado = pdf_generator.generarOrdenServicio(serializer.data)
+        orden_creada.orden_escaneada = PDF_creado
+        orden_creada.save()
+        return Response({'ticket': ticket})
+
+    
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
@@ -884,7 +893,9 @@ class VerReportesCompletadosViewSet(mixins.RetrieveModelMixin, mixins.ListModelM
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         putserializer = serializers.AtenderReporteSerializer(instance)
-        serializer = serializers.VerReportesSerializer(instance)
-        orden= serializers.CrearOrdenSerializer()
+        serializer = serializers.VerReportesSerializer(instance)  
+        # print(putserializer.data)
+        orden = serializers.AgregarOrdenTicketsSerializer    
         return Response({'contenido':serializer.data, 'serializer':serializer, 'putserializer':putserializer, 'orden':orden}, template_name='interfaz/Tickets/ver_tickets_especifico.html')
-    
+
+            
