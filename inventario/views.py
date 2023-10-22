@@ -196,7 +196,6 @@ class CheckListViewSet(ModelViewSet, CreateHandler):
     permission_classes = [IsAdminUser]
     serializer_class = serializers.CheckListSerializer
     queryset = CheckList.objects.select_related('area','equipo').all()
-    renderer_classes = [renderers.TemplateHTMLRenderer]
     template_name = 'interfaz/Checklists/equipo-checklist.html'
     filterset_class = filtros.filtro_equipo_checklist
     def get_paginated_response(self, data):
@@ -223,7 +222,6 @@ class LevantarMultipleCheckList(ModelViewSet):
 
 class CheckListEspecificoViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
-    renderer_classes = [renderers.TemplateHTMLRenderer]
     template_name='interfaz/Checklists/equipo-checklist.html'
 
     def retrieve(self, request, *args, **kwargs):
@@ -301,7 +299,6 @@ class AreaViewSet(ModelViewSet):
 
     permission_classes = [IsAdminOrReadOnly, IsAuthenticated]
     filterset_class = filtros.filtro_areas_general
-    renderer_classes = [renderers.TemplateHTMLRenderer]
     template_name = 'interfaz/Area/areas-general.html'
 
     
@@ -358,7 +355,6 @@ class AreaViewSet(ModelViewSet):
     
 class ServicioAreaViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):
         permission_classes = [IsAuthenticated]
-        renderer_classes = [renderers.TemplateHTMLRenderer]
         template_name = 'interfaz/Ordenes/equipos-orden_general.html'
 
         def get_queryset(self):
@@ -457,41 +453,10 @@ class CrearOrdenViewSet(ModelViewSet):
         
         return Response({'contenido':serializer.data, 'serializer':serializer, 'putserializer':putserializer,}, template_name='interfaz/Ordenes/orden_servicio_especifica-admin.html')
 
-    
-
-class OrdenPendientesViewSet(mixins.RetrieveModelMixin, mixins.DestroyModelMixin, mixins.UpdateModelMixin, mixins.ListModelMixin, GenericViewSet):
-    permission_classes = [IsAdminUser]
-    filterset_class = filtros.filtro_ordenpendiente
-    renderer_classes = [renderers.TemplateHTMLRenderer]
-    template_name = "interfaz/Ordenes/equipos-orden_general.html"
-
-    def get_serializer_class(self):
-        if self.request.method == 'PUT':
-            return serializers.CrearOrdenSerializer
-        return OrdenEquipoSerializer
-    queryset = Orden_Servicio.objects.prefetch_related('equipo_medico').filter(estatus='PEN').order_by('fecha').all()
-
-    def get_paginated_response(self, data):
-        pagination = self.paginator.get_paginated_response(data)
-        queryset = self.filter_queryset(self.get_queryset())
-        serializer = self.get_serializer(queryset, many=True)
-        backend_filtro = self.filter_backends[0]
-        filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
-        contexto = self.get_serializer_context()
-        putserializer = serializers.CrearOrdenSerializer
-        return Response({'content': data, 'paginator': self.paginator, 'filtro':filtro_html})
-
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        putserializer = serializers.CrearOrdenSerializer(instance)
-        serializer = serializers.OrdenEquipoSerializer(instance)
-        return Response({'contenido':serializer.data, 'serializer':serializer, 'putserializer':putserializer,}, template_name='interfaz/Ordenes/orden_servicio_especifica-admin.html')
-
 
 class AreaEquipoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
     permission_classes = [IsAdminOrReadOnly, IsAuthenticated]
     filterset_class = filtros.filtro_areas_equipo
-    renderer_classes = [renderers.TemplateHTMLRenderer]
     template_name = 'interfaz/Equipo/equipos-general.html'
 
     def get_paginated_response(self, data):
@@ -535,7 +500,6 @@ class AgendaAreaViewSet(ModelViewSet):
     permission_classes = [IsAdminOrReadOnly, IsAuthenticated]
     serializer_class = OrdenAgendaSerializer
     filterset_class = filtros.filtro_equipo_agenda
-    renderer_classes = [renderers.TemplateHTMLRenderer]
     template_name = 'interfaz/Equipo/equipos-agenda.html'
 
     def update(self, request, *args, **kwargs):
@@ -616,7 +580,6 @@ class AreaOrdenesViewset(mixins.ListModelMixin, mixins.RetrieveModelMixin, Gener
 
 class OrdenEquipoUsuarioViewSet(mixins.ListModelMixin, GenericViewSet):
     permission_classes = [IsAuthenticated]
-    renderer_classes = [renderers.TemplateHTMLRenderer]
     template_name = "interfaz/Ordenes/equipos-orden_general.html"
     serializer_class = serializers.OrdenServicioSerializer
 
@@ -637,7 +600,6 @@ class OrdenEquipoUsuarioViewSet(mixins.ListModelMixin, GenericViewSet):
 
 class OrdenViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
-    renderer_classes = [renderers.TemplateHTMLRenderer]
     template_name = "interfaz/Ordenes/equipos-orden_general.html"
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -683,7 +645,6 @@ class AgendaViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
     serializer_class = OrdenAgendaSerializer
     filterset_class = filtros.filtro_equipo_agenda
-    renderer_classes = [renderers.TemplateHTMLRenderer]
     template_name = 'interfaz/Equipo/equipos-agenda.html'
 
     def update(self, request, *args, **kwargs):
@@ -740,7 +701,6 @@ class AgendaViewSet(ModelViewSet):
 class VerReportesViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, mixins.UpdateModelMixin, GenericViewSet):
     permission_classes = [IsAdminUser]
     filterset_class = filtros.filtro_reportes
-    renderer_classes= [renderers.TemplateHTMLRenderer]
     template_name = "interfaz/Tickets/ver_tickets_todos.html"
 
     def get_serializer_class(self):
@@ -776,7 +736,6 @@ class VerReportesViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, mixin
 
 class VerSeleccionReportesViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
-    renderer_classes = [renderers.TemplateHTMLRenderer]
     template_name = 'interfaz/Tickets/ver_tickets_seleccion.html'
     queryset = ReporteUsuario.objects.select_related('area', 'equipo')
     def get_serializer_class(self):
@@ -787,7 +746,6 @@ class VerSeleccionReportesViewSet(ModelViewSet):
 class VerReportesPendientesViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, mixins.UpdateModelMixin, GenericViewSet):
     permission_classes = [IsAdminUser]
     filterset_class = filtros.filtro_reportes
-    renderer_classes= [renderers.TemplateHTMLRenderer]
     template_name = "interfaz/Tickets/ver_tickets_pendientes.html"
 
     def get_serializer_class(self):

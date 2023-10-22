@@ -5,7 +5,6 @@ from rest_framework_nested import routers
 
 router = routers.DefaultRouter()
 router.register('general', views.CrearOrdenViewSet, basename= 'orden')
-router.register('servicios_pendientes', views.OrdenPendientesViewSet, basename='orden_pendiente')
 
 
 

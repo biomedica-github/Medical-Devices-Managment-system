@@ -53,9 +53,6 @@
                     {%if user.is_staff%}
                     <a class="nav-link{%block agendaactivo%} {%endblock%}" href="{%url 'agendanamespace:agenda_urls-list'%}"><i class="far fa-calendar-alt"></i><span>Agenda</span></a>
                     {%endif%}
-                    {%if user.is_staff%}
-                    <a class="nav-link {%block pendienteactivo%} {%endblock%}" href="{%url 'ordennamespace:orden_pendiente-list'%}"><i class="far fa-edit"></i><span>Pendientes</span></a></li>
-                    {%endif%}
                 </ul>
                 <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button></div>
             </div>
