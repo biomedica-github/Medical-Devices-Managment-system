@@ -31,14 +31,25 @@ from django.shortcuts import redirect
 from django.core.exceptions import PermissionDenied
 from . import pdf_generator
 
-
+class CreateHandler(mixins.CreateModelMixin):
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        else:
+            default_errors = serializer.errors
+            new_error = {}
+            for field_name, field_errors in default_errors.items():
+                new_error[field_name] = field_errors[0]
+            return Response({'errors':new_error}, status=status.HTTP_400_BAD_REQUEST)
 
 class ProveedorViewSet(ModelViewSet, AccessMixin):
     permission_classes = [IsAdminUser, IsAuthenticated]
     queryset = Proveedor.objects.prefetch_related('proveedor_contrato').all()
     serializer_class = ProveedorSerializers
     lookup_field = 'id'
-    renderer_classes = [renderers.TemplateHTMLRenderer]
     template_name = 'interfaz/Proveedor/Proveedores-general.html'
     pagination_class = PageNumberPagination
     raise_exception = True
@@ -83,20 +94,12 @@ class ProveedorViewSet(ModelViewSet, AccessMixin):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class ContratoViewSet(ModelViewSet):
+class ContratoViewSet(ModelViewSet, CreateHandler):
     permission_classes = [IsAdminUser]
     queryset = Contrato.objects.select_related('proveedor').prefetch_related('equipos_contrato','equipos_contrato__area').all()
     filterset_class = filtros.filtro_contrato
-    renderer_classes = [renderers.TemplateHTMLRenderer]
     template_name = 'interfaz/Contratos/contratos-general.html'
     filter_backends = [filterbackend.InventarioBackend]
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def get_paginated_response(self, data):
         pagination = self.paginator.get_paginated_response(data)
@@ -147,19 +150,11 @@ class ContratoViewSet(ModelViewSet):
     
 
 
-class EquipoViewSet(ModelViewSet):
+class EquipoViewSet(ModelViewSet, CreateHandler):
     permission_classes = [IsAdminUser]
     filterset_class = filtros.filtro_equipo
-    renderer_classes = [renderers.TemplateHTMLRenderer]
     queryset = Equipo_medico.objects.select_related('contrato','area').all()
     template_name = 'interfaz/Equipo/equipos-general.html'
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def get_paginated_response(self, data):
         pagination = self.paginator.get_paginated_response(data)
@@ -197,7 +192,7 @@ class EquipoViewSet(ModelViewSet):
     def get_serializer_context(self):
         return {'request': self.request}
 
-class CheckListViewSet(ModelViewSet):
+class CheckListViewSet(ModelViewSet, CreateHandler):
     permission_classes = [IsAdminUser]
     serializer_class = serializers.CheckListSerializer
     queryset = CheckList.objects.select_related('area','equipo').all()
@@ -367,7 +362,7 @@ class ServicioAreaViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Gene
         template_name = 'interfaz/Ordenes/equipos-orden_general.html'
 
         def get_queryset(self):
-            print(self.kwargs)
+            
             return Orden_Servicio.objects.prefetch_related('equipo_medico', 'equipo_medico__area').filter(equipo_medico__area__responsable = self.request.user.id, equipo_medico__area=self.kwargs['id_pk']).exclude(estatus='PEN').distinct().all()
         serializer_class = OrdenEquipoSerializer
 
@@ -422,19 +417,29 @@ class AgendaUsuarioViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, Gen
 class CrearOrdenViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
     filterset_class = filtros.filtro_ordenservicio
-    renderer_classes = [renderers.TemplateHTMLRenderer]
     template_name = "interfaz/Ordenes/equipos-orden_general.html"
-    
 
     def get_queryset(self):
-        return Orden_Servicio.objects.prefetch_related('equipo_medico','equipo_medico__area').exclude(estatus="PEN").order_by('-fecha').all()
+        return Orden_Servicio.objects.prefetch_related('equipo_medico','equipo_medico__area', 'equipo_medico__contrato').exclude(estatus="PEN").order_by('-fecha').all()
     
     def get_serializer_class(self):
         if self.request.method == 'POST' or self.request.method == 'PUT':
             return serializers.CrearOrdenSerializer
         return OrdenEquipoSerializer
-    
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        else:
+            default_errors = serializer.errors
+            new_error = {}
+            for field_name, field_errors in default_errors.items():
+                new_error[field_name] = field_errors[0]
+            return Response({'errors':new_error}, status=status.HTTP_400_BAD_REQUEST)
+        
     def get_paginated_response(self, data):
         pagination = self.paginator.get_paginated_response(data)
         queryset = self.filter_queryset(self.get_queryset())
@@ -449,7 +454,7 @@ class CrearOrdenViewSet(ModelViewSet):
         instance = self.get_object()
         putserializer = serializers.CrearOrdenSerializer(instance)
         serializer = serializers.OrdenEquipoSerializer(instance)
-        print(serializer.data)
+        
         return Response({'contenido':serializer.data, 'serializer':serializer, 'putserializer':putserializer,}, template_name='interfaz/Ordenes/orden_servicio_especifica-admin.html')
 
     
@@ -894,7 +899,7 @@ class VerReportesCompletadosViewSet(mixins.RetrieveModelMixin, mixins.ListModelM
         instance = self.get_object()
         putserializer = serializers.AtenderReporteSerializer(instance)
         serializer = serializers.VerReportesSerializer(instance)  
-        # print(putserializer.data)
+        
         orden = serializers.AgregarOrdenTicketsSerializer    
         return Response({'contenido':serializer.data, 'serializer':serializer, 'putserializer':putserializer, 'orden':orden}, template_name='interfaz/Tickets/ver_tickets_especifico.html')
 

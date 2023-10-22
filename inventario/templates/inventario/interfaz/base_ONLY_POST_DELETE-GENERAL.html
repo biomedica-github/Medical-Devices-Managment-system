@@ -2,10 +2,7 @@
 {%load static%}
 
 {%block alerts%}
-
-<div class="alert alert-warning alert-dismissible" role="alert" id="error-alert">
-  <button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="alert"></button>
-  <span id="error-msg"><strong>Algo salio mal, intentelo de nuevo porfavor</strong></span></div>
+<div class="alert alert-warning alert-dismissible" role="alert" id="error-alert"><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="alert"></button><span><strong id="span-error"></strong></span></div>
 <div id="agregado-alert" class="alert alert-info alert-dismissible" role="alert"><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="alert"></button>
     {%block anuncioAgregado%}
     <span><strong>Contrato agregado de manera exitosa</strong></span>
@@ -18,7 +15,14 @@
 </div>
 {%endblock%}
 
+<script>
+  function renderErrorAlert(message) {
+    console.log(message)
+    set.localStorage('error-message', message)
+    
+  }
 
+</script>
 
 {%block scripts%}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -57,31 +61,47 @@
           data: formData,
           contentType: false,
           processData: false,
+          headers : {
+            'Accept': 'application/json'
+          },
           success: function(response) {
             location.reload()
             localStorage.setItem('displayAgregado', 'true');
             console.log('POST request succesful');
 
           },
-          error: function(error) {
+          error: function(xhr,status,error) {
+            if (error == "Bad Request") {
+            var response = xhr.responseJSON;
+            errors_obj = xhr.responseJSON['errors']
+            console.log(errors_obj)
+            var str_error = ""
+            for (const [key,value] of Object.entries(errors_obj)){
+              str_error += "Error en el valor: " + key + ". Descripción del error: " + value + "| "
+            }
+            console.log(str_error)
+            localStorage.setItem('error-message', str_error)
+            localStorage.setItem('displayError', 'true')
             location.reload()
-            localStorage.setItem('displayError', 'true');
             console.error('POST request failed');
           }
+          else {
+            localStorage.setItem('error-message', 'Ocurrio un problema, porfavor, contacta al jefe de conservación o intentalo de nuevo')
+          }
+        }
         });
       });
     });
   </script>
   {%endblock%}
 <script>
+  var error = localStorage.getItem('error-message')
     $("#agregado-alert").hide();
-    $("#error-alert").hide();
     $("#del-alert").hide();
+    $("#error-alert").hide()
+    $("#span-error").text(error)
     if (localStorage.getItem('displayError') == 'true'){
-        $(document).ready(function () {
-            $("#error-alert").fadeTo(5000, 500).slideUp(500, function(){
-            $("#error-alert").slideUp(500)})
-        });
+        $("#error-alert").show()
     }
 
     if (localStorage.getItem('displayBorrado') == 'true') {
