@@ -87,6 +87,8 @@
           }
           else {
             localStorage.setItem('error-message', 'Ocurrio un problema, porfavor, contacta al jefe de conservación o intentalo de nuevo')
+            localStorage.setItem('displayError', 'true')
+            location.reload()
           }
         }
         });

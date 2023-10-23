@@ -108,8 +108,7 @@ class ContratoViewSet(ModelViewSet, CreateHandler):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
         putserializer = serializers.CrearContratoSerializer
-        backend_filtro = self.filter_backends[0]
-        filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
+        filtro_html = self.filterset_class
         return Response({'content': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer':putserializer, 'filtro':filtro_html})
 
     def list(self, request, *args, **kwargs):
@@ -178,8 +177,7 @@ class EquipoViewSet(ModelViewSet, CreateHandler):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
         putserializer = serializers.CrearEquipoSerializer
-        backend_filtro = self.filter_backends[0]
-        filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
+        filtro_html = self.filterset_class
         return Response({'content': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer':putserializer, 'filtro':filtro_html})
 
     def list(self, request, *args, **kwargs):
@@ -312,7 +310,7 @@ class CrearReporteViewSet(mixins.CreateModelMixin, GenericViewSet):
 
         return {'area': self.kwargs['id_pk'], 'equipo': self.kwargs['area_equipo_pk'], 'usuario': self.request.user.id}
     
-class AreaViewSet(ModelViewSet):
+class AreaViewSet(ModelViewSet,CreateHandler):
 
     permission_classes = [IsAdminOrReadOnly, IsAuthenticated]
     filterset_class = filtros.filtro_areas_general
@@ -332,13 +330,12 @@ class AreaViewSet(ModelViewSet):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
         putserializer = AgregarEquipoAreaSerializer
-        backend_filtro = self.filter_backends[0]
-        filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
+        filtro_html = self.filterset_class
         return Response({'content': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer':putserializer, 'filtro':filtro_html})
 
 
     def get_serializer_class(self):
-        if self.request.method == 'PUT':
+        if self.request.method == 'POST':
             return AgregarEquipoAreaSerializer
         return AreaSerializer
     
@@ -348,7 +345,12 @@ class AreaViewSet(ModelViewSet):
         return [IsAdminOrReadOnly()]
 
     def get_queryset(self):
-        return Area_hospital.objects.prefetch_related('equipos_area', 'responsable').filter(responsable = self.request.user.id)
+        user= self.request.user
+        if self.request.user.is_superuser:
+           queryset = Area_hospital.objects.prefetch_related('equipos_area', 'responsable').all()
+        else:
+            queryset = Area_hospital.objects.prefetch_related('equipos_area', 'responsable').filter(responsable = user.id)
+        return queryset
 
 
 
@@ -369,8 +371,7 @@ class AreaViewSet(ModelViewSet):
         #             lista_equipos_locales.append(j[1])
         #     i['equipo_medico'].clear()
         #     [i['equipo_medico'].append(key) for key in lista_equipos_locales]               
-        backend_filtro = self.filter_backends[0]
-        filtro_html = backend_filtro().to_html(request=self.request, queryset=orden, view=self)
+        filtro_html = filtros.filtro_agenda
         return Response({'results':serializer.data, 'filtro':filtro_html, 'area':area})
     
 class ServicioAreaViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):
@@ -383,10 +384,8 @@ class ServicioAreaViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Gene
         serializer_class = OrdenEquipoSerializer
 
         def get_paginated_response(self, data):
-            queryset = self.filter_queryset(self.get_queryset())
-            backend_filtro = self.filter_backends[0]
-            filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
-            return Response({'content': data, 'filtro':filtro_html, 'area': 'area'})
+            filtro_html = filtros.filtro_ordenarea
+            return Response({'content': data, 'filterset':filtro_html, 'area': 'area'})
 
         def list(self, request, *args, **kwargs):
             queryset = self.filter_queryset(self.get_queryset())
@@ -397,9 +396,8 @@ class ServicioAreaViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Gene
                 return self.get_paginated_response(serializer.data)
 
             serializer = self.get_serializer(queryset, many=True)
-            backend_filtro = self.filter_backends[0]
-            filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
-            return Response({'content':serializer.data, 'filtro':filtro_html})
+            filtro_html = filtros.filtro_ordenservicio
+            return Response({'content':serializer.data, 'filterset':filtro_html})
             
         def retrieve(self, request, *args, **kwargs):
             salas_permitidas = Area_hospital.objects.values('nombre_sala').get(id=kwargs['id_pk'])
@@ -464,7 +462,7 @@ class CrearOrdenViewSet(ModelViewSet):
         filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
         contexto = self.get_serializer_context()
         putserializer = serializers.CrearOrdenSerializer
-        return Response({'content': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer': putserializer, 'filtro':filtro_html})
+        return Response({'content': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer': putserializer,'filterset':self.filterset_class, 'filtro':filtro_html})
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -484,8 +482,7 @@ class AreaEquipoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, Generi
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
         putserializer = serializers.CrearEquipoSerializer
-        backend_filtro = self.filter_backends[0]
-        filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
+        filtro_html = self.filterset_class
         return Response({'content': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer':putserializer, 'filtro':filtro_html})
 
     def list(self, request, *args, **kwargs):
@@ -609,11 +606,11 @@ class OrdenViewSet(ModelViewSet):
         pagination = self.paginator.get_paginated_response(data)
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
-        backend_filtro = self.filter_backends[0]
-        filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
+        
+        filtro_html = self.filterset_class
         contexto = self.get_serializer_context()
         putserializer = serializers.AgregarServicioEquipo
-        return Response({'content': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer': putserializer, 'filtro':filtro_html})
+        return Response({'content': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer': putserializer, 'filterset':filtro_html})
 
     def get_queryset(self):
         queryset = Orden_Servicio.objects.prefetch_related('equipo_medico').filter(equipo_medico__id=self.kwargs['equipo_pk']).exclude(numero_orden = None)
@@ -661,7 +658,7 @@ class AgendaAdminViewset(ModelViewSet,CreateHandler):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
         backend_filtro = self.filter_backends[0]
-        filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
+        filtro_html = self.filterset_class
 
         return Response({'results': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer':serializers.AgregarEventoSerializer, 'filtro':filtro_html})
 

@@ -2,6 +2,8 @@ from . import models
 import django_filters
 from datetime import date
 from django_filters.rest_framework import backends
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Div, Field
 
 fecha_choices = [
         (1, 'Enero'),
@@ -94,6 +96,15 @@ class filtro_ordenservicio(django_filters.FilterSet):
     class Meta:
         model = models.Orden_Servicio
         fields = ['fecha','motivo', 'tipo_orden', 'estatus', 'equipo_medico']
+
+class filtro_ordenarea(django_filters.FilterSet):
+    mes_servicio = django_filters.ChoiceFilter(choices=fecha_choices, field_name='fecha', lookup_expr='month', label='Mes cuando se realizo servicio')
+    año_servicio = django_filters.NumberFilter(field_name='fecha', lookup_expr='year', label= 'Año en que se realizo servicio')
+    numero_orden = django_filters.CharFilter(field_name='numero_orden', lookup_expr='icontains', label='Numero de orden de servicio')
+    
+    class Meta:
+        model = models.Orden_Servicio
+        fields = ['fecha','motivo', 'tipo_orden', 'estatus']
 
 class filtro_ordenpendiente(django_filters.FilterSet):
     mes_servicio = django_filters.ChoiceFilter(choices=fecha_choices, field_name='fecha', lookup_expr='month', label='Mes')
