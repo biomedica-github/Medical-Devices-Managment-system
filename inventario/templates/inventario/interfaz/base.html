@@ -41,9 +41,9 @@
                     {%if user.is_staff%}
                     <a class="nav-link{%block ordenactivo%}{%endblock%}" href="{%url 'ordennamespace:orden-list'%}"><i class="far fa-file-alt"></i>Ordenes de servicio</a></li>
                     {%endif%}
-                    {%if user.is_staff%}
+                    
                     <li class="nav-item"><a class="nav-link{%block ticketactivo%} {%endblock%}" href="{%url 'reportesnamespace:seleccion-list'%}"><i class="far fa-newspaper"></i><span>Tickets</span></a></li>
-                    {%endif%}
+    
                     {%if user.is_staff%}
                     <li class="nav-item"><a class="nav-link{%block equipoactivo%} {%endblock%}" href="{%url 'equiponamespace:equipo_urls-list'%}"><i class="far fa-sun"></i><span>Equipo medico</span></a></li>
                     {%endif%}

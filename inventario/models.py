@@ -138,9 +138,11 @@ class Orden_Servicio(models.Model):
 class ReporteUsuario(models.Model):
         ESTADO_PENDIENTE = "PEN"
         ESTADO_COMPLETADO = "COM"
+        ESTADO_CERRADO = "CER"
         ESTADO_OPCIONES = [
             (ESTADO_PENDIENTE, 'Pendiente'),
-            (ESTADO_COMPLETADO, 'Atendido')
+            (ESTADO_COMPLETADO, 'Atendido'),
+            (ESTADO_CERRADO, 'Cerrado')
         ]
 
         FALLA_NO_ENCIENDE = "NO/ENC"
@@ -167,6 +169,8 @@ class ReporteUsuario(models.Model):
         solucion_tecnico = models.CharField(max_length= 500, null=True)
         orden = models.ForeignKey(Orden_Servicio, on_delete=models.SET_NULL, null=True)
         equipo_complementario = models.CharField(max_length=500, null=True)
+        fecha_entrega = models.DateTimeField(auto_now_add=True, null=True)
+
         class Meta:
             ordering = ['-fecha_hora']
 
