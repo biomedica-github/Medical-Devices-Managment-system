@@ -58,13 +58,14 @@ class filtro_equipo_agenda(django_filters.FilterSet):
         model = models.Orden_Servicio
         fields = ['mes','año', 'fecha']
 
+
 class filtro_agenda(django_filters.FilterSet):
     mes = django_filters.ChoiceFilter(choices=fecha_choices, field_name='fecha', lookup_expr='month', label='Mes')
     año = django_filters.NumberFilter(field_name='fecha', lookup_expr='year', label='Año')
     
     class Meta:
-        model = models.Orden_Servicio
-        fields = ['mes', 'fecha', 'año', 'equipo_medico']
+        model = models.Evento
+        fields = ['mes', 'fecha', 'año']
 
 
 class filtro_equipo_checklist(django_filters.FilterSet):

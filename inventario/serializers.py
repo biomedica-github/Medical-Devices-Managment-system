@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Proveedor, Contrato, Equipo_medico, Area_hospital, Orden_Servicio, ReporteUsuario, CheckList
+from .models import Proveedor, Contrato, Equipo_medico, Area_hospital, Orden_Servicio, ReporteUsuario, CheckList, Evento
 from datetime import datetime, date
 from datetime import timedelta
 import pytz
@@ -221,35 +221,56 @@ class OrdenEquipoSerializer(serializers.ModelSerializer):
     
     def get_estatus(self, orden: Orden_Servicio):
         return orden.get_estatus_display()
-    
-class AgendaAdminSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Orden_Servicio
-        fields = ['id','fecha', 'equipo_medico', 'dias_restantes']
-    dias_restantes = serializers.SerializerMethodField(method_name='calcular_dias_restantes', read_only=True)
-    extra_kwargs = {'equipo_medico': {'required': True}}
-
-    def calcular_dias_restantes(self, orden: Orden_Servicio):
-        fecha = datetime.today()
-        tz = pytz.timezone('America/Los_Angeles')
-        today = fecha.astimezone(tz=tz).date()
-        fecha_vencimiento = orden.fecha - today
-        dias = fecha_vencimiento.days
-
-        if dias < 0 and orden.estatus == 'PEN':
-            return "Orden no atendida, favor de contactar proveedor o actualizar la orden de servicio"
-        if dias == 0 and orden.estatus == 'PEN':
-            return "Hoy se debe atender la orden, favor de contactar a su proveedor y confirmar"
-        elif dias <= 0 and orden.estatus != 'PEN':
-            return "Servicio atendido"
-        else:
-            return f"Faltan {dias} para el siguiente servicio"
 
 class EquiposAgendaAreaUsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Equipo_medico
-        fields = ['numero_nacional_inv', 'nombre_equipo', 'area', 'cama']
+        fields = ['id','numero_nacional_inv', 'nombre_equipo', 'area', 'cama']
     area = serializers.StringRelatedField()
+
+class AgregarEventoSerializer(serializers.ModelSerializer):
+    TIPO_SERVICIO = "SERVC"
+    TIPO_CAPACITACION = "CAPAC"
+    TIPO_CHECKLIST = "CHECK"
+    TIPO_OPCIONES = [
+        (TIPO_SERVICIO, "Servicio preventivo agendado"),
+        (TIPO_CAPACITACION, "Curso de capacitacion agendada"),
+        (TIPO_CHECKLIST, "Chequeo al equipo agendado"),
+    ]
+
+    tipo_evento = serializers.ChoiceField(choices=TIPO_OPCIONES)
+    class Meta:
+        model = Evento
+        fields = ['fecha', 'equipo_medico', 'tipo_evento']
+
+class AgendaAdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Evento
+        fields = ['id','fecha', 'equipo_medico','tipo_evento', 'fecha_read', 'dias_restantes_num', 'contrato', 'contrato_href']
+    fecha_read = serializers.SerializerMethodField(method_name='get_fecha')
+    equipo_medico = EquiposAgendaAreaUsuarioSerializer()
+    tipo_evento = serializers.SerializerMethodField(method_name='get_tipo')
+    contrato = serializers.StringRelatedField()
+    contrato_href = serializers.SerializerMethodField(method_name='get_contrato')
+    dias_restantes_num = serializers.SerializerMethodField(method_name='get_dias_faltan', read_only=True)
+
+    def get_contrato(self, evento:Evento):
+        return evento.contrato
+
+    def get_tipo(self, evento: Evento):
+        return evento.get_tipo_evento_display()
+
+    def get_dias_faltan(self, orden: Evento):
+        today = date.today()
+        
+        fecha_vencimiento = orden.fecha - today
+        dias = fecha_vencimiento.days
+
+        return dias
+
+    def get_fecha(self, orden: Evento):
+        fecha_str = calcular_fecha(orden.fecha)
+        return fecha_str
 
     
 class OrdenAgendaAreaUsuarioVerSerializer(serializers.ModelSerializer):

@@ -1,6 +1,6 @@
 from typing import Any
 from django.shortcuts import get_object_or_404
-from inventario.models import Proveedor, Contrato, Equipo_medico, Area_hospital, Orden_Servicio, ReporteUsuario, CheckList
+from inventario.models import Proveedor, Contrato, Equipo_medico, Area_hospital, Orden_Servicio, ReporteUsuario, CheckList, Evento
 from django.http import HttpResponse
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, RetrieveUpdateAPIView
 from rest_framework.decorators import api_view
@@ -625,20 +625,51 @@ class OrdenViewSet(ModelViewSet):
     def get_serializer_context(self):
         return {'equipo': self.kwargs['equipo_pk']}
 
-class AgendaAdminViewset(ModelViewSet):
-    
+class AgendaAdminViewset(ModelViewSet,CreateHandler):
+    template_name = 'interfaz/Agenda/agenda-general-todos.html'
     permission_classes = [IsAdminUser]
     filterset_class = filtros.filtro_agenda
     today = date.today()
-    serializer_class = serializers.AgendaAdminSerializer
     
-    #def get_serializer_class(self):
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if request.data['equipo_medico'] == '':
+            return Response({'errors': {'Equipo medico':'Debes incluir almenos 1 equipo medico a agendar '}}, status=status.HTTP_400_BAD_REQUEST)
+        if serializer.is_valid():
+            
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        else:
+            default_errors = serializer.errors
+            new_error = {}
+            for field_name, field_errors in default_errors.items():
+                new_error[field_name] = field_errors[0]
+            return Response({'errors':new_error}, status=status.HTTP_400_BAD_REQUEST)
     
-     #   if self.request.method == 'POST' or self.request.method == 'PUT':
-      #      return serializers.AgregarAgendaAdminSerializer
-       # return serializers.AgendaAdminSerializer
+    def get_serializer_class(self):
+        if self.request.method == 'POST' or self.request.method == 'PUT':
+            return serializers.AgregarEventoSerializer
+        return serializers.AgendaAdminSerializer
+    
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        putserializer = serializers.AgregarEventoSerializer(instance)
+        serializer = serializers.AgendaAdminSerializer(instance)
+        return Response({'contenido':serializer.data, 'serializer':serializer, 'putserializer':putserializer}, template_name='interfaz/Agenda/agenda-especifica.html')    
 
-    queryset = Orden_Servicio.objects.prefetch_related('equipo_medico', 'equipo_medico__area').filter(tipo_orden='A', fecha__gte=today).order_by('fecha').all()
+
+    def get_paginated_response(self, data):
+        pagination = self.paginator.get_paginated_response(data)
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        backend_filtro = self.filter_backends[0]
+        filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
+
+        return Response({'results': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer':serializers.AgregarEventoSerializer, 'filtro':filtro_html})
+
+
+    queryset = Evento.objects.select_related('equipo_medico').all()
 
 
 class AgendaViewSet(ModelViewSet):

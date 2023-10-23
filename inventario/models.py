@@ -218,7 +218,7 @@ class Evento(models.Model):
     TIPO_CHECKLIST = "CHECK"
     TIPO_OPCIONES = [
         (TIPO_VENC_CONTRATO, "Vencimiento de contrato"),
-        (TIPO_SERVICIO, "Servicio agendado"),
+        (TIPO_SERVICIO, "Servicio preventivo agendado"),
         (TIPO_CAPACITACION, "Curso de capacitacion agendada"),
         (TIPO_CHECKLIST, "Chequeo al equipo agendado"),
     ]
@@ -226,7 +226,7 @@ class Evento(models.Model):
     tipo_evento = models.CharField(max_length=5, choices=TIPO_OPCIONES)
     contrato = models.OneToOneField(Contrato, on_delete=models.CASCADE, null=True)
     equipo_medico = models.ForeignKey(
-        Equipo_medico, on_delete=models.CASCADE, related_name="Evento_equipo"
+        Equipo_medico, on_delete=models.CASCADE, related_name="Evento_equipo", null=True
     )
 
     class Meta:
