@@ -266,3 +266,39 @@
                         });
                       </script>
                       {%endblock%}
+
+{%block PUTform%}
+<script>
+    $(document).ready(function () {
+        $("#put-form").submit(function (event) {
+            event.preventDefault();
+
+           
+            var formData = $(this).serialize();
+
+            
+            $.ajax({
+                url: $(this).attr("action"),
+                type: "PUT",
+                data: formData,
+                success: function (response) {
+                    
+                    window.history.go(-2);
+                    
+                    
+                    localStorage.setItem('displayAlert', 'true')
+                    console.log("PUT request successful");
+                    
+                },
+                error: function (error) {
+                    
+                    location.reload()
+                    localStorage.setItem('displayError', 'true')
+                    console.error("PUT request failed");
+                   
+                }
+            });
+        });
+    });
+</script>
+{%endblock%}
