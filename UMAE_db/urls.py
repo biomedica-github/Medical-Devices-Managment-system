@@ -17,21 +17,55 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
-from django.conf.urls.static import static
+from django.conf.urls.static import staticmethod
+
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('proveedores/', include(('inventario.urls_proveedor','inventario'), namespace='proveedornamespace')),
+    path("admin/", admin.site.urls),
+    path(
+        "proveedores/",
+        include(
+            ("inventario.urls_proveedor", "inventario"), namespace="proveedornamespace"
+        ),
+    ),
     path("__debug__/", include("debug_toolbar.urls")),
-    path('auth/', include('djoser.urls')),
-    path('contratos/', include(('inventario.urls_contrato', 'inventario'), namespace='contratonamespace')),
-    path('equipo_medico/', include(('inventario.urls_equipo', 'inventario'), namespace='equiponamespace')),
-    path('area/', include(('inventario.urls_area', 'inventario'), namespace='areanamespace')),
-    path('orden/', include(('inventario.urls_orden', 'inventario'), namespace='ordennamespace')),
-    path('agenda/', include(('inventario.urls_agenda', 'inventario'), namespace='agendanamespace')),
-    path('checklists/', include(('inventario.urls_checklist', 'inventario'), namespace="checklistnamespace")),
-    path('reportes/', include(('inventario.urls_reportes', 'inventario'), namespace='reportesnamespace')),
-    path('login/', include(('core.urls','core'), namespace='authnamespace'))
-] 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path("auth/", include("djoser.urls")),
+    path(
+        "contratos/",
+        include(
+            ("inventario.urls_contrato", "inventario"), namespace="contratonamespace"
+        ),
+    ),
+    path(
+        "equipo_medico/",
+        include(("inventario.urls_equipo", "inventario"), namespace="equiponamespace"),
+    ),
+    path(
+        "area/",
+        include(("inventario.urls_area", "inventario"), namespace="areanamespace"),
+    ),
+    path(
+        "orden/",
+        include(("inventario.urls_orden", "inventario"), namespace="ordennamespace"),
+    ),
+    path(
+        "agenda/",
+        include(("inventario.urls_agenda", "inventario"), namespace="agendanamespace"),
+    ),
+    path(
+        "checklists/",
+        include(
+            ("inventario.urls_checklist", "inventario"), namespace="checklistnamespace"
+        ),
+    ),
+    path(
+        "reportes/",
+        include(
+            ("inventario.urls_reportes", "inventario"), namespace="reportesnamespace"
+        ),
+    ),
+    path("login/", include(("core.urls", "core"), namespace="authnamespace")),
+    path(
+        "", RedirectView.as_view(url="/login/", permanent=False), name="root-redirect"
+    ),
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
