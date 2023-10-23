@@ -23,13 +23,11 @@ def custom_exception_handler(exc, context):
     # Handle custom logic here
     exception = str(exc)
     response = exception_handler(exc, context)
-    print(f'hey{exception} {type(exception)}')
-    if exception == 'Authentication credentials were not provided.':
-        print('hey')
+    if exception == 'Las credenciales de autenticación no se proveyeron.':
         # Customize the response for unauthenticated users here
         login_url = settings.LOGOUT_REDIRECT_URL
         return redirect(login_url)
-    elif exception == 'You do not have permission to perform this action.':
+    elif exception == 'Usted no tiene permiso para realizar esta acción.':
         return redirect(settings.HOME)
     return response
 

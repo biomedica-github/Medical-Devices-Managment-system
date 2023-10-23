@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework import permissions
-from rest_framework import views, status
+from rest_framework import views, status, renderers
 from rest_framework.response import Response
 from django.contrib.auth import login, logout
 from django.conf import settings
@@ -11,6 +11,7 @@ from . import serializers
 class LoginView(views.APIView):
     # This view should be accessible also for unauthenticated users.
     permission_classes = (permissions.AllowAny,)
+    renderer_classes = [renderers.JSONRenderer]
 
     def post(self, request, format=None):
         serializer = serializers.LoginSerializer(data=self.request.data,

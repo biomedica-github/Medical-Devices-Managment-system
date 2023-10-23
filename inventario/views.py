@@ -386,7 +386,7 @@ class ServicioAreaViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Gene
             queryset = self.filter_queryset(self.get_queryset())
             backend_filtro = self.filter_backends[0]
             filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
-            return Response({'content': data, 'filtro':filtro_html})
+            return Response({'content': data, 'filtro':filtro_html, 'area': 'area'})
 
         def list(self, request, *args, **kwargs):
             queryset = self.filter_queryset(self.get_queryset())
