@@ -44,8 +44,22 @@ class CreateHandler(mixins.CreateModelMixin):
             for field_name, field_errors in default_errors.items():
                 new_error[field_name] = field_errors[0]
             return Response({'errors':new_error}, status=status.HTTP_400_BAD_REQUEST)
+    def update(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        if serializer.is_valid():
+            self.perform_update(serializer)
+            return Response(serializer.data)
+        else:
+            default_errors = serializer.errors
+            new_error = {}
+            for field_name, field_errors in default_errors.items():
+                new_error[field_name] = field_errors[0]
+            return Response({'errors':new_error}, status=status.HTTP_400_BAD_REQUEST)
 
-class ProveedorViewSet(ModelViewSet, AccessMixin):
+class ProveedorViewSet(ModelViewSet):
     permission_classes = [IsAdminUser, IsAuthenticated]
     queryset = Proveedor.objects.prefetch_related('proveedor_contrato').all()
     serializer_class = ProveedorSerializers
@@ -172,6 +186,7 @@ class EquipoViewSet(ModelViewSet, CreateHandler):
     queryset = Equipo_medico.objects.select_related('contrato','area').all()
     template_name = 'interfaz/Equipo/equipos-general.html'
 
+
     def get_paginated_response(self, data):
         pagination = self.paginator.get_paginated_response(data)
         queryset = self.filter_queryset(self.get_queryset())
@@ -197,11 +212,13 @@ class EquipoViewSet(ModelViewSet, CreateHandler):
         putserializer = serializers.CrearEquipoSerializer(instance)
         serializer = serializers.Equipo_Serializer(instance)
         checklist = serializers.CrearCheckListSerializer
-        return Response({'contenido':serializer.data, 'serializer':serializer, 'checklist':checklist, 'putserializer':putserializer}, template_name='interfaz/Equipo/equipos-especifico-admin.html')    
+        return Response({'contenido':serializer.data, 'serializer':serializer, 'checklist':checklist, 'putserializer':putserializer, 'baja':serializers.EquipoBajaSerializer(instance)}, template_name='interfaz/Equipo/equipos-especifico-admin.html')    
 
     def get_serializer_class(self):
         if self.request.method == 'POST' or self.request.method == 'PUT':
             return serializers.CrearEquipoSerializer
+        elif self.request.method == 'PATCH':
+            return serializers.EquipoBajaSerializer
         return Equipo_Serializer
 
     def get_serializer_context(self):
@@ -428,7 +445,7 @@ class AgendaUsuarioViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, Gen
 
 
 
-class CrearOrdenViewSet(ModelViewSet):
+class CrearOrdenViewSet(ModelViewSet, CreateHandler):
     permission_classes = [IsAdminUser]
     filterset_class = filtros.filtro_ordenservicio
     template_name = "interfaz/Ordenes/equipos-orden_general.html"

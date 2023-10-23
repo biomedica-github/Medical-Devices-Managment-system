@@ -451,12 +451,22 @@ class CrearEquipoSerializer(serializers.ModelSerializer):
 
         extra_kwargs = {'area': {'required': False}}
 
+class EquipoBajaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Equipo_medico
+        fields = ['carta_obsolescencia_tercero','dictamen_tecnico_propio','minuta_baja']
+    carta_obsolescencia_tercero = serializers.FileField(validators=[FileExtensionValidator(allowed_extensions=['pdf'])], allow_null=True)
+    dictamen_tecnico_propio = serializers.FileField(validators=[FileExtensionValidator(allowed_extensions=['pdf'])], allow_null=True)
+    minuta_baja = serializers.FileField(validators=[FileExtensionValidator(allowed_extensions=['pdf'])], allow_null=True)
+
+
 
 class Equipo_Serializer(serializers.ModelSerializer):
     cama = serializers.IntegerField(required =False, allow_null=True)
     class Meta:
         model = Equipo_medico
-        fields = ['id','numero_nacional_inv', 'nombre_equipo', 'modelo', 'estado', 'numero_serie', 'marca', 'observaciones', 'contrato','area','cama','area_href','contrato_href']
+        fields = ['id','numero_nacional_inv', 'nombre_equipo', 'modelo', 'estado', 'numero_serie', 'marca', 'observaciones', 'contrato','area','cama','area_href','contrato_href',
+                   'carta_obsolescencia_tercero', 'dictamen_tecnico_propio', 'minuta_baja']
     contrato = serializers.StringRelatedField()
     area = serializers.StringRelatedField()
     estado = serializers.SerializerMethodField(method_name='get_estado', read_only=True)

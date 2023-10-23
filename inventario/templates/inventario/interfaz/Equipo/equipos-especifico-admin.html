@@ -9,7 +9,16 @@
                     <div class="row">
                         {%block botones%}
                         <div class="col">
-                            <div class="btn-group flex-wrap" role="group"><button class="btn btn-success" type="button" style="margin: 10px;color: rgb(254,252,250);" data-bs-target="#modal-3" data-bs-toggle="modal"><i class="fas fa-check" style="margin-right: 10px;"></i>Agregar checklist</button><a class="btn btn-secondary" role="button" style="margin: 10px;" href="checklists/"><i class="far fa-calendar-check" style="margin-right: 10px;"></i>Ver checklists</a><a class="btn btn-info" role="button" href="{{request.build_absolute_uri}}servicio" style="margin: 10px;color: var(--bs-body-bg);"><i class="fas fa-book" style="margin-right: 10px;"></i>Ver ordenes de servicio</a><a class="btn btn-dark" role="button" href="{{request.build_absolute_uri }}agenda" style="margin: 10px;"><i class="far fa-calendar-alt" style="margin-right: 10px;"></i>Ver agenda del equipo</a><button class="btn btn-danger" type="button" data-bs-target="#modal-1" data-bs-toggle="modal" style="margin: 10px;"><i class="fas fa-trash" style="margin-right: 10px;"></i>Iniciar proceso de baja de equipo</button><button class="btn btn-primary" type="button" style="--bs-primary: rgb(37,126,62);--bs-primary-rgb: 37,126,62;margin: 10px;" data-bs-target="#modal-2" data-bs-toggle="modal"><i class="far fa-edit" style="margin-right: 10px;"></i>Modificar Equipo Medico</button></div>
+                            <div class="btn-group flex-wrap" role="group">
+                                {%if not contenido.estado == "Equipo en proceso de baja"%}
+                                <button class="btn btn-success" type="button" style="margin: 10px;color: rgb(254,252,250);" data-bs-target="#modal-3" data-bs-toggle="modal"><i class="fas fa-check" style="margin-right: 10px;"></i>Agregar checklist</button>
+                                <a class="btn btn-secondary" role="button" style="margin: 10px;" href="checklists/"><i class="far fa-calendar-check" style="margin-right: 10px;"></i>Ver checklists</a>
+                                <a class="btn btn-info" role="button" href="{{request.build_absolute_uri}}servicio" style="margin: 10px;color: var(--bs-body-bg);"><i class="fas fa-book" style="margin-right: 10px;"></i>Ver ordenes de servicio</a>
+                                <a class="btn btn-dark" role="button" href="{{request.build_absolute_uri }}agenda" style="margin: 10px;"><i class="far fa-calendar-alt" style="margin-right: 10px;"></i>Ver agenda del equipo</a>
+                                {%else%}
+                                <button class="btn btn-danger" type="button" data-bs-target="#modal-baja" data-bs-toggle="modal" style="margin: 10px;height: inherit;background: rgb(162,20,88);"><i class="fas fa-trash" style="margin-right: 10px;"></i>Subir Documentación</button>
+                                {%endif%}
+                                <button class="btn btn-primary" type="button" style="--bs-primary: rgb(37,126,62);--bs-primary-rgb: 37,126,62;margin: 10px;" data-bs-target="#modal-2" data-bs-toggle="modal"><i class="far fa-edit" style="margin-right: 10px;"></i>Modificar Equipo Medico</button></div>
                         </div>
                         {%endblock%}
                     </div>
@@ -27,6 +36,7 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
+                                        {%if not contenido.estado == 'Equipo en proceso de baja'%}
                                         <div class="col" style="margin-top: 10px;">
                                             <div class="card shadow border-start-warning py-2" style="margin: 10px;">
                                                 <div class="card-body">
@@ -102,21 +112,61 @@
                                             </div>
                                         </div>
                                     </div>
+                                    {%else%}
+                                    <div class="col" style="margin-top: 10px;">
+                                    <div class="card shadow border-start-warning py-2" style="margin: 10px;">
+                                        <div class="card-body">
+                                            <div class="row align-items-center no-gutters">
+                                                <div class="col me-2">
+                                                    <div class="text-uppercase text-warning fw-bold text-xs mb-1"><span style="font-size: 13.2px;color: var(--bs-success-text-emphasis);">Carta de Obsolescia por tercero</span></div>
+                                                    <div class="text-dark fw-bold h5 mb-0">
+                                                        {%if contenido.carta_obsolescencia_tercero%}
+                                                        <a class="nav-link active stretched-link" href="{{contenido.carta_obsolescencia_tercero}}" style="font-size: 20px;">Este equipo SI cuenta con carta de obsolescencia a tercero</a></div>
+                                                        {%else%}
+                                                        <a class="nav-link" style="font-size: 20px;">Aun no se cuenta con carta de obsolescencia de tercero</a></div>
+                                                        {%endif%}
+                                                    </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col" style="margin-top: 10px;">
+                                    <div class="card shadow border-start-warning py-2" style="margin: 10px;">
+                                        <div class="card-body">
+                                            <div class="row align-items-center no-gutters">
+                                                <div class="col me-2">
+                                                    <div class="text-uppercase text-warning fw-bold text-xs mb-1"><span style="font-size: 13.2px;color: var(--bs-success-text-emphasis);">Dictamen tecnico propio</span></div>
+                                                    <div class="text-dark fw-bold h5 mb-0">
+                                                        {%if contenido.dictamen_tecnico_propio%}
+                                                        <a class="nav-link active stretched-link" href="{{contenido.dictamen_tecnico_propio}}" style="font-size: 20px;">Este equipo SI cuenta con el dictamen tecnico propio del instituto</a></div>
+                                                        {%else%}
+                                                        <a class="nav-link" style="font-size: 20px;">Aun no se cuenta con dictamen tecnico del instituto</a></div>
+                                                        {%endif%}
+                                                    </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                        <div class="card shadow border-start-warning py-2" style="margin: 10px;">
+                                            <div class="card-body">
+                                                <div class="row align-items-center no-gutters">
+                                                    <div class="col me-2">
+                                                        <div class="text-uppercase text-warning fw-bold text-xs mb-1"><span style="font-size: 13.2px;color: var(--bs-success-text-emphasis);">Minuta de acuerdos en sesion de baja de equipo</span></div>
+                                                        <div class="text-dark fw-bold h5 mb-0">
+                                                            {%if contenido.minuta_baja%}
+                                                            <a class="nav-link active stretched-link" href="{{contenido.minuta_baja}}" style="font-size: 20px;">Este equipo SI cuenta con minuta de acuerdos llegados en sesion de baja</a></div>
+                                                            {%else%}
+                                                            <a class="nav-link" style="font-size: 20px;">Aun no se cuenta con la minuta de acuerdos llegados en sesion de baja de equipo</a></div>
+                                                            {%endif%}
+                                                        </div>
+                                                </div>
+                                            </div>
+                                        {%endif%}
+
+                                                </div>
+                                            </div>
+                                
                                     {%endblock%}
         </div>
                 {%block modales%}
-                <div class="modal fade" role="dialog" tabindex="-1" id="modal-1">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h4 class="modal-title" style="font-size: 30px;">Eliminar equipo medico</h4><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
-                            </div>
-                            {%csrf_token%}
-                            <div class="modal-body"><span style="font-size: 20px;">Estas a punto de eliminar este equipo médico de tu base de datos. ¿Estas seguro que deseas continuar?</span></div>
-                            <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cerrar</button><button id="del-btn" class="btn btn-danger text-end" type="submit">Eliminar</button></div>
-                        </div>
-                    </div>
-                </div>
                 <div class="modal fade" role="dialog" tabindex="-1" id="modal-2">
                     <div class="modal-dialog modal-lg" role="document">
                         <div class="modal-content">
@@ -153,7 +203,79 @@
                         </div>
                     </div>
                 </div>
+                <div class="modal fade" role="dialog" tabindex="-1" id="modal-baja">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title">Modificar equipo medico</h4><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="baja-form" action="{{request.build_absolute_uri }}">
+                                    {%csrf_token%}
+                                    <fieldset>
+                                        {% render_form baja template_pack='/form-fields' %}
+                                        <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cerrar</button><button class="btn btn-primary text-end" type="submit">Guardar</button></div>
+                                    </fieldset>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 {%endblock%}
+                {%block customScript%}
+                <script>
+                    $(document).ready(function() {
+                    $('#baja-form').submit(function(e) {
+                        e.preventDefault(); 
+                    
+                        var formData = new FormData(this);
+                
+                        const method = 'PATCH'; 
+                        const url = '{{request.build_absolute_uri}}'; 
+                        console.log(formData)
+                        $.ajax({
+                        type: method,
+                        url: url,
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        headers : {
+                            'Accept': 'application/json'
+                        },
+                        success: function(response) {
+                            location.reload()
+                            console.log('PATCH request succesful');
+
+                        },
+                        error: function(xhr,status,error) {
+                            if (error == "Bad Request") {
+                            var response = xhr.responseJSON;
+                            errors_obj = xhr.responseJSON['errors']
+                            console.log(errors_obj)
+                            var str_error = ""
+                            for (const [key,value] of Object.entries(errors_obj)){
+                            str_error += "Error en el valor: " + key + ". Descripción del error: " + value + "| "
+                            }
+                            console.log(str_error)
+                            localStorage.setItem('error-message', str_error)
+                            localStorage.setItem('displayError', 'true')
+                            location.reload()
+                            console.error('POST request failed');
+                        }
+                        else {
+                            localStorage.setItem('error-message', 'Ocurrio un problema, porfavor, contacta al jefe de conservación o intentalo de nuevo')
+                            localStorage.setItem('displayError', 'true')
+                            location.reload()
+                        }
+                        }
+                        });
+                    });
+                    });
+  </script>
+
+                {%endblock%}
+
                 {%block POSTform%}
                 <script>
                     $(document).ready(function() {

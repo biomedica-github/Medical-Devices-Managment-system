@@ -2,7 +2,7 @@
 {%load static%}
 
 {%block alerts%}
-<div class="alert alert-warning alert-dismissible" role="alert" id="error-alert"><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="alert"></button><span><strong>Algo salio mal, intentelo de nuevo</strong></span></div>
+<div class="alert alert-warning alert-dismissible" role="alert" id="error-alert"><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="alert"></button><span><strong id="span-error"></strong></span></div>
 <div id="update-alert" class="alert alert-info alert-dismissible" role="alert"><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="alert"></button>
     {%block anuncioModificado%}
     <span><strong>Proveedor modificado de forma exitosa</strong></span>
@@ -53,6 +53,8 @@
     }
     
 </script>
+{%endblock%}
+{%block customScript%}
 {%endblock%}
 {%block POSTform%}
 <script>
@@ -116,6 +118,8 @@
 </script>
 {%endblock%}
 <script>
+    var error = localStorage.getItem('error-message')
+    $("#span-error").text(error)
     if (localStorage.getItem('displayAlert') === 'true') {
         
         $(document).ready(function () {
@@ -125,10 +129,7 @@
         });
     }
     if (localStorage.getItem('displayError') == 'true'){
-        $(document).ready(function () {
-            $("#error-alert").fadeTo(5000, 500).slideUp(500, function(){
-            $("#error-alert").slideUp(500)})
-        });
+        $("#error-alert").show()
     }
     localStorage.setItem('displayError','false');
     localStorage.setItem('displayAlert', 'false');
@@ -141,29 +142,45 @@
             event.preventDefault();
 
            
-            var formData = $(this).serialize();
+            const formData = new FormData(this);
 
             
             $.ajax({
-                url: $(this).attr("action"),
+                url: "{{request.build_absolute_uri}}",
                 type: "PUT",
                 data: formData,
+                contentType: false,
+                processData: false,
+                headers : {
+                            'Accept': 'application/json'
+                        },
                 success: function (response) {
-                    
                     location.reload()
-                    
-                    
                     localStorage.setItem('displayAlert', 'true')
                     console.log("PUT request successful");
                     
                 },
-                error: function (error) {
-                    
-                    location.reload()
+                error: function(xhr,status,error) {
+                    if (error == "Bad Request") {
+                    var response = xhr.responseJSON;
+                    errors_obj = xhr.responseJSON['errors']
+                    console.log(errors_obj)
+                    var str_error = ""
+                    for (const [key,value] of Object.entries(errors_obj)){
+                    str_error += "Error en el valor: " + key + ". Descripción del error: " + value + "| "
+                    }
+                    console.log(str_error)
+                    localStorage.setItem('error-message', str_error)
                     localStorage.setItem('displayError', 'true')
-                    console.error("PUT request failed");
-                   
+                    location.reload()
+                    console.error('POST request failed');
                 }
+                else {
+                    localStorage.setItem('error-message', 'Ocurrio un problema, porfavor, contacta al jefe de conservación o intentalo de nuevo')
+                    localStorage.setItem('displayError', 'true')
+                    location.reload()
+                }
+        }
             });
         });
     });

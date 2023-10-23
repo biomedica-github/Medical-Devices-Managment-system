@@ -69,10 +69,12 @@ class Equipo_medico(models.Model):
     ESTADO_FUNCIONAL = "FUNC"
     ESTADO_FUERA_SERVICIO = "OUT"
     ESTADO_SERVICIO = "SERV"
+    ESTADO_BAJA = "BAJA"
     ESTADO_OPCIONES = [
         (ESTADO_FUNCIONAL, "Equipo funcional"),
         (ESTADO_FUERA_SERVICIO, "Equipo fuera de servicio"),
         (ESTADO_SERVICIO, "Equipo en mantenimiento"),
+        (ESTADO_BAJA, "Equipo en proceso de baja")
     ]
 
     numero_nacional_inv = models.CharField(max_length=100, unique=True)
@@ -91,12 +93,18 @@ class Equipo_medico(models.Model):
         Area_hospital, on_delete=models.SET_NULL, null=True, related_name="equipos_area"
     )
     cama = models.PositiveIntegerField(null=True)
+    carta_obsolescencia_tercero = models.FileField(null=True, upload_to="Anexos")
+    dictamen_tecnico_propio = models.FileField(null=True, upload_to="Anexos")
+    minuta_baja = models.FileField(null=True, upload_to="Anexos")
+
 
     class Meta:
         ordering = ["nombre_equipo"]
 
     def __str__(self) -> str:
         return f"NNI: {self.numero_nacional_inv} || Nombre: {self.nombre_equipo} || Numero de serie: {self.numero_serie}"
+
+
 
 
 class Orden_Servicio(models.Model):

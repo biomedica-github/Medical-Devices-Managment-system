@@ -22,6 +22,7 @@ class SessionTimeoutMiddleware:
 def custom_exception_handler(exc, context):
     # Handle custom logic here
     exception = str(exc)
+    print(exception)
     response = exception_handler(exc, context)
     if exception == 'Las credenciales de autenticación no se proveyeron.':
         # Customize the response for unauthenticated users here
