@@ -15,7 +15,7 @@ from django.db.models import Q
 from .permissions import IsAdminOrReadOnly
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.decorators import action
-from rest_framework.renderers import BrowsableAPIRenderer
+from rest_framework.renderers import BrowsableAPIRenderer,JSONRenderer 
 from rest_framework import filters, renderers
 from  django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import render
@@ -298,7 +298,8 @@ class CheckListCrearViewSet(mixins.CreateModelMixin, GenericViewSet):
 class CrearOrdenAreaViewset(mixins.CreateModelMixin, GenericViewSet):
     permission_classes = [IsAdminUser, IsAuthenticated]
     serializer_class = serializers.AgregarServicioEquipo
-
+    renderer_classes = [renderers.JSONRenderer]
+    
     def get_serializer_context(self):
         
         return {'equipo': self.kwargs['area_equipo_pk']}
@@ -307,6 +308,7 @@ class CrearOrdenAreaViewset(mixins.CreateModelMixin, GenericViewSet):
 class CrearReporteViewSet(mixins.CreateModelMixin, GenericViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = serializers.CrearReporteSerializer
+    renderer_classes = [JSONRenderer]
 
     def create(self, request, *args, **kwargs):
         equipo = Equipo_medico.objects.filter(area__responsable = request.user.id, id = kwargs['area_equipo_pk'])
