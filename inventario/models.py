@@ -169,54 +169,43 @@ class Orden_Servicio(models.Model):
 
 
 class ReporteUsuario(models.Model):
-    ESTADO_PENDIENTE = "PEN"
-    ESTADO_COMPLETADO = "COM"
-    ESTADO_OPCIONES = [(ESTADO_PENDIENTE, "Pendiente"), (ESTADO_COMPLETADO, "Atendido")]
+        ESTADO_PENDIENTE = "PEN"
+        ESTADO_COMPLETADO = "COM"
+        ESTADO_CERRADO = "CER"
+        ESTADO_OPCIONES = [
+            (ESTADO_PENDIENTE, 'Pendiente'),
+            (ESTADO_COMPLETADO, 'Atendido'),
+            (ESTADO_CERRADO, 'Cerrado')
+        ]
 
-    FALLA_NO_ENCIENDE = "NO/ENC"
-    FALLA_ALARMA = "ALARMA"
-    FALLA_SENSOR = "SENSOR"
-    FALLA_NO_TRABAJA = "NO/TRB"
-    FALLA_NO_PASA_PRUEBA = "NO/PRU"
-    FALLA_PAPEL = "PAPEL"
-    FALLA_OPCIONES = [
-        (FALLA_NO_ENCIENDE, "El equipo no enciende"),
-        (FALLA_ALARMA, "El equipo marca error o alguna alarma"),
-        (
-            FALLA_SENSOR,
-            "Un sensor esta fallando(Brazalette de PANI, sensor de SPO2, Sensores ECG, etc.)",
-        ),
-        (
-            FALLA_NO_TRABAJA,
-            "El equipo no trabaja de forma que deberia(No funcionan perillas, botones, pantalla tactil, etc.)",
-        ),
-        (FALLA_PAPEL, "Hace falta papel"),
-    ]
-    responsable = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        null=True,
-        related_name="responsable_reporte",
-    )
-    estado = models.CharField(
-        max_length=3, choices=ESTADO_OPCIONES, default=ESTADO_PENDIENTE
-    )
-    correo = models.EmailField(null=True)
-    fecha_hora = models.DateTimeField(auto_now_add=True)
-    area = models.ForeignKey(
-        Area_hospital, on_delete=models.SET_NULL, related_name="area_reporte", null=True
-    )
-    equipo = models.ForeignKey(
-        Equipo_medico, on_delete=models.CASCADE, related_name="equipo_reporte"
-    )
-    falla = models.CharField(max_length=6, choices=FALLA_OPCIONES)
-    descripcion = models.CharField(max_length=500, null=True)
-    solucion_tecnico = models.CharField(max_length=500, null=True)
-    orden = models.ForeignKey(Orden_Servicio, on_delete=models.SET_NULL, null=True)
-    equipo_complementario = models.CharField(max_length=500, null=True)
+        FALLA_NO_ENCIENDE = "NO/ENC"
+        FALLA_ALARMA = "ALARMA"
+        FALLA_SENSOR = "SENSOR"
+        FALLA_NO_TRABAJA = "NO/TRB"
+        FALLA_NO_PASA_PRUEBA = "NO/PRU"
+        FALLA_PAPEL = "PAPEL"
+        FALLA_OPCIONES = [
+            (FALLA_NO_ENCIENDE, 'El equipo no enciende'),
+            (FALLA_ALARMA, 'El equipo marca error o alguna alarma'),
+            (FALLA_SENSOR, 'Un sensor esta fallando(Brazalette de PANI, sensor de SPO2, Sensores ECG, etc.)'),
+            (FALLA_NO_TRABAJA, 'El equipo no trabaja de forma que deberia(No funcionan perillas, botones, pantalla tactil, etc.)'),
+            (FALLA_PAPEL, 'Hace falta papel')
+        ]
+        responsable = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, related_name= 'responsable_reporte')
+        estado = models.CharField(max_length= 3, choices=ESTADO_OPCIONES, default=ESTADO_PENDIENTE)
+        correo = models.EmailField(null=True)
+        fecha_hora = models.DateTimeField(auto_now_add=True)
+        area = models.ForeignKey(Area_hospital, on_delete=models.SET_NULL, related_name= 'area_reporte', null=True)
+        equipo = models.ForeignKey(Equipo_medico, on_delete=models.CASCADE, related_name= 'equipo_reporte')
+        falla = models.CharField(max_length= 6, choices=FALLA_OPCIONES)
+        descripcion = models.CharField(max_length= 500, null=True)
+        solucion_tecnico = models.CharField(max_length= 500, null=True)
+        orden = models.ForeignKey(Orden_Servicio, on_delete=models.SET_NULL, null=True)
+        equipo_complementario = models.CharField(max_length=500, null=True)
+        fecha_entrega = models.DateTimeField(auto_now_add=True, null=True)
 
-    class Meta:
-        ordering = ["-fecha_hora"]
+        class Meta:
+            ordering = ['-fecha_hora']
 
 
 class Evento(models.Model):
