@@ -61,10 +61,12 @@ def generarOrdenServicio(orden_de_servicio):
             descripcion = valor
         elif keys[i] == "solucion_tecnico":
             solucion_tecnico = valor
-        elif keys[i] == "orden":
-            numero_orden = str(orden_de_servicio["orden"]["numero_orden"])
-        elif keys[i] == "equipo_complementario":
-            equipo_complementario = valor
+        elif keys[i] == 'orden':
+            numero_orden= str(orden_de_servicio['orden']['numero_orden'])
+        elif keys[i] == 'equipo_complementario':
+            equipo_complementario = str(valor)
+        elif keys[i] == 'fecha_entrega_str':
+            fecha_entrega = str(valor)
         # else:
         #     print(keys[i])
 
@@ -108,14 +110,15 @@ def generarOrdenServicio(orden_de_servicio):
         row.cell(modelo)
         row.cell("N. DE INVENTARIO:")
         row.cell(numero_nacional)
-        row.cell(fecha)
+        row.cell("Reportado:" + fecha)
+        
 
         row = table.row()
         row.cell("SERVICIO:")
         row.cell("Correctivo")
         row.cell("UBICACION:")
         row.cell(area)
-        row.cell("Entrega:" + "")
+        row.cell("Entrega:"+ fecha_entrega)
     pdf.ln(2)
     with pdf.table(
         col_widths=(1, 1, 1, 1, 1),
@@ -166,13 +169,14 @@ def generarOrdenServicio(orden_de_servicio):
         line_height=2.5 * pdf.font_size,
     ) as table:
         row = table.row()
+        
+        row.cell("REFACCIONES O CONSUMIBLES", align='C', colspan=2)
+        
+       
+    with pdf.table(
+        line_height=25
 
-        row.cell("REFACCIONES O CONSUMIBLES", align="C", colspan=2)
-        row = table.row()
-        row.cell("DESCRIPCION", align="C")
-        row.cell("CANTIDAD", align="C")
-
-    with pdf.table(line_height=25) as table:
+        ) as table:
         row = table.row()
         row.cell(equipo_complementario, align="C")
 
@@ -188,15 +192,15 @@ def generarOrdenServicio(orden_de_servicio):
 
     with pdf.table(col_widths=(50, 50), line_height=21) as table:
         row = table.row()
-        row.cell(responsable, align="C")
-        row.cell(area, align="C")
-
+        row.cell("Ramon Ivan Valenzuela Corral", align='C')
+        row.cell(responsable, align='C')
+   
     with pdf.table(
         col_widths=(50, 50),
     ) as table:
         row = table.row()
-        row.cell("BIOMEDICA/CONSERVACION", align="C")
-        row.cell("")
+        row.cell("BIOMEDICA/CONSERVACION", align='C')
+        row.cell(area, align='C')
 
     # Guardar el PDF
 

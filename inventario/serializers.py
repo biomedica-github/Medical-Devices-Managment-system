@@ -506,7 +506,7 @@ class AgregarEquipoAreaSerializer(serializers.ModelSerializer):
         model = Area_hospital
         fields = ['id','nombre_sala','equipos_area', 'responsable']
     equipos_area = serializers.PrimaryKeyRelatedField(many=True, queryset=Equipo_medico.objects.filter(area=None), label= 'Equipos medicos sin area establecida')
-    extra_kwargs = {'responsable': {'required':False}}
+    
 
 class AgregarServicioEquipo(serializers.ModelSerializer):
     estatus = serializers.ChoiceField(choices=Orden_Servicio.ESTATUS_OPCIONES)
@@ -573,6 +573,34 @@ class VerReportesSerializer(serializers.ModelSerializer):
     hora= serializers.SerializerMethodField(method_name='get_hora')
     equipo= ContratoEquiposSerializer(many=False, read_only=True)
     corto= serializers.SerializerMethodField(method_name="get_nombreCorto")
+    areaid= serializers.SerializerMethodField(method_name="get_id")
+    fecha_entrega_str = serializers.SerializerMethodField(method_name="get_fecha_entrega")
+    hora_entrega = serializers.SerializerMethodField(method_name="get_hora_entrega")
+
+    def get_fecha_entrega(self, reporte: ReporteUsuario):
+        entrega = reporte.fecha_entrega
+        if entrega == None:
+            return "2023-10-23T12:00:00"
+        else:    
+            fecha = calcular_fecha(reporte.fecha_entrega)
+
+        return f"{fecha['dia']} {fecha['dia_numero']} de {fecha['mes']} del año {fecha['año']}"
+    
+    def get_hora_entrega(self, reporte: ReporteUsuario):
+        entrega = reporte.fecha_entrega
+        if entrega == None:
+            return "12:00"
+        else:
+            hora = reporte.fecha_entrega
+
+            time = get_time(hora.hour)
+
+            hora_str= hora.strftime("%I:%M %p")
+
+        return hora_str + time
+
+    def get_id(self, reporte: ReporteUsuario):
+        return reporte.equipo.area.id
 
     def get_falla(self, reporte: ReporteUsuario):
         return reporte.get_falla_display()
@@ -623,6 +651,22 @@ class VerReportesPDFSerializer(serializers.ModelSerializer):
     equipo= ContratoEquiposSerializer(many=False, read_only=True)
     corto= serializers.SerializerMethodField(method_name="get_nombreCorto")
     orden = verOrdenReporteSerializer(many=False,read_only=True)
+    fecha_entrega_str = serializers.SerializerMethodField(method_name="get_fecha_entrega")
+    hora_entrega = serializers.SerializerMethodField(method_name="get_hora_entrega")
+
+    def get_fecha_entrega(self, reporte: ReporteUsuario):
+        fecha = calcular_fecha_formato(reporte.fecha_entrega)
+
+        return f"{fecha['año']}-{fecha['mes']}-{fecha['dia']}"
+    
+    def get_hora_entrega(self, reporte: ReporteUsuario):
+        hora = reporte.fecha_entrega
+
+        time = get_time(hora.hour)
+
+        hora_str= hora.strftime("%I:%M %p")
+
+        return hora_str + time
     def get_falla(self, reporte: ReporteUsuario):
         return reporte.get_falla_display()
 
@@ -653,11 +697,10 @@ class AtenderReporteSerializer(serializers.ModelSerializer):
         model = ReporteUsuario
         fields = ['solucion_tecnico','equipo_complementario']
 
-    def save(self, **kwargs):
-        ticket_id = self.context['ticket']
-        self.instance = ReporteUsuario.objects.filter(id=ticket_id).update(estado='COM', **self.validated_data)
-        return self.instance
-
+    # def save(self, **kwargs):
+    #     ticket_id = self.context['ticket']
+    #     self.instance = ReporteUsuario.objects.filter(id=ticket_id).update(estado='COM', **self.validated_data)
+    #     return self.instance
 
 
 class CheckListSerializer(serializers.ModelSerializer):
