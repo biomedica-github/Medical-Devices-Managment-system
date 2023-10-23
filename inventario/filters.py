@@ -53,19 +53,22 @@ class filtro_equipo_servicio(django_filters.FilterSet):
 class filtro_equipo_agenda(django_filters.FilterSet):
     mes = django_filters.ChoiceFilter(choices=fecha_choices, field_name='fecha', lookup_expr='month', label='Mes')
     año = django_filters.NumberFilter(field_name='fecha', lookup_expr='year', label= 'Año')
-    
+    rango = django_filters.DateRangeFilter(label='Rango de fechas')
+
     class Meta:
         model = models.Orden_Servicio
-        fields = ['mes','año', 'fecha']
+        fields = ['mes','año', 'fecha', 'rango']
 
 
 class filtro_agenda(django_filters.FilterSet):
+    
     mes = django_filters.ChoiceFilter(choices=fecha_choices, field_name='fecha', lookup_expr='month', label='Mes')
     año = django_filters.NumberFilter(field_name='fecha', lookup_expr='year', label='Año')
-    
+    shortcut = django_filters.DateRangeFilter(field_name='fecha',label="Atajos de fecha")
+
     class Meta:
         model = models.Evento
-        fields = ['mes', 'fecha', 'año']
+        fields = ['mes', 'fecha', 'año', 'shortcut', 'tipo_evento']
 
 
 class filtro_equipo_checklist(django_filters.FilterSet):

@@ -228,6 +228,29 @@ class EquiposAgendaAreaUsuarioSerializer(serializers.ModelSerializer):
         fields = ['id','numero_nacional_inv', 'nombre_equipo', 'area', 'cama']
     area = serializers.StringRelatedField()
 
+class AgregarEventoEquipoSerializer(serializers.ModelSerializer):
+    TIPO_SERVICIO = "SERVC"
+    TIPO_CAPACITACION = "CAPAC"
+    TIPO_CHECKLIST = "CHECK"
+    TIPO_OPCIONES = [
+        (TIPO_SERVICIO, "Servicio preventivo agendado"),
+        (TIPO_CAPACITACION, "Curso de capacitacion agendada"),
+        (TIPO_CHECKLIST, "Chequeo al equipo agendado"),
+    ]
+
+    tipo_evento = serializers.ChoiceField(choices=TIPO_OPCIONES)
+    class Meta:
+        model = Evento
+        fields = ['fecha', 'tipo_evento']
+
+    def save(self, **kwargs):
+        equipo = self.context['equipo']
+        equipo_med = Equipo_medico.objects.get(id=equipo)
+        self.instance = orden = Evento.objects.create(equipo_medico=equipo_med, **self.validated_data)
+        return self.instance
+
+
+
 class AgregarEventoSerializer(serializers.ModelSerializer):
     TIPO_SERVICIO = "SERVC"
     TIPO_CAPACITACION = "CAPAC"
@@ -242,6 +265,7 @@ class AgregarEventoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Evento
         fields = ['fecha', 'equipo_medico', 'tipo_evento']
+
 
 class AgendaAdminSerializer(serializers.ModelSerializer):
     class Meta:

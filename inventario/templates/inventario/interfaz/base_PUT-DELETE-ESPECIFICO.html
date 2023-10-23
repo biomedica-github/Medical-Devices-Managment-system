@@ -90,20 +90,21 @@
     $(document).ready(function () {
         $("#del-btn").click(function (event) {
             event.preventDefault();
-
+            console.log("hey")
+            $(this).addClass('loading');
             
             $.ajax({
                 url: "{{request.build_absolute_uri }}",
                 type: "DELETE",
                 success: function (response) {
-                    
+                    $('#del-btn').removeClass('loading');
                     localStorage.setItem('displayBorrado', 'true')
                     window.location.href = Previous(url);
                     console.log("DELETE request successful");
                     
                 },
                 error: function (error) {
-                    
+                    $('#del-btn').removeClass('loading');
                     location.reload()
                     localStorage.setItem('displayError', 'true')
                     console.error("DELETE request failed");
