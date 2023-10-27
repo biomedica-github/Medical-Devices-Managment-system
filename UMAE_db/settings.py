@@ -106,14 +106,9 @@ WSGI_APPLICATION = "UMAE_db.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-import dj_database_url
-from decouple import config
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default=config('DATABASE_URL')
-    )
-}
+
+DATABASES = {"default": dj_database_url.config(default=config("DATABASE_URL"))}
 
 
 # Password validation
@@ -184,12 +179,8 @@ DJOSER = {
 }
 
 AUTH_USER_MODEL = 'core.User'
-
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATIC_URL = '/static/'
-
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static'),
+DEBUG = config("DJANGO_DEBUG", default=True, cast=bool)
+SECRET_KEY = config(
+    "SECRET_KEY", default="Coloca la llave default que proporciona Django"
 )
-
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
