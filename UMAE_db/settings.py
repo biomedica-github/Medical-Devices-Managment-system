@@ -27,6 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
@@ -105,15 +106,13 @@ WSGI_APPLICATION = "UMAE_db.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+import dj_database_url
+from decouple import config
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME'),
-        'HOST': os.environ.get('DB_HOST'),
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASSWORD'),
-        'PORT': os.environ.get('DB_PORT')
-    }
+    'default': dj_database_url.config(
+        default=config('DATABASE_URL')
+    )
 }
 
 
@@ -184,24 +183,13 @@ DJOSER = {
     }
 }
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.office365.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'UMAE_conservacion@outlook.com'
-EMAIL_HOST_PASSWORD = 'J6:-KLsh9aJVY&7'
-DEFAULT_FROM_EMAIL = 'UMAE_conservacion@outlook.com'
-SERVER_EMAIL = 'UMAE_conservacion@outlook.com'
+AUTH_USER_MODEL = 'core.User'
 
-AUTH_USER_MODEL = "core.User"
-DEBUG = config("DJANGO_DEBUG", default=True, cast=bool)
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = '/static/'
 
-SECRET_KEY = config(
-    "SECRET_KEY", default="J9r5KsNp3WdVxZ1yA7qH6FgM8L2eTbUoP4I0CzXvYl3N"
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
 )
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-if config('DJANGO_PRODUCTION', default=False, cast=bool):
-    from .setting_production import *
-
-
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
