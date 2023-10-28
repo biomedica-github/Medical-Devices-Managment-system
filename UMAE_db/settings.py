@@ -105,7 +105,16 @@ WSGI_APPLICATION = "UMAE_db.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {"default": dj_database_url.config(default=config("DATABASE_URL"))}
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DB_NAME'),
+        'HOST': os.environ.get('DB_HOST'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'PORT': os.environ.get('DB_PORT')
+    }
+}
 
 
 # Password validation
@@ -137,9 +146,9 @@ TIME_ZONE = "America/Los_Angeles"
 USE_I18N = True
 
 
-SECURE_SSL_REDIRECT = True
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
+# SECURE_SSL_REDIRECT = True
+# CSRF_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
@@ -179,6 +188,9 @@ AUTH_USER_MODEL = "core.User"
 DEBUG = config("DJANGO_DEBUG", default=True, cast=bool)
 
 SECRET_KEY = config(
-    "SECRET_KEY", default="Coloca la llave default que proporciona Django"
+    "SECRET_KEY", default="J9r5KsNp3WdVxZ1yA7qH6FgM8L2eTbUoP4I0CzXvYl3N"
 )
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+if config('DJANGO_PRODUCTION_ENV', default=False, cast=bool):
+    from .setting_production import *
