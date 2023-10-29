@@ -541,7 +541,7 @@ class CrearCheckListSerializer(serializers.ModelSerializer):
         CheckList.objects.create(area=sala_query, equipo = equipo_query, **self.validated_data)
         return self.instance
    
-class CrearReporteSerializer(serializers.ModelSerializer):
+class CrearReporteSerializer(serializers.ModelSerializer): 
     class Meta:
         model = ReporteUsuario
         fields = ['id','falla', 'descripcion']
@@ -558,6 +558,25 @@ class CrearReporteSerializer(serializers.ModelSerializer):
 
 
         self.instance = ReporteUsuario.objects.create(area=sala_query, equipo=equipo_query, responsable=usuario, **self.validated_data)
+        return self.instance
+    
+class CrearAtenderReporteSerializer(serializers.ModelSerializer): 
+    class Meta:
+        model = ReporteUsuario
+        fields = ['id','falla', 'descripcion','solucion_tecnico','equipo_complementario']
+    
+    id = serializers.IntegerField(read_only=True)
+    
+    def save(self, **kwargs):
+        area_equipo = self.context['area']
+        sala_query = Area_hospital.objects.get(id=area_equipo)
+        equipo_med = self.context['equipo']
+        equipo_query = Equipo_medico.objects.get(id=equipo_med)
+        usuario_context = self.context['usuario']
+        usuario = User.objects.get(id=usuario_context)
+
+
+        self.instance = ReporteUsuario.objects.create(area=sala_query, equipo=equipo_query, responsable=usuario, estado ='CER', **self.validated_data)
         return self.instance
 
 class VerReportesSerializer(serializers.ModelSerializer):

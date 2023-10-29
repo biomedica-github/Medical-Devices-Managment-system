@@ -11,6 +11,7 @@
                         <div class="col">
                             <div class="btn-group flex-wrap" role="group">
                                 {%if not contenido.estado == "Equipo en proceso de baja"%}
+                                <button class="btn btn-danger" type="button" style="padding: 6px 17px;--bs-primary: rgb(37,126,62);--bs-primary-rgb: 37,126,62;margin: 10px;" data-bs-target="#modal-4" data-bs-toggle="modal"><i class="fas fa-medkit" style="margin-right: 10px;"></i>Reportar falla/Falta de insumo</button>
                                 <button class="btn btn-success" type="button" style="margin: 10px;color: rgb(254,252,250);" data-bs-target="#modal-3" data-bs-toggle="modal"><i class="fas fa-check" style="margin-right: 10px;"></i>Agregar checklist</button>
                                 <a class="btn btn-secondary" role="button" style="margin: 10px;" href="checklists/"><i class="far fa-calendar-check" style="margin-right: 10px;"></i>Ver checklists</a>
                                 <a class="btn btn-info" role="button" href="{{request.build_absolute_uri}}servicio" style="margin: 10px;color: var(--bs-body-bg);"><i class="fas fa-book" style="margin-right: 10px;"></i>Ver ordenes de servicio</a>
@@ -167,6 +168,25 @@
                                     {%endblock%}
         </div>
                 {%block modales%}
+                <div class="modal fade" role="dialog" tabindex="-1" id="modal-4">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title">Reportar falla en equipo medico</h4><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="agregarreporte">
+                                    {%csrf_token%}
+                                    <fieldset>
+                                        {% render_form reporte template_pack='/form-fields' %}
+                                        <small class="form-text">Porfavor, tomate tu tiempo para describir a detalle la falla ocurrida</small>
+                                        <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cerrar</button><button class="btn btn-primary text-end" style="background-color: var(--bs-form-valid-border-color);" type="submit">Reportar</button></div>
+                                    </fieldset>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="modal fade" role="dialog" tabindex="-1" id="modal-2">
                     <div class="modal-dialog modal-lg" role="document">
                         <div class="modal-content">
@@ -273,6 +293,36 @@
                     });
                     });
   </script>
+  <script>
+    $(document).ready(function () {
+        $("#agregarreporte").submit(function (event) {
+            event.preventDefault();
+
+           
+            var formData = $(this).serialize();
+
+            
+            $.ajax({
+                url: "{%url 'equiponamespace:equipo-reporte-list' contenido.id%}",
+                type: "POST",
+                data: formData,
+                success: function (response) {
+                    location.reload()
+                    localStorage.setItem('displayAlert', 'true')
+                    console.log("PUT request successful");
+                    
+                },
+                error: function (error) {
+                    
+                    location.reload()
+                    localStorage.setItem('displayError', 'true')
+                    console.error("PUT request failed");
+                   
+                }
+            });
+        });
+    });
+</script>
 
                 {%endblock%}
 

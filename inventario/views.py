@@ -212,7 +212,8 @@ class EquipoViewSet(ModelViewSet, CreateHandler):
         putserializer = serializers.CrearEquipoSerializer(instance)
         serializer = serializers.Equipo_Serializer(instance)
         checklist = serializers.CrearCheckListSerializer
-        return Response({'contenido':serializer.data, 'serializer':serializer, 'checklist':checklist, 'putserializer':putserializer, 'baja':serializers.EquipoBajaSerializer(instance)}, template_name='interfaz/Equipo/equipos-especifico-admin.html')    
+        reporte = serializers.CrearAtenderReporteSerializer
+        return Response({'contenido':serializer.data, 'serializer':serializer, 'checklist':checklist, 'reporte':reporte, 'putserializer':putserializer, 'baja':serializers.EquipoBajaSerializer(instance)}, template_name='interfaz/Equipo/equipos-especifico-admin.html')    
 
     def get_serializer_class(self):
         if self.request.method == 'POST' or self.request.method == 'PUT':
@@ -223,6 +224,17 @@ class EquipoViewSet(ModelViewSet, CreateHandler):
 
     def get_serializer_context(self):
         return {'request': self.request}
+    
+    @action(detail=True, methods= ['put'])
+    def atenderTicket(self, request, pk):
+        ticket =self.get_object()
+        serializer = serializers.AtenderReporteSerializer(request.data)
+        print(serializer.data)
+        ticket.solucion_tecnico = serializer.data['solucion_tecnico']
+        ticket.equipo_complementario = serializer.data['equipo_complementario']
+        ticket.estado = 'CER'
+        ticket.save()
+        return Response({'ticket': ticket})
 
 class CheckListViewSet(ModelViewSet, CreateHandler):
     permission_classes = [IsAdminUser]
@@ -328,6 +340,30 @@ class CrearReporteViewSet(mixins.CreateModelMixin, GenericViewSet):
         contexto = {'area': self.kwargs['id_pk'], 'equipo': self.kwargs['area_equipo_pk'], 'usuario': self.request.user.id}
 
         return {'area': self.kwargs['id_pk'], 'equipo': self.kwargs['area_equipo_pk'], 'usuario': self.request.user.id}
+
+class CrearAtenderReporteViewSet(mixins.CreateModelMixin, GenericViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = serializers.CrearAtenderReporteSerializer
+    renderer_classes = [JSONRenderer]
+
+    def create(self, request, *args, **kwargs):
+        print(kwargs)
+        equipo = Equipo_medico.objects.select_related('contrato','area').get(id = kwargs['equipo_pk'])
+        if equipo:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            id = serializer.data['id']
+            return Response(f'Su ID de reporte es: {id}', status=status.HTTP_201_CREATED, headers=headers)
+        return Response('Usuario Incorrecto')
+
+
+    def get_serializer_context(self):
+        equipo = Equipo_medico.objects.select_related('contrato','area').get(id = self.kwargs['equipo_pk'])
+        contexto = {'area': equipo.area.id, 'equipo': equipo.id, 'usuario': self.request.user.id}
+
+        return contexto
     
 class AreaViewSet(ModelViewSet,CreateHandler):
 
