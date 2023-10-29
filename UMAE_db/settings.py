@@ -192,5 +192,5 @@ SECRET_KEY = config(
 )
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-if config('DJANGO_PRODUCTION_ENV', default=False, cast=bool):
+if config('DJANGO_PRODUCTION', default=False, cast=bool):
     from .setting_production import *
