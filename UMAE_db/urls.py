@@ -19,7 +19,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic.base import RedirectView
-
+from django.views.generic import TemplateView
 urlpatterns = [
     path("admin/", admin.site.urls),
     path(
@@ -67,5 +67,4 @@ urlpatterns = [
     path("login/", include(("core.urls", "core"), namespace="authnamespace")),
     path(
         "", RedirectView.as_view(url="/login/", permanent=False), name="root-redirect"
-    ),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    ),path('dashboard', TemplateView.as_view(template_name='inventario/interfaz/dashboard.html'))] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
