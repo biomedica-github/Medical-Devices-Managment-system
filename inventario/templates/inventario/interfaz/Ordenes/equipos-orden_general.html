@@ -46,7 +46,7 @@
                                         {%if user.is_staff%}
                                         href="/orden/general/{{orden.id}}"
                                         {%else%}
-                                        href="{{orden.id}}/"
+                                        href="/area/general/{{area_id}}/servicio/{{orden.id}}/"
                                         {%endif%}
                                         ><strong><span style="color: rgb(37, 126, 62); background-color: rgb(248, 249, 252);">{{orden.numero_orden}} | Motivo {{orden.motivo}}</span></strong></a>
                                         <p>Tipo de orden: {{orden.tipo_orden}}</p>
@@ -93,7 +93,7 @@
                                     <form>
                                         <fieldset>
                                             
-                                            {{filterset.form|crispy}}
+                                            {{filtro.form|crispy}}
                                             
                                             <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cerrar</button><button class="btn btn-primary" type="submit">Buscar</button></div>
                                         </fieldset>
