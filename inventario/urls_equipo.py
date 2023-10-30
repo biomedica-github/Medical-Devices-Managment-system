@@ -10,6 +10,7 @@ equipo_router = routers.NestedDefaultRouter(router, 'general', lookup='equipo')
 equipo_router.register('servicio', views.OrdenViewSet, basename= 'equipo-orden')
 equipo_router.register('agenda', views.AgendaViewSet, basename='equipo-agenda')
 equipo_router.register('checklists', views.CheckListEspecificoViewSet, basename='equipo-check')
+equipo_router.register('levantar_reporte', views.CrearAtenderReporteViewSet, basename='equipo-reporte')
 
 
 # URLConf

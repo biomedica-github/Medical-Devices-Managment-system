@@ -156,8 +156,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATIC_URL = "/static/"
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -184,6 +184,15 @@ DJOSER = {
     }
 }
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.office365.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'UMAE_conservacion@outlook.com'
+EMAIL_HOST_PASSWORD = 'J6:-KLsh9aJVY&7'
+DEFAULT_FROM_EMAIL = 'UMAE_conservacion@outlook.com'
+SERVER_EMAIL = 'UMAE_conservacion@outlook.com'
+
 AUTH_USER_MODEL = "core.User"
 DEBUG = config("DJANGO_DEBUG", default=True, cast=bool)
 
@@ -194,3 +203,5 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 if config('DJANGO_PRODUCTION', default=False, cast=bool):
     from .setting_production import *
+
+

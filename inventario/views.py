@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Generic
 from django.shortcuts import get_object_or_404
 from inventario.models import Proveedor, Contrato, Equipo_medico, Area_hospital, Orden_Servicio, ReporteUsuario, CheckList, Evento
 from django.http import HttpResponse
@@ -30,6 +30,9 @@ from rest_framework.templatetags import rest_framework as template123
 from django.shortcuts import redirect
 from django.core.exceptions import PermissionDenied
 from . import pdf_generator
+from django.core.mail import send_mail
+from core.models import User
+from .background import send_email_async
 
 class CreateHandler(mixins.CreateModelMixin):
     def create(self, request, *args, **kwargs):
@@ -212,7 +215,8 @@ class EquipoViewSet(ModelViewSet, CreateHandler):
         putserializer = serializers.CrearEquipoSerializer(instance)
         serializer = serializers.Equipo_Serializer(instance)
         checklist = serializers.CrearCheckListSerializer
-        return Response({'contenido':serializer.data, 'serializer':serializer, 'checklist':checklist, 'putserializer':putserializer, 'baja':serializers.EquipoBajaSerializer(instance)}, template_name='interfaz/Equipo/equipos-especifico-admin.html')    
+        reporte = serializers.CrearAtenderReporteSerializer
+        return Response({'contenido':serializer.data, 'serializer':serializer, 'checklist':checklist, 'reporte':reporte, 'putserializer':putserializer, 'baja':serializers.EquipoBajaSerializer(instance)}, template_name='interfaz/Equipo/equipos-especifico-admin.html')    
 
     def get_serializer_class(self):
         if self.request.method == 'POST' or self.request.method == 'PUT':
@@ -223,23 +227,47 @@ class EquipoViewSet(ModelViewSet, CreateHandler):
 
     def get_serializer_context(self):
         return {'request': self.request}
+    
+    @action(detail=True, methods= ['put'])
+    def atenderTicket(self, request, pk):
+        ticket =self.get_object()
+        serializer = serializers.AtenderReporteSerializer(request.data)
+        print(serializer.data)
+        ticket.solucion_tecnico = serializer.data['solucion_tecnico']
+        ticket.equipo_complementario = serializer.data['equipo_complementario']
+        ticket.estado = 'CER'
+        ticket.save()
+        return Response({'ticket': ticket})
 
 class CheckListViewSet(ModelViewSet, CreateHandler):
     permission_classes = [IsAdminUser]
-    serializer_class = serializers.CheckListSerializer
     queryset = CheckList.objects.select_related('area','equipo').all()
     template_name = 'interfaz/Checklists/equipo-checklist.html'
     filterset_class = filtros.filtro_equipo_checklist
+
     def get_paginated_response(self, data):
         pagination = self.paginator.get_paginated_response(data)
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
-        putserializer = serializers.CrearEquipoSerializer
+        putserializer = serializers.CrearNuevoCheckListSerializer
         backend_filtro = self.filter_backends[0]
         filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
-        return Response({'content': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer':putserializer, 'filtro':filtro_html})
+        return Response({'content': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer':putserializer, 'filtro':self.filterset_class})
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response({'contenido':serializer.data, 'putserializer':serializers.UpdateCheckListSerializer(instance)}, template_name='interfaz/Checklists/ver-checklists-especifica.html')
 
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.CrearNuevoCheckListSerializer
+        elif self.request.method == 'PUT':
+            return serializers.UpdateCheckListSerializer
+        return serializers.CheckListSerializer
+
+    def get_serializer_context(self):
+        return {'area' }
 
 class LevantarMultipleCheckList(ModelViewSet):
     permission_classes = [IsAdminUser]
@@ -255,11 +283,12 @@ class LevantarMultipleCheckList(ModelViewSet):
 class CheckListEspecificoViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
     template_name='interfaz/Checklists/equipo-checklist.html'
+    filterset_class = filtros.filtro_equipo_checklist
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
-        return Response(serializer.data, template_name='interfaz/Checklists/ver-checklists-especifica.html')
+        return Response({'contenido': serializer.data, 'putserializer': serializers.UpdateCheckListSerializer(instance)}, template_name='interfaz/Checklists/ver-checklists-especifica.html')
 
     def get_paginated_response(self, data):
         
@@ -274,10 +303,12 @@ class CheckListEspecificoViewSet(ModelViewSet):
 
 
     def get_serializer_class(self):
-        if self.request.method == 'POST' or self.request.method == 'PUT':
+        if self.request.method == 'POST':
             return serializers.CrearCheckListSerializer
+        if self.request.method == 'PUT':
+            return serializers.UpdateCheckListSerializer
         return serializers.CheckListSerializer
-    filterset_class = filtros.filtro_equipo_checklist
+    
 
     def get_serializer_context(self):
         sala = Equipo_medico.objects.values('area').get(id=self.kwargs['equipo_pk'])
@@ -311,13 +342,20 @@ class CrearReporteViewSet(mixins.CreateModelMixin, GenericViewSet):
     renderer_classes = [JSONRenderer]
 
     def create(self, request, *args, **kwargs):
-        equipo = Equipo_medico.objects.filter(area__responsable = request.user.id, id = kwargs['area_equipo_pk'])
+        equipo = Equipo_medico.objects.select_related('area').get(area__responsable = request.user.id, id = kwargs['area_equipo_pk'])
         if equipo:
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
             headers = self.get_success_headers(serializer.data)
             id = serializer.data['id']
+            ticket = ReporteUsuario.objects.get(id = id)
+            subject = f"Nuevo reporte de falla para el equipo: {equipo.nombre_equipo} en el area: {equipo.area}"
+            message = f"Se reporto una falla para el equipo {equipo.nombre_equipo} de tipo {ticket.get_falla_display()}. El usuario {ticket.responsable} describio lo siguiente: {ticket.descripcion} Favor de atenderla lo mas pronto posible. El equipo se encuentra el area {equipo.area} en la cama {equipo.cama}"
+            from_email = "UMAE_conservacion@outlook.com"
+            admin_email = User.objects.filter(is_staff=True).values('email')
+            recipient_list = [user['email'] for user in admin_email]
+            send_email_async(subject,message,from_email,recipient_list)
             return Response(f'Su ID de reporte es: {id}', status=status.HTTP_201_CREATED, headers=headers)
         return Response('Usuario Incorrecto')
 
@@ -328,6 +366,30 @@ class CrearReporteViewSet(mixins.CreateModelMixin, GenericViewSet):
         contexto = {'area': self.kwargs['id_pk'], 'equipo': self.kwargs['area_equipo_pk'], 'usuario': self.request.user.id}
 
         return {'area': self.kwargs['id_pk'], 'equipo': self.kwargs['area_equipo_pk'], 'usuario': self.request.user.id}
+
+class CrearAtenderReporteViewSet(mixins.CreateModelMixin, GenericViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = serializers.CrearAtenderReporteSerializer
+    renderer_classes = [JSONRenderer]
+
+    def create(self, request, *args, **kwargs):
+        print(kwargs)
+        equipo = Equipo_medico.objects.select_related('contrato','area').get(id = kwargs['equipo_pk'])
+        if equipo:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            id = serializer.data['id']
+            return Response(f'Su ID de reporte es: {id}', status=status.HTTP_201_CREATED, headers=headers)
+        return Response('Usuario Incorrecto')
+
+
+    def get_serializer_context(self):
+        equipo = Equipo_medico.objects.select_related('contrato','area').get(id = self.kwargs['equipo_pk'])
+        contexto = {'area': equipo.area.id, 'equipo': equipo.id, 'usuario': self.request.user.id}
+
+        return contexto
     
 class AreaViewSet(ModelViewSet,CreateHandler):
 
@@ -361,7 +423,7 @@ class AreaViewSet(ModelViewSet,CreateHandler):
 
 
     def get_serializer_class(self):
-        if self.request.method == 'POST':
+        if self.request.method == 'POST' or self.request.method == 'PUT':
             return AgregarEquipoAreaSerializer
         return AreaSerializer
     
@@ -498,7 +560,7 @@ class CrearOrdenViewSet(ModelViewSet, CreateHandler):
         return Response({'contenido':serializer.data, 'serializer':serializer, 'putserializer':putserializer,}, template_name='interfaz/Ordenes/orden_servicio_especifica-admin.html')
 
 
-class AreaEquipoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
+class AreaEquipoViewSet(GenericViewSet, CreateHandler):
     permission_classes = [IsAdminOrReadOnly, IsAuthenticated]
     filterset_class = filtros.filtro_areas_equipo
     template_name = 'interfaz/Equipo/equipos-general.html'
@@ -507,7 +569,7 @@ class AreaEquipoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, Generi
         pagination = self.paginator.get_paginated_response(data)
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
-        putserializer = serializers.CrearEquipoSerializer
+        putserializer = serializers.CrearEquipoAreaSerializer
         filtro_html = self.filterset_class
         return Response({'content': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer':putserializer, 'filtro':filtro_html})
 
@@ -529,10 +591,15 @@ class AreaEquipoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, Generi
         serializer = serializers.Equipo_Serializer(instance)
         return Response({'contenido':serializer.data, 'putserializer':putserializer}, template_name='interfaz/Equipo/equipos-especifico-usuario.html')       
     
+    def get_serializer_context(self):
+        print(self.kwargs)
+        return {'area': self.kwargs['id_pk']}
 
     def get_serializer_class(self):
         if self.request.method == 'PUT':
             return serializers.CrearEquipoSerializer
+        if self.request.method == 'POST':
+            return serializers.CrearEquipoAreaSerializer
         return serializers.AreaEquipoSerializer
     
     def get_queryset(self):
@@ -725,7 +792,7 @@ class AgendaViewSet(mixins.ListModelMixin, CreateHandler, GenericViewSet):
         filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
         contexto = self.get_serializer_context()
         equipo_med = Equipo_medico.objects.get(id=contexto['equipo'])
-        return Response({'results': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer': serializers.AgregarEventoEquipoSerializer, 'equipo':equipo_med, 'filtro':filtro_html})
+        return Response({'results': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer': serializers.AgregarEventoEquipoSerializer, 'equipo':equipo_med, 'filtro':self.filterset_class})
     
 
     def list(self, request, *args, **kwargs):
@@ -810,6 +877,13 @@ class VerReportesPendientesViewSet(mixins.RetrieveModelMixin, mixins.ListModelMi
         ticket.equipo_complementario = serializer.data['equipo_complementario']
         ticket.estado = 'COM'
         ticket.save()
+        subject = f"Su Ticket a sido atendido."
+        message = f"Su Ticket para el equipo medico: {ticket.equipo} a sido atendido. Porfavor, asegurese de cerrar el ticket en la pestaña de atendidos para concluir con el proceso"
+        from_email = "UMAE_conservacion@outlook.com"
+        admin_email = User.objects.filter(is_staff=True).values('email')
+        recipient_list = []
+        recipient_list.append(ticket.responsable.email)
+        send_email_async(subject,message,from_email,recipient_list)
         return Response({'ticket': ticket})
 
     def get_queryset(self):
@@ -851,10 +925,8 @@ class VerReportesPendientesViewSet(mixins.RetrieveModelMixin, mixins.ListModelMi
         pagination = self.paginator.get_paginated_response(data)
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
-        backend_filtro = self.filter_backends[0]
-        filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
         contexto = self.get_serializer_context()
-        return Response({'results': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer': self.get_serializer_class(), 'filtro':filtro_html})
+        return Response({'results': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer': self.get_serializer_class(), 'filtro':self.filterset_class})
     
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -918,7 +990,7 @@ class VerReportesCompletadosViewSet(mixins.RetrieveModelMixin, mixins.ListModelM
         backend_filtro = self.filter_backends[0]
         filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
         contexto = self.get_serializer_context()
-        return Response({'results': data, 'serializer':serializer, 'putserializer': self.get_serializer_class(), 'filtro':filtro_html})
+        return Response({'results': data, 'serializer':serializer, 'putserializer': self.get_serializer_class(), 'filtro':self.filterset_class})
     
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -998,13 +1070,11 @@ class VerReportesCerradosViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixi
         pagination = self.paginator.get_paginated_response(data)
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
-        backend_filtro = self.filter_backends[0]
-        filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
         contexto = self.get_serializer_context()
-        return Response({'results': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer': self.get_serializer_class(), 'filtro':filtro_html})
+        return Response({'results': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer': self.get_serializer_class(), 'filtro':self.filterset_class})
     
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         putserializer = serializers.AtenderReporteSerializer(instance)
         serializer = serializers.VerReportesSerializer(instance)
-        return Response({'contenido':serializer.data, 'serializer':serializer, 'putserializer':putserializer,}, template_name='interfaz/Tickets/ver_tickets_especifico.html')
+        return Response({'contenido':serializer.data, 'serializer':serializer, 'putserializer':putserializer}, template_name='interfaz/Tickets/ver_tickets_especifico.html')
