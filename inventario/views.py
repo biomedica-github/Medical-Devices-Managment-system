@@ -232,7 +232,6 @@ class EquipoViewSet(ModelViewSet, CreateHandler):
     def atenderTicket(self, request, pk):
         ticket =self.get_object()
         serializer = serializers.AtenderReporteSerializer(request.data)
-        print(serializer.data)
         ticket.solucion_tecnico = serializer.data['solucion_tecnico']
         ticket.equipo_complementario = serializer.data['equipo_complementario']
         ticket.estado = 'CER'
@@ -373,7 +372,6 @@ class CrearAtenderReporteViewSet(mixins.CreateModelMixin, GenericViewSet):
     renderer_classes = [JSONRenderer]
 
     def create(self, request, *args, **kwargs):
-        print(kwargs)
         equipo = Equipo_medico.objects.select_related('contrato','area').get(id = kwargs['equipo_pk'])
         if equipo:
             serializer = self.get_serializer(data=request.data)
@@ -489,7 +487,7 @@ class ServicioAreaViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Gene
             
         def retrieve(self, request, *args, **kwargs):
             
-            salas_permitidas = Area_hospital.objects.values('nombre_sala').get(id=kwargs['id_pk'])
+            salas_permitidas = Area_hospital.objects.values('nombre_sala','id').get(id=kwargs['id_pk'])
             instance = Orden_Servicio.objects.prefetch_related('equipo_medico', 'equipo_medico__area').get(id=kwargs['pk'])
             serializer = serializers.OrdenEquipoSerializer(instance)
         
@@ -503,7 +501,7 @@ class ServicioAreaViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Gene
             
             serializador['equipo_medico'] = lista_equipos_locales
             
-            return Response({'contenido':serializador}, template_name='interfaz/Ordenes/orden_servicio_especifica-admin.html') 
+            return Response({'contenido':serializador, 'area_id':salas_permitidas['id']}, template_name='interfaz/Ordenes/orden_servicio_especifica-admin.html') 
             
     
 class AgendaUsuarioViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
@@ -593,7 +591,6 @@ class AreaEquipoViewSet(GenericViewSet, CreateHandler):
         return Response({'contenido':serializer.data, 'putserializer':putserializer}, template_name='interfaz/Equipo/equipos-especifico-usuario.html')       
     
     def get_serializer_context(self):
-        print(self.kwargs)
         return {'area': self.kwargs['id_pk']}
 
     def get_serializer_class(self):
@@ -1005,7 +1002,6 @@ class VerReportesCompletadosViewSet(mixins.RetrieveModelMixin, mixins.ListModelM
     def atenderTicket(self, request, pk):
         ticket =self.get_object()
         serializer = serializers.AtenderReporteSerializer(request.data)
-        print(serializer.data)
         ticket.solucion_tecnico = serializer.data['solucion_tecnico']
         ticket.equipo_complementario = serializer.data['equipo_complementario']
         ticket.estado = 'COM'
