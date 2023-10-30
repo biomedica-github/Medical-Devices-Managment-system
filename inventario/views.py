@@ -465,7 +465,6 @@ class ServicioAreaViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Gene
         template_name = 'interfaz/Ordenes/equipos-orden_general.html'
 
         def get_queryset(self):
-            
             return Orden_Servicio.objects.prefetch_related('equipo_medico', 'equipo_medico__area', 'equipo_medico__contrato').select_related('contrato').filter(equipo_medico__area__responsable = self.request.user.id, equipo_medico__area=self.kwargs['id_pk']).exclude(estatus='PEN').distinct().all()
         serializer_class = OrdenEquipoSerializer
 
@@ -488,7 +487,7 @@ class ServicioAreaViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Gene
         def retrieve(self, request, *args, **kwargs):
             
             salas_permitidas = Area_hospital.objects.values('nombre_sala','id').get(id=kwargs['id_pk'])
-            instance = Orden_Servicio.objects.prefetch_related('equipo_medico', 'equipo_medico__area').get(id=kwargs['pk'])
+            instance = self.get_object()
             serializer = serializers.OrdenEquipoSerializer(instance)
         
             lista_equipos_locales = []
