@@ -294,11 +294,11 @@ class CheckListEspecificoViewSet(ModelViewSet):
         pagination = self.paginator.get_paginated_response(data)
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
-        putserializer = serializers.CrearEquipoSerializer
+        putserializer = serializers.CrearCheckListSerializer
         equipo=Equipo_medico.objects.get(id=self.kwargs['equipo_pk'])
         backend_filtro = self.filter_backends[0]
         filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
-        return Response({'content': data, 'paginator': self.paginator, 'serializer':serializer, 'equipo':equipo, 'putserializer':putserializer, 'filtro':filtro_html})
+        return Response({'content': data, 'paginator': self.paginator, 'serializer':serializer, 'equipo':equipo, 'putserializer':putserializer, 'filtro':self.filterset_class})
 
 
     def get_serializer_class(self):
@@ -465,12 +465,13 @@ class ServicioAreaViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Gene
         template_name = 'interfaz/Ordenes/equipos-orden_general.html'
 
         def get_queryset(self):
+
             return Orden_Servicio.objects.prefetch_related('equipo_medico', 'equipo_medico__area', 'equipo_medico__contrato').select_related('contrato').filter(equipo_medico__area__responsable = self.request.user.id, equipo_medico__area=self.kwargs['id_pk']).exclude(estatus='PEN').distinct().all()
         serializer_class = OrdenEquipoSerializer
 
         def get_paginated_response(self, data):
             filtro_html = filtros.filtro_ordenarea
-            return Response({'content': data, 'filterset':filtro_html, 'area': 'area'})
+            return Response({'content': data, 'filtro':filtro_html, 'area': 'area', 'area_id':self.kwargs['id_pk']})
 
         def list(self, request, *args, **kwargs):
             queryset = self.filter_queryset(self.get_queryset())
@@ -487,7 +488,7 @@ class ServicioAreaViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Gene
         def retrieve(self, request, *args, **kwargs):
             
             salas_permitidas = Area_hospital.objects.values('nombre_sala','id').get(id=kwargs['id_pk'])
-            instance = self.get_object()
+            instance = Orden_Servicio.objects.prefetch_related('equipo_medico', 'equipo_medico__area').get(id=kwargs['pk'])
             serializer = serializers.OrdenEquipoSerializer(instance)
         
             lista_equipos_locales = []
@@ -613,12 +614,10 @@ class AgendaAreaViewSet(mixins.ListModelMixin, GenericViewSet):
         pagination = self.paginator.get_paginated_response(data)
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
-        backend_filtro = self.filter_backends[0]
-        filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
         contexto = self.get_serializer_context()
-        area= Area_hospital.objects.get(id=self.kwargs['id_pk'])
+        
         equipo_med = Equipo_medico.objects.get(id=contexto['equipo'])
-        return Response({'area':area,'results': data, 'paginator': self.paginator, 'serializer':serializer, 'filtro':filtro_html})
+        return Response({'results': data, 'paginator': self.paginator, 'serializer':serializer, 'areaequipo': equipo_med, 'filtro':self.filterset_class})
     
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -666,16 +665,15 @@ class OrdenEquipoUsuarioViewSet(mixins.ListModelMixin, GenericViewSet):
     permission_classes = [IsAuthenticated]
     template_name = "interfaz/Ordenes/equipos-orden_general.html"
     serializer_class = serializers.OrdenServicioSerializer
+    filterset_class = filtros.filtro_ordenarea
 
     def get_paginated_response(self, data):
+        print(self.kwargs)
         pagination = self.paginator.get_paginated_response(data)
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
-        backend_filtro = self.filter_backends[0]
-        filtro_html = backend_filtro().to_html(request=self.request, queryset=queryset, view=self)
-        contexto = self.get_serializer_context()
         putserializer = serializers.AgregarServicioEquipo
-        return Response({'content': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer': putserializer, 'filtro':filtro_html})
+        return Response({'content': data, 'paginator': self.paginator, 'area_id':self.kwargs['id_pk'], 'serializer':serializer, 'putserializer': putserializer, 'filtro':filtros.filtro_ordenarea})
 
 
     def get_queryset(self):
