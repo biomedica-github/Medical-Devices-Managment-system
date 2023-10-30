@@ -488,6 +488,7 @@ class ServicioAreaViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, Gene
             return Response({'content':serializer.data, 'filterset':filtro_html})
             
         def retrieve(self, request, *args, **kwargs):
+            
             salas_permitidas = Area_hospital.objects.values('nombre_sala').get(id=kwargs['id_pk'])
             instance = Orden_Servicio.objects.prefetch_related('equipo_medico', 'equipo_medico__area').get(id=kwargs['pk'])
             serializer = serializers.OrdenEquipoSerializer(instance)
