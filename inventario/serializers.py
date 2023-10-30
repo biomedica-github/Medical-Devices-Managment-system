@@ -451,6 +451,20 @@ class CrearEquipoSerializer(serializers.ModelSerializer):
 
         extra_kwargs = {'area': {'required': False}}
 
+
+class CrearEquipoAreaSerializer(serializers.ModelSerializer):
+    cama = serializers.IntegerField(required =False, allow_null=True)
+    class Meta:
+        model = Equipo_medico
+        fields = ['numero_nacional_inv', 'nombre_equipo', 'modelo', 'estado', 'numero_serie', 'marca', 'observaciones', 'contrato', 'cama']
+
+    def save(self, **kwargs):
+        area = Area_hospital.objects.get(id = self.context['area'])
+        self.instace = Equipo_medico.objects.create(area = area, **self.validated_data)
+        return self.instance
+
+
+
 class EquipoBajaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Equipo_medico
@@ -524,6 +538,22 @@ class AgregarServicioEquipo(serializers.ModelSerializer):
         self.instance = orden = Orden_Servicio.objects.create(**self.validated_data)
         orden.equipo_medico.add(equipo_med)
         return self.instance
+
+
+class CrearNuevoCheckListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CheckList
+        fields = ['id','bateria','condicion_general', 'enciende', 'sensor_SPO2',
+                  'sensor_TEMP','PANI','sensor_ECG','sensor_PAI','observaciones',
+                  'desempeño_general', 'equipo']
+
+class UpdateCheckListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CheckList
+        fields = ['id','bateria','condicion_general', 'enciende', 'sensor_SPO2',
+                  'sensor_TEMP','PANI','sensor_ECG','sensor_PAI','observaciones',
+                  'desempeño_general']
+    
 
 
 class CrearCheckListSerializer(serializers.ModelSerializer):

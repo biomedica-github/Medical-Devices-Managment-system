@@ -16,10 +16,12 @@
                             {%if contenido.orden%}
                             <div class="col text-end">
                                 <button class="btn btn-secondary" role="button" style="margin: 10px;"><i class="fas fa-file-pdf" style="margin-right: 10px;"></i>Este ticket ya cuenta con una orden de servicio generada</button>
+                                
                             </div>
                             {%else%}
                             <div class="col text-end">
                                 <button class="btn btn-secondary" role="button" style="margin: 10px;" data-bs-target="#modal-1" data-bs-toggle="modal"><i class="fas fa-file-pdf" style="margin-right: 10px;"></i>Generar PDF Orden Servicio</button>
+                                <button class="btn btn-primary" type="button" style="margin: 10px;background: var(--bs-blue);" data-bs-target="#modal-2" data-bs-toggle="modal"><i class="far fa-edit" style="margin-right: 10px;"></i>Editar Solucion Ticket</button>
                             </div>
                             {%endif%}
                             {%elif contenido.estado == "Atendido"%}
@@ -131,6 +133,16 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="card shadow border-start-warning py-2" style="margin: 10px;">
+                                <div class="card-body">
+                                    <div class="row align-items-center no-gutters">
+                                        <div class="col me-2">
+                                            <div class="text-uppercase text-warning fw-bold text-xs mb-1"><span style="color: rgb(37,126,62);border-color: var(--bs-warning-text-emphasis);font-size: 14.2px;">Equipo complementario</span></div>
+                                            <div class="text-dark fw-bold h5 mb-0"><span>{{contenido.equipo_complementario}}</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             {%endif%}
                         </div>
                     </div>
@@ -192,15 +204,15 @@
                             <div class="modal-content">
                                 {%if contenido.estado == "Pendiente"%}
                                 <div class="modal-header">
-                                    <h4 class="modal-title">Atender Ticket</h4><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
+                                    <h4 id = "encabezado" class="modal-title">Atender Ticket</h4><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
                                 </div>
-                                {%elif contenido.estado == "Atendido"%}
+                                {%elif contenido.estado == "Atendido" or contenido.estado == "Cerrado"%}
                                 <div class="modal-header">
-                                    <h4 class="modal-title">Editar Solucion Ticket</h4><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
+                                    <h4 id = "encabezado" class="modal-title">Editar Solucion Ticket</h4><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
                                 </div>
                                 {%endif%}
                                 <div class="modal-body">
-                                    <form id="put-form" action="{{request.build_absolute_uri}}atenderTicket/">
+                                    <form id="put-form" {%if contenido.estado == "Atendido" or contenido.estado == "Pendiente"%} action="{{request.build_absolute_uri}}atenderTicket/" {%elif contenido.estado == "Cerrado"%} action = "{{request.build_absolute_uri}}"{%endif%}>
                                         {%csrf_token%}
                                         <fieldset>
                                             {% render_form putserializer template_pack='/form-fields' %}
@@ -216,7 +228,7 @@
                             <div class="modal-content">
                                 {%if contenido.estado == "Atendido"%}
                                 <div class="modal-header">
-                                    <h4 class="modal-title">Confirmar el servicio del equipo</h4><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
+                                    <h4 id = "encabezado" class="modal-title">Confirmar el servicio del equipo</h4><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
                                 </div>
                                 {%endif%}
                                 <div class="modal-body">
@@ -225,7 +237,7 @@
                                         <fieldset>
                                             
                                             <div class="modal-body"><span style="font-size: 20px;">Estas por confirmar la realizacion del servicio al equipo medico al cual se le levanto un reporte. ¿Estas seguro de confirmar que se hizo el servicio correspondiente y el equipo funciona correctamente?. </span></div>
-                                            <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cerrar</button><button class="btn btn-primary text-end" type="submit">Confrimar Servicio</button></div>
+                                            <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cerrar</button><button class="btn btn-primary text-end" type="submit">Confirmar Servicio</button></div>
                                         </fieldset>
                                     </form>
                                 </div>
@@ -268,6 +280,20 @@
 
 {%block PUTform%}
 <script>
+
+function Previous (url) {
+        url_reversed = url.split("").reverse().slice(1)
+        while(url_reversed[0] != "/"){
+            url_reversed.shift()
+        }
+        return url_reversed.reverse().join("")
+        
+
+    }
+
+    let encabezado = $("#encabezado").text()
+    
+
     $(document).ready(function () {
         $("#put-form").submit(function (event) {
             event.preventDefault();
@@ -282,10 +308,23 @@
                 data: formData,
                 success: function (response) {
                     
-                    window.history.go(-2);
+                    if (encabezado == "Atender Ticket") {
+                        go = Previous(url);
+                        window.location.href = window.location.protocol + '//' + window.location.host + '/' + 'reportes/seleccion/';
+                        
+                        localStorage.setItem('atendidoAlert', 'true')
                     
-                    
+                    }
+                    else if (encabezado == "Confirmar el servicio del equipo")
+                    {
+                        window.location.href = window.location.protocol + '//' + window.location.host + '/' + 'reportes/seleccion/';
+                        localStorage.setItem('cerradoAlert', 'true')
+                        
+                    }
+                    else {
+                    location.reload()
                     localStorage.setItem('displayAlert', 'true')
+                    }
                     console.log("PUT request successful");
                     
                 },

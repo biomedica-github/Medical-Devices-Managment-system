@@ -2,6 +2,20 @@
 {% load static%}
 {%block ticketactivo%} active {%endblock%}
 
+
+{%block alerts%}
+<div class="alert alert-warning alert-dismissible" role="alert" id="error-alert"><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="alert"></button><span><strong id="span-error"></strong></span></div>
+<div id="atendido-alert" class="alert alert-info alert-dismissible" role="alert"><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="alert"></button>
+    <span><strong>Ticket atendido de manera exitosa, por favor, avise al responsable del area para que compruebe el servicio y cierre el ticket</strong></span>
+</div>
+<div id="cerrado-alert" class="alert alert-info alert-dismissible" role="alert"><button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="alert"></button>
+    <span><strong>Ticket cerrado de manera exitosa</strong></span>
+</div>
+{%endblock%}
+
+
+
+
 {%block body%}
            <div id="content">
                 <div class="container py-4 py-xl-5" style="min-height: 100vh;">
@@ -68,6 +82,44 @@
                 
             </div>
             {%endblock%}
+
+{%block scripts%}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+<script defer src="{% static 'assets/js/script.js' %}"></script>
+<script src="{% static 'assets/js/theme.js' %}"></script>
+<script>
+    $("#atendido-alert").hide()
+    $("#cerrado-alert").hide()
+    $("#error-alert").hide()
+
+
+</script>
+
+<script>
+    if (localStorage.getItem('atendidoAlert') == 'true')
+    {
+        
+        $(document).ready(function () {
+            $("#atendido-alert").fadeTo(5000, 500).slideUp(500, function(){
+            $("#atendido-alert").slideUp(500)})
+             
+        });
+        localStorage.setItem('atendidoAlert', 'false')
+    }
+    if (localStorage.getItem('cerradoAlert') == 'true')
+    {   
+        
+        $(document).ready(function () {
+            $("#cerrado-alert").fadeTo(5000, 500).slideUp(500, function(){
+            $("#cerrado-alert").slideUp(500)})
+             
+        });
+        localStorage.setItem('cerradoAlert', 'false')
+    }
+    
+</script>
+{%endblock%}
 </body>
 
 </html>

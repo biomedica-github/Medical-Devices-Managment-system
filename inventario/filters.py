@@ -78,6 +78,9 @@ class filtro_equipo_checklist(django_filters.FilterSet):
     dia = django_filters.NumberFilter(field_name='fecha_hora', lookup_expr='day', label='Dia')
     año = django_filters.NumberFilter(field_name='fecha_hora', lookup_expr='year', label='Año')
     
+    class Meta:
+        model = models.CheckList
+        fields = ['mes', 'dia', 'año']
 
 class filtro_contrato(django_filters.FilterSet):
     num_contrato = django_filters.CharFilter(field_name='num_contrato', lookup_expr='icontains', label= 'Numero de contrato')
