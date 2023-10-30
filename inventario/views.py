@@ -30,6 +30,9 @@ from rest_framework.templatetags import rest_framework as template123
 from django.shortcuts import redirect
 from django.core.exceptions import PermissionDenied
 from . import pdf_generator
+from django.core.mail import send_mail
+from core.models import User
+from .background import send_email_async
 
 class CreateHandler(mixins.CreateModelMixin):
     def create(self, request, *args, **kwargs):
@@ -339,13 +342,20 @@ class CrearReporteViewSet(mixins.CreateModelMixin, GenericViewSet):
     renderer_classes = [JSONRenderer]
 
     def create(self, request, *args, **kwargs):
-        equipo = Equipo_medico.objects.filter(area__responsable = request.user.id, id = kwargs['area_equipo_pk'])
+        equipo = Equipo_medico.objects.select_related('area').get(area__responsable = request.user.id, id = kwargs['area_equipo_pk'])
         if equipo:
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
             headers = self.get_success_headers(serializer.data)
             id = serializer.data['id']
+            ticket = ReporteUsuario.objects.get(id = id)
+            subject = f"Nuevo reporte de falla para el equipo: {equipo.nombre_equipo} en el area: {equipo.area}"
+            message = f"Se reporto una falla para el equipo {equipo.nombre_equipo} de tipo {ticket.get_falla_display()}. El usuario {ticket.responsable} describio lo siguiente: {ticket.descripcion} Favor de atenderla lo mas pronto posible. El equipo se encuentra el area {equipo.area} en la cama {equipo.cama}"
+            from_email = "UMAE_conservacion@outlook.com"
+            admin_email = User.objects.filter(is_staff=True).values('email')
+            recipient_list = [user['email'] for user in admin_email]
+            send_email_async(subject,message,from_email,recipient_list)
             return Response(f'Su ID de reporte es: {id}', status=status.HTTP_201_CREATED, headers=headers)
         return Response('Usuario Incorrecto')
 
@@ -867,6 +877,13 @@ class VerReportesPendientesViewSet(mixins.RetrieveModelMixin, mixins.ListModelMi
         ticket.equipo_complementario = serializer.data['equipo_complementario']
         ticket.estado = 'COM'
         ticket.save()
+        subject = f"Su Ticket a sido atendido."
+        message = f"Su Ticket para el equipo medico: {ticket.equipo} a sido atendido. Porfavor, asegurese de cerrar el ticket en la pestaña de atendidos para concluir con el proceso"
+        from_email = "UMAE_conservacion@outlook.com"
+        admin_email = User.objects.filter(is_staff=True).values('email')
+        recipient_list = []
+        recipient_list.append(ticket.responsable.email)
+        send_email_async(subject,message,from_email,recipient_list)
         return Response({'ticket': ticket})
 
     def get_queryset(self):

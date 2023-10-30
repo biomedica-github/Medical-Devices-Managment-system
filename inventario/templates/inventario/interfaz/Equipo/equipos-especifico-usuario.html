@@ -103,7 +103,7 @@
                                     <fieldset>
                                         {% render_form putserializer template_pack='/form-fields' %}
                                         <small class="form-text">Porfavor, tomate tu tiempo para describir a detalle la falla ocurrida</small>
-                                        <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cerrar</button><button class="btn btn-primary text-end" style="background-color: var(--bs-form-valid-border-color);" type="submit">Reportar</button></div>
+                                        <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cerrar</button><button class="btn btn-primary text-end" onclick="document.body.style.cursor='wait'; return true" style="background-color: var(--bs-form-valid-border-color);" type="submit">Reportar</button></div>
                                     </fieldset>
                                 </form>
                             </div>
@@ -133,7 +133,7 @@
                     
                 },
                 error: function (error) {
-                    
+                    document.body.style.cursor='default';
                     location.reload()
                     localStorage.setItem('displayError', 'true')
                     console.error("PUT request failed");

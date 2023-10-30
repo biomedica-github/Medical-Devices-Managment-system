@@ -216,7 +216,7 @@
                                         {%csrf_token%}
                                         <fieldset>
                                             {% render_form putserializer template_pack='/form-fields' %}
-                                            <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cerrar</button><button id="upd-btn" class="btn btn-primary" type="submit" data-bs-dismiss="modal">Guardar</button></div>
+                                            <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cerrar</button><button id="upd-btn" class="btn btn-primary" type="submit" onclick="document.body.style.cursor='wait'; return true">Guardar</button></div>
                                         </fieldset>
                                 </div>
                             </div>
@@ -235,7 +235,6 @@
                                     <form id="put-form" action="{{request.build_absolute_uri}}cerrarTicket/">
                                         {%csrf_token%}
                                         <fieldset>
-                                            
                                             <div class="modal-body"><span style="font-size: 20px;">Estas por confirmar la realizacion del servicio al equipo medico al cual se le levanto un reporte. ¿Estas seguro de confirmar que se hizo el servicio correspondiente y el equipo funciona correctamente?. </span></div>
                                             <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cerrar</button><button class="btn btn-primary text-end" type="submit">Confirmar Servicio</button></div>
                                         </fieldset>
