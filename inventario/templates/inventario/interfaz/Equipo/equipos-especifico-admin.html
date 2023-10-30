@@ -28,7 +28,7 @@
                         {%endblock%}
 
                         {%block anuncioAgregado%}
-                        <span><strong>Checklist agregada de forma exitosa</strong></span>
+                        <span><strong id = "addSpan"></strong></span>
                         {%endblock%}
 
                         {%block body%}
@@ -245,6 +245,15 @@
                 {%endblock%}
                 {%block customScript%}
                 <script>
+                    if (localStorage.getItem('displayReporte') == 'true'){
+                        $("#addSpan").text("Falla agregada de forma exitosa")
+                        localStorage.setItem('displayReporte', 'false')
+                    }
+                    else{
+                        $("#addSpan").text("Checklist agregada de forma exitosa")
+                    }
+                </script>
+                <script>
                     $(document).ready(function() {
                     $('#baja-form').submit(function(e) {
                         e.preventDefault(); 
@@ -308,7 +317,8 @@
                 data: formData,
                 success: function (response) {
                     location.reload()
-                    localStorage.setItem('displayAlert', 'true')
+                    localStorage.setItem('displayAgregado','true')
+                    localStorage.setItem('displayReporte', 'true')
                     console.log("PUT request successful");
                     
                 },
