@@ -598,8 +598,11 @@ class CrearAtenderReporteSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     
     def save(self, **kwargs):
-        area_equipo = self.context['area']
-        sala_query = Area_hospital.objects.get(id=area_equipo)
+        if self.context['area'] != "no":
+            area_equipo = self.context['area']
+            sala_query = Area_hospital.objects.get(id=area_equipo)
+        else:
+            sala_query = None
         equipo_med = self.context['equipo']
         equipo_query = Equipo_medico.objects.get(id=equipo_med)
         usuario_context = self.context['usuario']
@@ -649,7 +652,11 @@ class VerReportesSerializer(serializers.ModelSerializer):
         return hora_str + time
 
     def get_id(self, reporte: ReporteUsuario):
-        return reporte.equipo.area.id
+        if reporte.equipo.area is not None:
+            return reporte.equipo.area.id
+        else:
+            return 0
+
 
     def get_falla(self, reporte: ReporteUsuario):
         return reporte.get_falla_display()

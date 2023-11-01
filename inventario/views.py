@@ -385,7 +385,12 @@ class CrearAtenderReporteViewSet(mixins.CreateModelMixin, GenericViewSet):
 
     def get_serializer_context(self):
         equipo = Equipo_medico.objects.select_related('contrato','area').get(id = self.kwargs['equipo_pk'])
-        contexto = {'area': equipo.area.id, 'equipo': equipo.id, 'usuario': self.request.user.id}
+        if equipo.area is None:
+            area = "no"
+        else:
+            area == equipo.area.id
+        contexto = {'area': area, 'equipo': equipo.id, 'usuario': self.request.user.id}
+
 
         return contexto
     
