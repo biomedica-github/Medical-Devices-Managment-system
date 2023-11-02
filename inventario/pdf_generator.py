@@ -206,10 +206,11 @@ def generarOrdenServicio(orden_de_servicio):
         row.cell(area, align='C')
 
     # Guardar el PDF
-
+    
     file= BytesIO(pdf.output())
 
     s3 = boto3.client('s3')
-    s3.upload_fileobj(file, "umae-inventario-1", "Ordenes_servicio/" +f"OrdenServicio_{id}_{equipo_medico}.pdf")
+    s3.upload_fileobj(file, "umae-inventario-1", "media/Ordenes_servicio/" +f"OrdenServicio_{id}_{equipo_medico}.pdf")
     file.close()
-    return "Ordenes_servicio/" + f"OrdenServicio_{id}_{equipo_medico}.pdf"
+
+    return "media/Ordenes_servicio/" + f"OrdenServicio_{id}_{equipo_medico}.pdf"
