@@ -388,7 +388,7 @@ class CrearAtenderReporteViewSet(mixins.CreateModelMixin, GenericViewSet):
         if equipo.area is None:
             area = "no"
         else:
-            area == equipo.area.id
+            area = equipo.area.id
         contexto = {'area': area, 'equipo': equipo.id, 'usuario': self.request.user.id}
 
 
