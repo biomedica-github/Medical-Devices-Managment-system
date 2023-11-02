@@ -1,6 +1,8 @@
 from fpdf import FPDF
 from fpdf.fonts import FontFace
 
+import boto3
+import os
 
 class PDF(FPDF):
     def header(self):
@@ -207,5 +209,9 @@ def generarOrdenServicio(orden_de_servicio):
     pdf.output(
         name="media/Ordenes_servicio/" + f"OrdenServicio_{id}_{equipo_medico}.pdf"
     )
+
+    s3 = boto3.client('s3')
+    with open(f"OrdenServicio_{id}_{equipo_medico}.pdf", "rb") as f:
+        s3.upload_fileobj(f, "bucketeer-74a9acd7-e668-4ac9-9fdd-de748191c984", "media/Ordenes_servicio/" + f"OrdenServicio_{id}_{equipo_medico}.pdf")
 
     return "Ordenes_servicio/" + f"OrdenServicio_{id}_{equipo_medico}.pdf"
