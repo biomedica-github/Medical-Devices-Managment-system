@@ -207,11 +207,11 @@ def generarOrdenServicio(orden_de_servicio):
     # Guardar el PDF
 
     pdf.output(
-        name="static/" + f"OrdenServicio_{id}_{equipo_medico}.pdf"
+        name="media/Ordenes_servicio/" + f"OrdenServicio_{id}_{equipo_medico}.pdf"
     )
 
     s3 = boto3.client('s3')
-    with open("static/" + f"OrdenServicio_{id}_{equipo_medico}.pdf", "rb") as f:
+    with open("media/Ordenes_servicio/" + f"OrdenServicio_{id}_{equipo_medico}.pdf", "rb") as f:
         s3.upload_fileobj(f, "bucketeer-74a9acd7-e668-4ac9-9fdd-de748191c984", "Ordenes_servicio/" +f"OrdenServicio_{id}_{equipo_medico}.pdf")
 
-    return f"OrdenServicio_{id}_{equipo_medico}.pdf"
+    return "Ordenes_servicio/" + f"OrdenServicio_{id}_{equipo_medico}.pdf"
