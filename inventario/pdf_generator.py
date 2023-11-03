@@ -210,8 +210,8 @@ def generarOrdenServicio(orden_de_servicio):
     file= BytesIO(pdf.output())
 
     s3 = boto3.client('s3')
-    s3.upload_fileobj(file, "umae-inventario-1", "media/Ordenes_servicio/" +f"OrdenServicio_{id}_{equipo_medico}.pdf")
+    s3.upload_fileobj(file, "umae-inventario-1", "umae-inventario-1/Ordenes_servicio/" +f"OrdenServicio_{id}_{equipo_medico}.pdf")
     file.close()
 
-    return "media/Ordenes_servicio/" + f"OrdenServicio_{id}_{equipo_medico}.pdf"
+    return "umae-inventario-1/Ordenes_servicio/" + f"OrdenServicio_{id}_{equipo_medico}.pdf"
     # return pdf.output(name="media/Ordenes_servicio/" +f"OrdenServicio_{id}_{equipo_medico}.pdf")
