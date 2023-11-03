@@ -185,6 +185,15 @@ DJOSER = {
     }
 }
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.office365.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'UMAE_conservacion@outlook.com'
+EMAIL_HOST_PASSWORD = 'J6:-KLsh9aJVY&7'
+DEFAULT_FROM_EMAIL = 'UMAE_conservacion@outlook.com'
+SERVER_EMAIL = 'UMAE_conservacion@outlook.com'
+
 AUTH_USER_MODEL = "core.User"
 DEBUG = config("DJANGO_DEBUG", default=True, cast=bool)
 
