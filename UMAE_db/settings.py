@@ -107,13 +107,13 @@ WSGI_APPLICATION = "UMAE_db.wsgi.application"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME'),
-        'HOST': os.environ.get('DB_HOST'),
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASSWORD'),
-        'PORT': os.environ.get('DB_PORT')
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("DB_NAME"),
+        "HOST": os.environ.get("DB_HOST"),
+        "USER": os.environ.get("DB_USER"),
+        "PASSWORD": os.environ.get("DB_PASSWORD"),
+        "PORT": os.environ.get("DB_PORT"),
     }
 }
 
@@ -168,7 +168,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 REST_FRAMEWORK = {
     "COERCE_DECIMAL_TO_STRING": False,
     "DEFAULT_AUTHENTICATION_CLASSES": ("inventario.permissons.CustomAuth",),
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "DEFAULT_PAGINATION_CLASS": "inventario.pagination.CustomPagination",
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "PAGE_SIZE": 15,
     "EXCEPTION_HANDLER": "inventario.custom_code.custom_exception_handler",
@@ -185,26 +185,6 @@ DJOSER = {
     }
 }
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.office365.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'UMAE_conservacion@outlook.com'
-EMAIL_HOST_PASSWORD = 'J6:-KLsh9aJVY&7'
-DEFAULT_FROM_EMAIL = 'UMAE_conservacion@outlook.com'
-SERVER_EMAIL = 'UMAE_conservacion@outlook.com'
-
-AUTH_USER_MODEL = "core.User"
-DEBUG = config("DJANGO_DEBUG", default=True, cast=bool)
-
-SECRET_KEY = config(
-    "SECRET_KEY", default="Coloca la llave default que proporciona Django"
-)
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
-if config('DJANGO_PRODUCTION', default=False, cast=bool):
-    from .setting_production import *
-
 S3_ENABLED = config('S3_ENABLED', cast=bool, default=False)
 
 if S3_ENABLED:
@@ -218,3 +198,23 @@ if S3_ENABLED:
     AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.office365.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "UMAE_conservacion@outlook.com"
+EMAIL_HOST_PASSWORD = "J6:-KLsh9aJVY&7"
+DEFAULT_FROM_EMAIL = "UMAE_conservacion@outlook.com"
+SERVER_EMAIL = "UMAE_conservacion@outlook.com"
+
+AUTH_USER_MODEL = "core.User"
+DEBUG = config("DJANGO_DEBUG", default=True, cast=bool)
+
+SECRET_KEY = config(
+    "SECRET_KEY", default="Coloca la llave default que proporciona Django"
+)
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+if config("DJANGO_PRODUCTION", default=False, cast=bool):
+    from .setting_production import *
