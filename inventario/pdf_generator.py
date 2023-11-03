@@ -213,5 +213,5 @@ def generarOrdenServicio(orden_de_servicio):
     s3.upload_fileobj(file, "umae-inventario-1", "umae-inventario-1/Ordenes_servicio/" +f"OrdenServicio_{id}_{equipo_medico}.pdf")
     file.close()
 
-    return "umae-inventario-1/Ordenes_servicio/" + f"OrdenServicio_{id}_{equipo_medico}.pdf"
+    return "Ordenes_servicio/" + f"OrdenServicio_{id}_{equipo_medico}.pdf"
     # return pdf.output(name="media/Ordenes_servicio/" +f"OrdenServicio_{id}_{equipo_medico}.pdf")
