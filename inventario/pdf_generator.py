@@ -1,6 +1,9 @@
 from fpdf import FPDF
 from fpdf.fonts import FontFace
+from io import BytesIO
 
+import boto3
+import os
 
 class PDF(FPDF):
     def header(self):
@@ -203,9 +206,12 @@ def generarOrdenServicio(orden_de_servicio):
         row.cell(area, align='C')
 
     # Guardar el PDF
+    
+    file= BytesIO(pdf.output())
 
-    pdf.output(
-        name="media/Ordenes_servicio/" + f"OrdenServicio_{id}_{equipo_medico}.pdf"
-    )
+    s3 = boto3.client('s3')
+    s3.upload_fileobj(file, "umae-inventario-1", "umae-inventario-1/Ordenes_servicio/" +f"OrdenServicio_{id}_{equipo_medico}.pdf")
+    file.close()
 
     return "Ordenes_servicio/" + f"OrdenServicio_{id}_{equipo_medico}.pdf"
+    # return pdf.output(name="media/Ordenes_servicio/" +f"OrdenServicio_{id}_{equipo_medico}.pdf")
