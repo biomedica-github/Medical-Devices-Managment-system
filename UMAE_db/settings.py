@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "core",
     "django_cleanup.apps.CleanupConfig",
+    "storages",
 ]
 
 INTERNAL_IPS = [
@@ -184,6 +185,20 @@ DJOSER = {
     }
 }
 
+S3_ENABLED = config('S3_ENABLED', cast=bool, default=False)
+
+if S3_ENABLED:
+    AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = config('S3_BUCKET_NAME')
+    AWS_S3_REGION_NAME = config('S3_AWS_REGION')
+    AWS_DEFAULT_ACL = None
+    AWS_S3_SIGNATURE_VERSION = config('S3_SIGNATURE_VERSION', default='s3v4')
+    AWS_S3_ENDPOINT_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.office365.com"
 EMAIL_PORT = 587
@@ -197,7 +212,7 @@ AUTH_USER_MODEL = "core.User"
 DEBUG = config("DJANGO_DEBUG", default=True, cast=bool)
 
 SECRET_KEY = config(
-    "SECRET_KEY", default="J9r5KsNp3WdVxZ1yA7qH6FgM8L2eTbUoP4I0CzXvYl3N"
+    "SECRET_KEY", default="Coloca la llave default que proporciona Django"
 )
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
