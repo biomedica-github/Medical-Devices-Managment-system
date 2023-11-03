@@ -114,3 +114,54 @@
             </div>
 
             {%endblock%}
+{%block PUTform%}
+<script>
+    $(document).ready(function () {
+        $("#put-form").submit(function (event) {
+            event.preventDefault();
+
+           
+            const formData = new FormData(this);
+
+            
+            $.ajax({
+                url: "{{request.build_absolute_uri}}",
+                type: "PATCH",
+                data: formData,
+                contentType: false,
+                processData: false,
+                headers : {
+                            'Accept': 'application/json'
+                        },
+                success: function (response) {
+                    location.reload()
+                    localStorage.setItem('displayAlert', 'true')
+                    console.log("PUT request successful");
+                    
+                },
+                error: function(xhr,status,error) {
+                    if (error == "Bad Request") {
+                    var response = xhr.responseJSON;
+                    errors_obj = xhr.responseJSON['errors']
+                    console.log(errors_obj)
+                    var str_error = ""
+                    for (const [key,value] of Object.entries(errors_obj)){
+                    str_error += "Error en el valor: " + key + ". Descripción del error: " + value + "| "
+                    }
+                    console.log(str_error)
+                    localStorage.setItem('error-message', str_error)
+                    localStorage.setItem('displayError', 'true')
+                    location.reload()
+                    console.error('POST request failed');
+                }
+                else {
+                    localStorage.setItem('error-message', 'Ocurrio un problema, porfavor, contacta al jefe de conservación o intentalo de nuevo')
+                    localStorage.setItem('displayError', 'true')
+                    location.reload()
+                }
+        }
+            });
+        });
+    });
+</script>
+{%endblock%}

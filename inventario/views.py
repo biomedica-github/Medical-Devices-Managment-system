@@ -162,7 +162,7 @@ class ContratoViewSet(ModelViewSet, CreateHandler):
         return Response({'contenido':serializer.data, 'serializer':serializer, 'putserializer':putserializer, 'equipo':equipo}, template_name='interfaz/Contratos/contratos-especifico.html')
     
     def get_serializer_class(self):
-        if self.request.method == 'POST' or self.request.method == 'PUT':
+        if self.request.method == 'POST' or self.request.method == 'PATCH':
             return serializers.CrearContratoSerializer
         return ContratoSerializers
 
@@ -426,7 +426,7 @@ class AreaViewSet(ModelViewSet,CreateHandler):
 
 
     def get_serializer_class(self):
-        if self.request.method == 'POST' or self.request.method == 'PUT':
+        if self.request.method == 'POST' or self.request.method == 'PATCH':
             return AgregarEquipoAreaSerializer
         return AreaSerializer
     
