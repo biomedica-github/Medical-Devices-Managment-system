@@ -34,7 +34,7 @@
                     {%for checklist in content%}
                     <div class="card mx-auto" href="www.google.com" style="margin: 10px;">
                         <div class="card-body border rounded-0 d-inline-flex justify-content-between flex-wrap p-2">
-                            <div class="d-inline ms-0 text-break"><a class="text-break fs-4 d-inline text-decoration-none stretched-link text-break" href="{{request.build_absolute_uri}}{{checklist.id}}/">
+                            <div class="d-inline ms-0 text-break"><a class="text-break fs-4 d-inline text-decoration-none stretched-link text-break" href="{{checklist.id}}/">
                                 <strong><span style="color: rgb(37, 126, 62); background-color: rgb(248, 249, 252);">{{checklist.fecha_str}} | {{checklist.hora}}</span></strong></a>
                                 <p>{{checklist.equipo}}</p>
                             </div>
