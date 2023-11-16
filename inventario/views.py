@@ -68,7 +68,6 @@ class ProveedorViewSet(ModelViewSet):
     serializer_class = ProveedorSerializers
     lookup_field = 'id'
     template_name = 'interfaz/Proveedor/Proveedores-general.html'
-    pagination_class = PageNumberPagination
     raise_exception = True
 
     filterset_class = filtros.filtro_proveedor
