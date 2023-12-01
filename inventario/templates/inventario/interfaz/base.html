@@ -7,7 +7,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Inventario - Proveedores</title>
+    <title>Inventario - {%block titulo%} Proveedores {%endblock%}</title>
     <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="{% static 'assets/img/apple-touch-icon.png'%}">
     <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/img/favicon-16x16.png'%}">
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/img/favicon-32x32.png' %}">
@@ -56,7 +56,7 @@
                     <li class="nav-item"><a class="nav-link{%block checklistactivo%} {%endblock%}" href="{%url 'checklistnamespace:checklist_urls-list'%}"><i class="far fa-clipboard"></i><span>Checklist</span></a>
                     {%endif%}
                     {%if user.is_staff%}
-                    <a class="nav-link{%block agendaactivo%} {%endblock%}" href="{%url 'agendanamespace:agenda_urls-list'%}"><i class="far fa-calendar-alt"></i><span>Agenda</span></a>
+                    <a class="nav-link{%block agendaactivo%} {%endblock%}" href="{%url 'agendanamespace:seleccion'%}"><i class="far fa-calendar-alt"></i><span>Agenda</span></a>
                     {%endif%}
                 </ul>
                 <div class="text-center d-none d-md-inline"><button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button></div>

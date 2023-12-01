@@ -61,7 +61,6 @@
     $(document).ready(function() {
       $('#agregarform').submit(function(e) {
         e.preventDefault(); 
-       
         const formData = new FormData(this);
   
         const method = 'POST'; 
@@ -92,7 +91,7 @@
     $(document).ready(function () {
         $("#del-btn").click(function (event) {
             event.preventDefault();
-            console.log("hey")
+            
             $(this).addClass('loading');
             
             $.ajax({
@@ -142,12 +141,14 @@
             event.preventDefault();
 
            
+            let prueba = $('#put-form').serialize();
+            console.log(prueba)
             const formData = new FormData(this);
 
             
             $.ajax({
                 url: "{{request.build_absolute_uri}}",
-                type: "PUT",
+                type: "PATCH",
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -155,7 +156,7 @@
                             'Accept': 'application/json'
                         },
                 success: function (response) {
-                    location.reload()
+                    location.reload()  
                     localStorage.setItem('displayAlert', 'true')
                     console.log("PUT request successful");
                     

@@ -1,3 +1,4 @@
+from django.db.models.query import prefetch_related_objects
 from typing import Any, Generic
 from django.shortcuts import get_object_or_404
 from inventario.models import Proveedor, Contrato, Equipo_medico, Area_hospital, Orden_Servicio, ReporteUsuario, CheckList, Evento
@@ -118,6 +119,30 @@ class ContratoViewSet(ModelViewSet, CreateHandler):
     filterset_class = filtros.filtro_contrato
     template_name = 'interfaz/Contratos/contratos-general.html'
     filter_backends = [filterbackend.InventarioBackend]
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        queryset = self.filter_queryset(self.get_queryset())
+        if queryset._prefetch_related_lookups:
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance,
+            # and then re-prefetch related objects
+            instance._prefetched_objects_cache = {}
+            prefetch_related_objects([instance], *queryset._prefetch_related_lookups)
+
+        return Response(serializer.data)
+
+    def perform_update(self, serializer):
+        instance = self.get_object().__dict__
+        contrato = Evento.objects.get(contrato_id=instance['id'])
+        contrato.fecha=serializer.validated_data['fecha_vencimiento']
+        serializer.save()
+        contrato.save()
+    
 
     def get_paginated_response(self, data):
         pagination = self.paginator.get_paginated_response(data)
@@ -734,7 +759,9 @@ class AgendaAdminViewset(ModelViewSet,CreateHandler):
             return Response({'errors':new_error}, status=status.HTTP_400_BAD_REQUEST)
     
     def get_serializer_class(self):
-        if self.request.method == 'POST' or self.request.method == 'PUT':
+        if self.request.method == 'POST':
+            return serializers.AgregarEventoPOSTSerializer
+        elif self.request.method == 'PUT' or self.request.method == 'PATCH':
             return serializers.AgregarEventoSerializer
         return serializers.AgendaAdminSerializer
     
@@ -752,10 +779,68 @@ class AgendaAdminViewset(ModelViewSet,CreateHandler):
         backend_filtro = self.filter_backends[0]
         filtro_html = self.filterset_class
 
-        return Response({'results': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer':serializers.AgregarEventoSerializer, 'filtro':filtro_html})
+        return Response({'results': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer':serializers.AgregarEventoPOSTSerializer, 'filtro':filtro_html})
 
 
-    queryset = Evento.objects.select_related('equipo_medico', 'equipo_medico__area', 'equipo_medico__contrato', 'contrato').all()
+    queryset = Evento.objects.select_related('equipo_medico', 'equipo_medico__area', 'equipo_medico__contrato', 'contrato').order_by('-estado', 'fecha').all()
+
+class AgendaContratosViewset(mixins.ListModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
+    template_name = 'interfaz/Agenda/agenda-general-todos.html'
+    permission_classes = [IsAdminUser]
+    filterset_class = filtros.filtro_agenda
+    serializer_class = serializers.AgendaAdminSerializer
+
+    def get_serializer_class(self):
+
+        if self.request.method == 'PUT' or self.request.method == 'PATCH':
+            return serializers.modificarEventoVencimientoContrato
+        return serializers.AgendaAdminSerializer
+
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        queryset = self.filter_queryset(self.get_queryset())
+        if queryset._prefetch_related_lookups:
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance,
+            # and then re-prefetch related objects
+            instance._prefetched_objects_cache = {}
+            prefetch_related_objects([instance], *queryset._prefetch_related_lookups)
+
+        return Response(serializer.data)
+
+    def perform_update(self, serializer):
+        instance = self.get_object().__dict__
+        contrato = Contrato.objects.get(id=instance['contrato_id'])
+        contrato.fecha_vencimiento=serializer.validated_data['fecha']
+        serializer.save()
+        contrato.save()
+
+
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        putserializer = serializers.modificarEventoVencimientoContrato(instance) 
+        serializer = serializers.AgendaAdminSerializer(instance)
+        return Response({'contenido':serializer.data, 'serializer':serializer, 'putserializer':putserializer}, template_name='interfaz/Agenda/agenda-especifica.html')    
+    
+
+    def get_paginated_response(self, data):
+        pagination = self.paginator.get_paginated_response(data)
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        backend_filtro = self.filter_backends[0]
+        filtro_html = self.filterset_class
+
+        return Response({'results': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer':serializers.AgregarEventoPOSTSerializer, 'filtro':filtro_html}) 
+
+    def get_queryset(self):
+        return Evento.objects.select_related('equipo_medico', 'equipo_medico__area', 'equipo_medico__contrato', 'contrato').filter(tipo_evento='CONTR').order_by('fecha').all() 
 
 
 class AgendaViewSet(mixins.ListModelMixin, CreateHandler, GenericViewSet):

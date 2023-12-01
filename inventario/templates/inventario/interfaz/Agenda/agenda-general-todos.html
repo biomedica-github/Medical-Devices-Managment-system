@@ -40,25 +40,29 @@
                                 
                                 {%for orden in results%}
                                 <div class="row position-relative"
-                                {%if orden.dias_restantes_num < 0%}
+                                {%if orden.dias_restantes_num < 0 and orden.estado != "COM"%}
                                 style="background: #8f8f8f; margin-right: 0px;margin-bottom: 10px;padding: 10px;color: var(--bs-primary-text-emphasis);"
-                                {%elif orden.dias_restantes_num <= 10 and orden.dias_restantes_num >= 0%}
+                                {%elif orden.dias_restantes_num <= 10 and orden.dias_restantes_num >= 0 and orden.estado != "COM"%}
                                     style="background: #ffbaba; margin-right: 0px;margin-bottom: 10px;padding: 10px;color: var(--bs-primary-text-emphasis);"
-                                    {%elif orden.dias_restantes_num > 10 and orden.dias_restantes_num <= 30%}
+                                    {%elif orden.dias_restantes_num > 10 and orden.dias_restantes_num <= 30 and orden.estado != "COM"%}
                                     style="background: #f1ffba; margin-right: 0px;margin-bottom: 10px;padding: 10px;color: var(--bs-primary-text-emphasis);"
-                                    {%else%}
+                                    {%elif orden.dias_restantes_num > 30 and orden.estado != "COM"%}
                                     style="background: #badaff; margin-right: 0px;margin-bottom: 10px;padding: 10px;color: var(--bs-primary-text-emphasis);"
+                                    {%else%}
+style="background: #5cb85c; margin-right: 0px;margin-bottom: 10px;padding: 10px;color: var(--bs-primary-text-emphasis);"
                                     {%endif%}>
                                     <div class="col-2 text-center" style="padding-right: 30px;">
                                         <h1 class="display-4"><span class="badge"
-                                            {%if orden.dias_restantes_num < 0%}
+                                            {%if orden.dias_restantes_num < 0 and orden.estado != "COM"%}
                                             style="background: #222524;"
-                                                {%elif orden.dias_restantes_num <= 10 and orden.dias_restantes_num >= 0%}
+                                                {%elif orden.dias_restantes_num <= 10 and orden.dias_restantes_num >= 0 and orden.estado != "COM"%}
                                                 style="background: #ce1126;"
-                                                {%elif orden.dias_restantes_num > 10 and orden.dias_restantes_num <= 30%}
+                                                {%elif orden.dias_restantes_num > 10 and orden.dias_restantes_num <= 30 and orden.estado != "COM"%}
                                                 style="background: #d8b511;"
-                                                {%else%}
+                                                {%elif orden.dias_restantes_num > 30 and orden.estado != "COM"%}
                                                 style="background: #0099b5;"
+                                                {%else%}
+                                                style="background: #234f23;"
                                                 {%endif%}
                                             >{{orden.fecha_read.dia_numero}}</span></h1>
                                         <h5>{{orden.fecha_read.mes}}</h5>
@@ -90,7 +94,14 @@
                                                 {%endif%}
                                             {%endif%}
                                                 <li class="list-inline-item list-inline-item" style="font-size: 20px;"><i class="fas fa-equals" aria-hidden="true"></i> {{orden.tipo_evento}}</li>
-                                                
+                                                {%if orden.estado == "COM"%}
+                                                <li class="list-inline-item list-inline-item" style="font-size: 20px;"><i class="fas fa-check" aria-hidden="true"></i>{{orden.tipo_evento}} Validado/a.</li>
+                                                {%elif orden.estado != "COM" and orden.dias_restantes_num < 0%}
+                                                 <li class="list-inline-item list-inline-item" style="font-size: 20px;"><i class="fas fa-exclamation" aria-hidden="true"></i> {{orden.tipo_evento}} No validado/no registrado.</li>
+                                                 {%else%}
+                                                 <li class="list-inline-item list-inline-item" style="font-size: 20px;"><i class="fas fa-clock" aria-hidden="true"></i> {{orden.tipo_evento}} aun esta pendiente.</li>
+                                                  {%endif%}
+                                               
                                         </ul><span>{{orden.dias_restantes}}</span>
                                     </div>
                                 </div>
