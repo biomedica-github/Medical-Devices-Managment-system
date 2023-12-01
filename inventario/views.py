@@ -474,9 +474,9 @@ class AreaViewSet(ModelViewSet,CreateHandler):
     def agenda(self, request, pk):
         salas_permitidas = Area_hospital.objects.values('nombre_sala').get(id=pk)
         if request.user.is_staff:
-            orden = Evento.objects.select_related('equipo_medico', 'equipo_medico__area', 'equipo_medico__contrato', 'contrato').filter(equipo_medico__area=pk)
+            orden = Evento.objects.select_related('equipo_medico', 'equipo_medico__area', 'equipo_medico__contrato', 'contrato').filter(equipo_medico__area=pk).order_by('-estado','fecha')
         else:
-            orden = Evento.objects.select_related('equipo_medico', 'equipo_medico__area', 'equipo_medico__contrato', 'contrato').filter(equipo_medico__area__responsable = request.user.id, equipo_medico__area=pk)
+            orden = Evento.objects.select_related('equipo_medico', 'equipo_medico__area', 'equipo_medico__contrato', 'contrato').filter(equipo_medico__area__responsable = request.user.id, equipo_medico__area=pk).order_by('-estado','fecha')
         serializer = serializers.AgendaAdminSerializer(orden, many=True)
         area = Area_hospital.objects.get(id=self.kwargs['pk'])
         # for i in serializer.data:
@@ -782,7 +782,7 @@ class AgendaAdminViewset(ModelViewSet,CreateHandler):
         return Response({'results': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer':serializers.AgregarEventoPOSTSerializer, 'filtro':filtro_html})
 
 
-    queryset = Evento.objects.select_related('equipo_medico', 'equipo_medico__area', 'equipo_medico__contrato', 'contrato').order_by('-estado', 'fecha').all()
+    queryset = Evento.objects.select_related('equipo_medico', 'equipo_medico__area', 'equipo_medico__contrato', 'contrato').exclude(tipo_evento='CONTR').order_by('-estado', 'fecha').all()
 
 class AgendaContratosViewset(mixins.ListModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
     template_name = 'interfaz/Agenda/agenda-general-todos.html'
@@ -840,7 +840,7 @@ class AgendaContratosViewset(mixins.ListModelMixin, mixins.UpdateModelMixin, mix
         return Response({'results': data, 'paginator': self.paginator, 'serializer':serializer, 'putserializer':serializers.AgregarEventoPOSTSerializer, 'filtro':filtro_html}) 
 
     def get_queryset(self):
-        return Evento.objects.select_related('equipo_medico', 'equipo_medico__area', 'equipo_medico__contrato', 'contrato').filter(tipo_evento='CONTR').order_by('fecha').all() 
+        return Evento.objects.select_related('equipo_medico', 'equipo_medico__area', 'equipo_medico__contrato', 'contrato').filter(tipo_evento='CONTR').order_by('-estado','fecha').all() 
 
 
 class AgendaViewSet(mixins.ListModelMixin, CreateHandler, GenericViewSet):
@@ -891,7 +891,7 @@ class AgendaViewSet(mixins.ListModelMixin, CreateHandler, GenericViewSet):
         return Response({'results': serializer.data, 'equipo':self.instance}, template_name='interfaz/Equipo/equipos-agenda.html')
 
     def get_queryset(self):
-        return Evento.objects.select_related('equipo_medico', 'equipo_medico__area', 'equipo_medico__contrato', 'contrato').filter(equipo_medico__id = self.kwargs['equipo_pk']).order_by('fecha')
+        return Evento.objects.select_related('equipo_medico', 'equipo_medico__area', 'equipo_medico__contrato', 'contrato').filter(equipo_medico__id = self.kwargs['equipo_pk']).order_by('-estado','fecha')
     def get_serializer_context(self):
         return {'equipo': self.kwargs['equipo_pk']}
 
