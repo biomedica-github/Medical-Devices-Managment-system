@@ -91,7 +91,7 @@ tomlkit==0.12.1
 trove-classifiers==2023.10.18
 typing_extensions==4.8.0
 tzdata==2023.3
-urllib3==2.0.4
+urllib3==1.25
 vine==5.0.0
 virtualenv==20.24.6
 wcwidth==0.2.6
